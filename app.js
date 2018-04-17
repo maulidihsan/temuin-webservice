@@ -3,8 +3,8 @@ const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = require('express')();
-const controllers = require('./controllers');
-const config = require('../config.js').get(process.env.NODE_ENV || 'development');
+const controllers = require('./src/controllers');
+const config = require('./config.js').get(process.env.NODE_ENV || 'development');
 
 const port = process.env.PORT || config.app.port;
 
