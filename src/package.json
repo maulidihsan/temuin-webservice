@@ -1,0 +1,25 @@
+{
+  "name": "temuin",
+  "version": "1.0.0",
+  "description": "TemuIn REST-API",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon app.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt": "^2.0.0",
+    "body-parser": "^1.18.2",
+    "eslint": "^4.19.1",
+    "eslint-config-airbnb-base": "^12.1.0",
+    "eslint-plugin-import": "^2.11.0",
+    "express": "^4.16.3",
+    "express-validator": "^5.1.2",
+    "moment": "^2.22.1",
+    "mongoose": "^5.0.14",
+    "morgan": "^1.9.0",
+    "validator": "^9.4.1"
+  }
+}
