@@ -5,7 +5,8 @@
 /* global it */
 process.env.NODE_ENV = 'test';
 
-const Userdata = require('../src/models/UserModel');
+const UserData = require('../src/models/UserModel');
+const Credentials = require('../src/models/CredsModel');
 
 // Require the dev-dependencies
 const chai = require('chai');
@@ -18,8 +19,10 @@ chai.use(chaiHttp);
 // Our parent block
 describe('Registers', () => {
     beforeEach((done) => { // Before each test we empty the database
-        Userdata.remove({}, (err) => { // eslint-disable-line no-unused-vars
-            done();
+        UserData.remove({}, (err) => { // eslint-disable-line no-unused-vars
+            Credentials.remove({}, (error) => { // eslint-disable-line no-unused-vars
+                done();
+            });
         });
     });
     describe('/POST register', () => {
