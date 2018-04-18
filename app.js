@@ -1,11 +1,12 @@
 /* Dependencies */
 const morgan = require('morgan');
+const path = require('path');
+const fs = require('fs');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const app = require('express')();
 const controllers = require('./src/controllers');
 const config = require('./config.js').get(process.env.NODE_ENV || 'development');
-
 const port = process.env.PORT || config.app.port;
 
 app.use(morgan(config.app.morgan.type, config.app.morgan.options));
@@ -19,12 +20,19 @@ mongoose.connect(config.database).then(
 
 app.use('/', controllers);
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
+  fs.appendFileSync('log.txt', '\r\n'+err);
   const error = req.app.get('env') === 'development' ? err : {};
   // render the error page
   res.status(err.status || 500).json({ success: false, status: 500, message: error });
 });
 app.listen(port, () => {
   console.log('Server started on', port);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error(err);
+  fs.appendFileSync('log.txt', '\r\n'+err);
+  console.log("Node NOT Exiting...");
 });
 
 module.exports = app;

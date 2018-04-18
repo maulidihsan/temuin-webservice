@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt-nodejs');
 const CredsModel = require('../../../models/CredsModel');
 const UserModel = require('../../../models/UserModel');
 

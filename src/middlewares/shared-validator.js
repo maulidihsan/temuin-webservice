@@ -1,5 +1,9 @@
+/* eslint arrow-body-style: [2, "always"] */
+/* eslint-env es6 */
+
 const { check, validationResult } = require('express-validator/check');
 const moment = require('moment');
+const CredsModel = require('../models/CredsModel');
 
 module.exports.registration = [
   check('nama')
@@ -15,17 +19,43 @@ module.exports.registration = [
     .exists()
     .not()
     .isEmpty()
-    .isAlphanumeric(),
+    .isAlphanumeric()
+    .custom((value, { req }) => {
+      return new Promise((resolve, reject) => {
+        CredsModel.findOne({ username: req.body.username }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('Username already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
   check('email')
     .exists()
     .not()
     .isEmpty()
-    .isEmail(),
+    .isEmail()
+    .custom((value, { req }) => {
+      return new Promise((resolve, reject) => {
+        CredsModel.findOne({ email: req.body.email }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('E-mail already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
   check('ttl')
     .exists()
     .not()
     .isEmpty()
-    .custom(value => moment(value).isValid())
+    .custom((value) => { return moment(value).isValid(); })
     .withMessage('Invalid date'),
   check('password')
     .exists()
@@ -36,7 +66,7 @@ module.exports.registration = [
       validationResult(req).throw();
       next();
     } catch (err) {
-      res.status(422).json({ errors: err.mapped() });
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
     }
   },
 ];

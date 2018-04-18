@@ -10,7 +10,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^2.0.0",
+    "bcrypt-nodejs": "0.0.3",
     "body-parser": "^1.18.2",
     "eslint": "^4.19.1",
     "eslint-config-airbnb-base": "^12.1.0",

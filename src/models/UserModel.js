@@ -28,9 +28,15 @@ const UserSchema = new mongoose.Schema({
     type: String,
     validate: value => validator.isIn(value, ['Laki-Laki', 'Perempuan']),
   },
+  created: {
+    type: Date,
+  },
+  lastUpdate: {
+    type: Date,
+  },
 });
 
-UserSchema.pre('save', (next) => {
+UserSchema.pre('save', function (next) {
   if (!this.created) {
     this.created = new Date();
   } else {
