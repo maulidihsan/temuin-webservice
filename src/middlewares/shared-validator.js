@@ -32,7 +32,8 @@ module.exports.registration = [
           resolve(true);
         });
       });
-    }),
+    })
+    .trim(),
   check('email')
     .exists()
     .not()
@@ -57,6 +58,26 @@ module.exports.registration = [
     .isEmpty()
     .custom((value) => { return moment(value).isValid(); })
     .withMessage('Invalid date'),
+  check('password')
+    .exists()
+    .not()
+    .isEmpty(),
+  (req, res, next) => {
+    try {
+      validationResult(req).throw();
+      next();
+    } catch (err) {
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
+    }
+  },
+];
+
+module.exports.auth = [
+  check('usernameOrEmail')
+    .exists()
+    .not()
+    .isEmpty()
+    .trim(),
   check('password')
     .exists()
     .not()
