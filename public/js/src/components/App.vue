@@ -10,7 +10,7 @@
    module.exports = {
       data: function(){
          return{
-            CurrentScreen: 'Register'
+            CurrentScreen: 'Splash'
          }
       },
       components:{

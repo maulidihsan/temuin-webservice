@@ -66,7 +66,6 @@
   	</div>
 </template>
 
-
 <script>
 const axios = require('axios');
 const SyncLoader = require('vue-spinner/dist/vue-spinner.min').SyncLoader;
@@ -74,7 +73,9 @@ const SyncLoader = require('vue-spinner/dist/vue-spinner.min').SyncLoader;
 module.exports = {
    data(){
       return{
+			//untuk status pikcer kalender
          modalPicker: false,
+			//untuk menyimpan form input data
          inputData:{
 				nama: null,
 				email: null,
@@ -83,16 +84,19 @@ module.exports = {
 				jenisKelamin: null,
 				password: null
 			},
+			//untuk status dan data allert
 			allert:{
 				type: null,
 				typeArr: ['success', 'error'],
 				message: null,
 				status: false
 			},
+			//untuk status dan style loading spinner
 			submitLoading:{
 				show: false,
 				color: '#8BC34A'
 			},
+			//untuk status dan style button lanjutkan
 			bottonSubmitStyle:{
 				'background-color': '#8BC34A',
 				'color': 'white',
@@ -101,9 +105,11 @@ module.exports = {
       }
    },
    methods:{
+		//fungsi dipanggil pilih jenis kelamin
       jkChoice: function(jenisKelamin){
          this.inputData.jenisKelamin = jenisKelamin;
 		},
+		//fungsi dipanggil saat tombol lanjutkan
 		registerClick: function(){
 			this.startSubmitLoading();
 			axios.post('/users/registration', this.inputData)
@@ -113,6 +119,9 @@ module.exports = {
 				this.allert.message = 'Registerasi berhasil';
 				this.allert.type = this.allert.typeArr[0];
 				this.allert.status = true;
+
+				//redirect ke login
+				this.$emit('change-screen', 'Login');
 			})
 			.catch(error => {
 				this.finishSubmitLoading();
@@ -122,10 +131,12 @@ module.exports = {
 				console.log(JSON.stringify(error.response.data));
 			});
 		},
+		//saat mulai loading request
 		startSubmitLoading: function(){
 			this.submitLoading.show = true;
 			this.bottonSubmitStyle.display = 'none';
 		},
+		//saat loading selesai
 		finishSubmitLoading: function(){
 			this.submitLoading.show = false;
 			this.bottonSubmitStyle.display = null;
