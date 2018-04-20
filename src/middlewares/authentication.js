@@ -34,10 +34,7 @@ passport.use('local', new LocalStrategy(
         }
         throw new Error('data kosong');
       })
-      .catch((err) => {
-        console.log(err.stack);
-        return done(null, false);
-      });
+      .catch(err => done(null, false)); // eslint-disable-line no-unused-vars
   },
 ));
 
