@@ -15,6 +15,7 @@
     "axios": "^0.18.0",
     "bcrypt": "^2.0.0",
     "body-parser": "^1.18.2",
+    "connect-flash": "^0.1.1",
     "connect-mongo": "^2.0.1",
     "cookie-parser": "^1.4.3",
     "csurf": "^1.9.0",
@@ -31,7 +32,10 @@
     "passport-local": "^1.0.0",
     "validator": "^9.4.1",
     "vue": "^2.5.16",
+<<<<<<< HEAD
     "vue-spinner": "^1.0.3",
+=======
+>>>>>>> 26ebb192fdd0759482f7b118457ce0f23e96eb27
     "vuetify": "^1.0.16"
   },
   "devDependencies": {
