@@ -6,6 +6,9 @@ const dev = {
       type: 'dev',
       options: {},
     },
+    session: {
+      secret: 'developm3nt',
+    },
   },
 };
 

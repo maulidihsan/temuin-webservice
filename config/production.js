@@ -8,6 +8,9 @@ const production = {
         skip: (req, res) => (res.statusCode < 400),
       },
     },
+    session: {
+      secret: 't3mu1npr0d',
+    },
   },
 };
 module.exports = production;

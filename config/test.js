@@ -6,6 +6,9 @@ const test = {
       type: 'tiny',
       options: {},
     },
+    session: {
+      secret: 't3sttt',
+    },
   },
 };
 
