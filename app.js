@@ -39,6 +39,11 @@ mongoose.connect(config.database).then(
 );
 
 app.use('/', controllers);
+
+app.get('/', function(req, res, next){
+  res.sendFile(__dirname + '/index.html');
+})
+
 app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
   fs.appendFileSync('log.txt', '\r\n', err);
   const error = req.app.get('env') === 'development' ? err : {};
