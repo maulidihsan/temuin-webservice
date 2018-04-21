@@ -8,3 +8,22 @@
       </div>
    </div>
 </template>
+
+<script>
+module.exports = {
+   created: function(){
+      console.log('dibuat');
+
+      //sementara
+      var timer = 3000;
+      var countDown = setInterval(() => {
+         timer = timer - 1000;
+         if(timer == 0){
+            clearInterval(countDown);
+            this.$emit('change-screen', 'Login');
+         }
+      }, 1000);
+   }
+}
+</script>
+
