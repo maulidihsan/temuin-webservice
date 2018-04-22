@@ -1,9 +1,12 @@
 const passport = require('passport');
 const bcrypt = require('bcrypt');
 const LocalStrategy = require('passport-local').Strategy;
+const JWTStrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
 const CredsSchema = require('../models/CredsModel');
-const UserSchema = require('../models/UserModel');
+const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE_ENV || 'development');
 
+/**
 passport.serializeUser((user, done) => {
   done(null, user);
 });
@@ -11,30 +14,49 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((obj, done) => {
   done(null, obj);
 });
-
+*/
 passport.use('local', new LocalStrategy(
-  { usernameField: 'usernameOrEmail', passwordField: 'password', passReqToCallback: true },
-  (req, user, password, done) => {
+  { usernameField: 'usernameOrEmail', passwordField: 'password' },
+  (user, password, done) => {
+    let userData = null; // eslint-disable-line no-unused-vars
     CredsSchema.findOne({ $or: [{ username: user }, { email: user }] })
       .then((doc) => {
         if (doc.password) {
+          userData = {
+            id: doc.id,
+            username: doc.username,
+            email: doc.email,
+          };
           return bcrypt.compare(password, doc.password);
         }
         throw new Error('tidak terdaftar');
       })
       .then((isMatched) => {
         if (isMatched) {
-          return UserSchema.findOne({ $or: [{ username: user }, { email: user }] });
+          return done(null, userData, { message: 'Logged In Successfully' });
         }
         throw new Error('tidak cocok');
       })
-      .then((data) => {
-        if (data) {
-          return done(null, data);
-        }
-        throw new Error('data kosong');
+      .catch(err => done(err));
+  },
+));
+
+passport.use('jwt', new JWTStrategy(
+  {
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey: key,
+  },
+  (jwtPayload, done) => {
+    CredsSchema.findById(jwtPayload.id)
+      .then((user) => {
+        const userData = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+        };
+        done(null, userData);
       })
-      .catch(err => done(null, false)); // eslint-disable-line no-unused-vars
+      .catch(err => done(err));
   },
 ));
 

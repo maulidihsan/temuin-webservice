@@ -7,16 +7,13 @@ const CredsModel = require('../models/CredsModel');
 
 module.exports.registration = [
   check('nama')
-    .exists()
     .not()
     .isEmpty(),
   check('jenisKelamin')
-    .exists()
     .not()
     .isEmpty()
     .isIn(['Laki-Laki', 'Perempuan']),
   check('username')
-    .exists()
     .not()
     .isEmpty()
     .isAlphanumeric()
@@ -35,7 +32,6 @@ module.exports.registration = [
     })
     .trim(),
   check('email')
-    .exists()
     .not()
     .isEmpty()
     .isEmail()
@@ -53,13 +49,11 @@ module.exports.registration = [
       });
     }),
   check('ttl')
-    .exists()
     .not()
     .isEmpty()
     .custom((value) => { return moment(value).isValid(); })
     .withMessage('Invalid date'),
   check('password')
-    .exists()
     .not()
     .isEmpty(),
   (req, res, next) => {
@@ -74,12 +68,27 @@ module.exports.registration = [
 
 module.exports.auth = [
   check('usernameOrEmail')
-    .exists()
     .not()
     .isEmpty()
     .trim(),
   check('password')
-    .exists()
+    .not()
+    .isEmpty(),
+  (req, res, next) => {
+    try {
+      validationResult(req).throw();
+      next();
+    } catch (err) {
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
+    }
+  },
+];
+
+module.exports.refreshTokenValidator = [
+  check('usernameOrEmail')
+    .not()
+    .isEmpty(),
+  check('refreshToken')
     .not()
     .isEmpty(),
   (req, res, next) => {
