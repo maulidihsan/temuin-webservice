@@ -1,5 +1,8 @@
 const production = {
   database: 'mongodb://admin:3lli0t!!@159.65.15.106:27017/temuin-prod?ssl=false&authSource=admin',
+  jwt: {
+    secret: 'temuin-prod-very-secret',
+  },
   app: {
     port: 8080,
     morgan: {
