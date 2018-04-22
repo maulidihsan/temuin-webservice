@@ -84,7 +84,7 @@ module.exports.auth = [
   },
 ];
 
-module.exports.refreshToken = [
+module.exports.refreshTokenValidator = [
   check('usernameOrEmail')
     .not()
     .isEmpty(),
