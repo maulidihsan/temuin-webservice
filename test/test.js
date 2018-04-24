@@ -7,7 +7,7 @@ const importTest = (name, path) => {
   });
 };
 
-describe('Starting Unit Testing', () => {
+describe('Starting Unit Testing\n', () => {
   before((done) => {
     const { mongoose } = common;
     mongoose.connection.on('connected', () => {
@@ -17,6 +17,6 @@ describe('Starting Unit Testing', () => {
       done();
     });
   });
-  importTest('Registration', './registration/registration');
-  importTest('Authentication', './authentication/authentication');
+  importTest('1. Registration', './registration/registration');
+  importTest('2. Authentication', './authentication/authentication');
 });
