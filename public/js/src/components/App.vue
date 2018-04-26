@@ -6,11 +6,12 @@
    const Splash = require('./Splash.vue');
    const Register = require('./Register.vue');
    const Login = require('./Login.vue');
+   const Timeline = require('./Timeline.vue');
 
    module.exports = {
       data: function(){
          return{
-            CurrentScreen: 'Splash',
+            CurrentScreen: 'Timeline',
             SessionData: {
                user: null,
                accesToken: null,
@@ -21,7 +22,8 @@
       components:{
          'Splash': Splash,
          'Register': Register,
-         'Login': Login 
+         'Login': Login,
+         'Timeline': Timeline
       },
       methods:{
          changeScreen: function(screenName){
