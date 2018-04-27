@@ -156,3 +156,47 @@ module.exports.newPost = [
     }
   },
 ];
+
+module.exports.updateProfil = [
+  check('data.username')
+    .optional()
+    .custom((value) => {
+      return new Promise((resolve, reject) => {
+        CredsModel.findOne({ username: value }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('Username already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
+  check('data.email')
+    .optional()
+    .custom((value) => {
+      return new Promise((resolve, reject) => {
+        if (!value) {
+          resolve(true);
+        }
+        CredsModel.findOne({ email: value }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('Email already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
+  (req, res, next) => {
+    try {
+      validationResult(req).throw();
+      next();
+    } catch (err) {
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
+    }
+  },
+];

@@ -20,6 +20,9 @@ const UserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  urlFoto: {
+    type: String,
+  },
   ttl: {
     type: Date,
     required: true,
@@ -37,11 +40,12 @@ const UserSchema = new mongoose.Schema({
 });
 
 UserSchema.pre('save', function (next) {
-  if (!this.created) {
-    this.created = new Date();
-  } else {
-    this.lastUpdate = new Date();
-  }
+  this.created = new Date();
+  next();
+});
+
+UserSchema.pre('findOneAndUpdate', function (next) {
+  this.lastUpdate = new Date();
   next();
 });
 

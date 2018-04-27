@@ -34,7 +34,7 @@ const PostSchema = new mongoose.Schema({
   },
   kategori: {
     type: String,
-    validate: value => validator.isIn(['lost', 'found']), // eslint-disable-line
+    validate: value => validator.isIn(value, ['lost', 'found']), // eslint-disable-line
   },
   created: {
     type: Date,
@@ -45,11 +45,12 @@ const PostSchema = new mongoose.Schema({
 });
 
 PostSchema.pre('save', function (next) {
-  if (!this.created) {
-    this.created = new Date();
-  } else {
-    this.lastUpdate = new Date();
-  }
+  this.created = new Date();
+  next();
+});
+
+PostSchema.pre('findOneAndUpdate', function (next) {
+  this.lastUpdate = new Date();
   next();
 });
 module.exports = mongoose.model('Lost', PostSchema, 'lost');
