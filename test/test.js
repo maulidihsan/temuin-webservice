@@ -19,4 +19,5 @@ describe('Starting Unit Testing\n', () => {
   });
   importTest('1. Registration', './registration/registration');
   importTest('2. Authentication', './authentication/authentication');
+  importTest('3. Post Item', './post/post');
 });
