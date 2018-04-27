@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
-const LostSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
   user: {
     id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -31,6 +32,10 @@ const LostSchema = new mongoose.Schema({
   float: {
     type: Number,
   },
+  kategori: {
+    type: String,
+    validate: value => validator.isIn(['lost', 'found']), // eslint-disable-line
+  },
   created: {
     type: Date,
   },
@@ -39,7 +44,7 @@ const LostSchema = new mongoose.Schema({
   },
 });
 
-LostSchema.pre('save', function (next) {
+PostSchema.pre('save', function (next) {
   if (!this.created) {
     this.created = new Date();
   } else {
@@ -47,4 +52,4 @@ LostSchema.pre('save', function (next) {
   }
   next();
 });
-module.exports = mongoose.model('Lost', LostSchema, 'lost');
+module.exports = mongoose.model('Lost', PostSchema, 'lost');

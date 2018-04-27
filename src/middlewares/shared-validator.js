@@ -114,7 +114,7 @@ module.exports.refreshTokenValidator = [
   },
 ];
 
-module.exports.newLost = [
+module.exports.newPost = [
   check('judul')
     .not()
     .isEmpty()
@@ -141,33 +141,12 @@ module.exports.newLost = [
     .isEmpty()
     .withMessage('Empty longitude')
     .isFloat(),
-  (req, res, next) => {
-    try {
-      validationResult(req).throw();
-      next();
-    } catch (err) {
-      res.status(422).json({ success: false, status: 422, errors: err.array() });
-    }
-  },
-];
-
-module.exports.newFound = [
-  check('judul')
+  check('kategori')
     .not()
     .isEmpty()
-    .withMessage('Field kosong'),
-  check('deskripsi')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
-  check('urlGambar')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
-  check('kontak')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
+    .withMessage('Empty longitude')
+    .isIn(['lost', 'found'])
+    .withMessage('Invalid kategori'),
   (req, res, next) => {
     try {
       validationResult(req).throw();

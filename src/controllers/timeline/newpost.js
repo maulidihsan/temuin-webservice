@@ -1,7 +1,7 @@
-const LostModel = require('../../models/LostModel');
+const PostModel = require('../../models/PostModel');
 
 module.exports = (req, res, next) => {
-  const newPost = new LostModel({
+  const newPost = new PostModel({
     user: req.user,
     judul: req.body.judul,
     deskripsi: req.body.deskripsi,
@@ -9,6 +9,7 @@ module.exports = (req, res, next) => {
     lokasi: {
       coordinates: [req.body.lokasi.lng, req.body.lokasi.lat],
     },
+    kategori: req.body.kategori,
     float: 0,
   });
   newPost.save()

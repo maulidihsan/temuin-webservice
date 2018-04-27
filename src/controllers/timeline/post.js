@@ -1,7 +1,7 @@
-const FoundModel = require('../../models/FoundModel');
+const PostModel = require('../../models/PostModel');
 
 module.exports = (req, res, next) => {
-  FoundModel.find({})
+  PostModel.find({})
     .then((posts) => {
       res.status(200).json({ status: 200, success: true, data: posts });
     })
