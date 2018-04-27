@@ -27,7 +27,7 @@ module.exports = (req, res, next) => {
         { $set: dataBaru },
         { new: true },
       ))
-      .then(user => res.status(200).json({ success: true, status: 200, data: user }))
+      .then(user => res.status(201).json({ success: true, status: 201, data: user }))
       .catch(err => next(err));
   } else {
     UserModel.findOneAndUpdate(
@@ -35,7 +35,7 @@ module.exports = (req, res, next) => {
       { $set: dataBaru },
       { new: true },
     )
-      .then(user => res.status(200).json({ success: true, status: 200, data: user }))
+      .then(user => res.status(201).json({ success: true, status: 201, data: user }))
       .catch(err => next(err));
   }
 };
