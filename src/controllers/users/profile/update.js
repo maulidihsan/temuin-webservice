@@ -3,7 +3,7 @@ const CredsModel = require('../../../models/CredsModel');
 
 module.exports = (req, res, next) => {
   const dataBaru = req.body.data;
-  const bannedField = ['created', '_id', '__v'];
+  const bannedField = ['created', '_id', '__v', 'username'];
   Object.keys(dataBaru).map((key, index) => { //eslint-disable-line
     if (bannedField.includes(key)) {
       delete dataBaru[key];
