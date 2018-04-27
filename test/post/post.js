@@ -14,7 +14,7 @@ const {
 let AccessToken;
 chai.use(chaiHttp);
 // Our parent block
-describe('[POST] /users/authenticate', () => {
+describe('[POST] /timeline/post', () => {
     it('it should authenticate with the right credentials', (done) => {
         const User = {
             usernameOrEmail: profile.username,
