@@ -13,7 +13,7 @@ const {
 let AccessToken;
 chai.use(chaiHttp);
 // Our parent block
-describe('[GET] /users/profile', () => {
+describe('[GET] /users/profile [POST] /users/profile/update', () => {
     it('it should authenticate with the right credentials', (done) => {
         const User = {
             usernameOrEmail: profile.username,
