@@ -1,5 +1,5 @@
 <template>
-   <component v-bind:is="CurrentScreen" v-on:change-screen="changeScreen"></component>
+   <component v-bind:is="CurrentScreen" v-on:change-screen="changeScreen" v-on:initSession="initSession"></component>
 </template>
 
 <script>
@@ -10,7 +10,12 @@
    module.exports = {
       data: function(){
          return{
-            CurrentScreen: 'Splash'
+            CurrentScreen: 'Splash',
+            SessionData: {
+               user: null,
+               accesToken: null,
+               refreshToken: null
+            }
          }
       },
       components:{
@@ -21,6 +26,12 @@
       methods:{
          changeScreen: function(screenName){
             this.CurrentScreen = screenName;
+         },
+         initSession: function(data){
+            console.log('session init....');
+            this.SessionData.user = data.user;
+            this.SessionData.accesToken = data.accesToken;
+            this.SessionData.refreshToken = data.refreshToken;
          }
       }
    }
