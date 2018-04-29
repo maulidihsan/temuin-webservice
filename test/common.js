@@ -16,6 +16,15 @@ const profile = {
   jenisKelamin: 'Laki-Laki',
 };
 
+const newpost = {
+  username: 'mldihsn',
+  email: 'maulid@gmail.com',
+  judul: 'Macbook Pro 2015',
+  deskripsi: 'Macbook punya maulid enteng',
+  urlGambar: 'http://i64.tinypic.com/293hd6r.jpg',
+  lokasi: { lat: '40.7143528', lng: '-74.0059731' },
+}
+
 module.exports.mongoose = mongoose;
 module.exports.chai = chai;
 module.exports.assert = chai.assert;
@@ -26,3 +35,4 @@ module.exports.UserData = UserData;
 module.exports.Credentials = Credentials;
 module.exports.app = app;
 module.exports.profile = profile;
+module.exports.newpost = newpost;

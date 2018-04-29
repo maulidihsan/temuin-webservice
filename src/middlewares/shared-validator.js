@@ -114,11 +114,7 @@ module.exports.refreshTokenValidator = [
   },
 ];
 
-module.exports.newLost = [
-  check('judul')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
+module.exports.newPost = [
   check('deskripsi')
     .not()
     .isEmpty()
@@ -141,6 +137,12 @@ module.exports.newLost = [
     .isEmpty()
     .withMessage('Empty longitude')
     .isFloat(),
+  check('kategori')
+    .not()
+    .isEmpty()
+    .withMessage('Empty longitude')
+    .isIn(['lost', 'found'])
+    .withMessage('Invalid kategori'),
   (req, res, next) => {
     try {
       validationResult(req).throw();
@@ -151,23 +153,40 @@ module.exports.newLost = [
   },
 ];
 
-module.exports.newFound = [
-  check('judul')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
-  check('deskripsi')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
-  check('urlGambar')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
-  check('kontak')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
+module.exports.updateProfil = [
+  check('data.username')
+    .optional()
+    .custom((value) => {
+      return new Promise((resolve, reject) => {
+        CredsModel.findOne({ username: value }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('Username already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
+  check('data.email')
+    .optional()
+    .custom((value) => {
+      return new Promise((resolve, reject) => {
+        if (!value) {
+          resolve(true);
+        }
+        CredsModel.findOne({ email: value }, (err, user) => {
+          if (err) {
+            reject(new Error('Server Error'));
+          }
+          if (user) {
+            reject(new Error('Email already in use'));
+          }
+          resolve(true);
+        });
+      });
+    }),
   (req, res, next) => {
     try {
       validationResult(req).throw();

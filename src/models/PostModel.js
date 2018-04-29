@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
+const validator = require('validator');
 
-const LostSchema = new mongoose.Schema({
+const PostSchema = new mongoose.Schema({
   user: {
     id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -11,10 +12,6 @@ const LostSchema = new mongoose.Schema({
     email: {
       type: String,
     },
-  },
-  judul: {
-    type: String,
-    required: true,
   },
   deskripsi: {
     type: String,
@@ -28,8 +25,12 @@ const LostSchema = new mongoose.Schema({
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number] },
   },
-  float: {
+  support: {
     type: Number,
+  },
+  kategori: {
+    type: String,
+    validate: value => validator.isIn(value, ['lost', 'found']), // eslint-disable-line
   },
   created: {
     type: Date,
@@ -39,12 +40,13 @@ const LostSchema = new mongoose.Schema({
   },
 });
 
-LostSchema.pre('save', function (next) {
-  if (!this.created) {
-    this.created = new Date();
-  } else {
-    this.lastUpdate = new Date();
-  }
+PostSchema.pre('save', function (next) {
+  this.created = new Date();
   next();
 });
-module.exports = mongoose.model('Lost', LostSchema, 'lost');
+
+PostSchema.pre('findOneAndUpdate', function (next) {
+  this.lastUpdate = new Date();
+  next();
+});
+module.exports = mongoose.model('Lost', PostSchema, 'lost');
