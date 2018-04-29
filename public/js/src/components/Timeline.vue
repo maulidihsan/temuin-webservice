@@ -13,15 +13,18 @@
           <div class="uk-card-content">
             <div style="height: 3px; background-color: #8BC34A;"></div>
               <div uk-grid style="padding: 8px;">
-                <div class="uk-flex uk-flex-left uk-width-1-2">
+                <div class="uk-flex uk-flex-left uk-width-1-3">
                   <div>
                     <v-btn icon v-on:click="modalPost = false">
                       <v-icon color="light-green">close</v-icon>
                     </v-btn>
                   </div>
                 </div>
-                <div class="uk-flex uk-flex-right uk-width-1-2">
-                  <button class="uk-button uk-button-link" style="color: #8BC34A; margin-right: 4px;"><b>POST</b></button>
+                <div class="uk-flex uk-flex-center uk-flex-middle uk-width-1-3">
+                  <sync-loader v-bind:loading="loadingSendPost.show" v-if="loadingSendPost.show" :color="loadingSendPost.color" size="10"></sync-loader>
+                </div>
+                <div class="uk-flex uk-flex-right uk-width-1-3">
+                  <button class="uk-button uk-button-link" style="color: #8BC34A; margin-right: 4px;" v-on:click="sendPost" v-if="!loadingSendPost.show"><b>POST</b></button>
                 </div>
               </div>
               <div class="uk-flex uk-flex-center">
@@ -32,7 +35,7 @@
                       <img class="uk-border-circle" src="/public/img/user.png" width="38" height="38" style="background-color: white; border: 1px solid #8BC34A;">
                     </div>
                     <div class="uk-width-expand" style="padding: 0px; margin-left: 8px;">
-                      <textarea class="uk-textarea" placeholder="menemukan barang atau kehilangan barang?" style="font-family: Gibson Regular;" rows="8"></textarea>
+                      <textarea class="uk-textarea" placeholder="menemukan barang atau kehilangan barang?" style="font-family: Gibson Regular;" rows="8" v-model="dataPost.deskripsi"></textarea>
                     </div>
                   </div>
 
@@ -61,6 +64,14 @@
                   </div>
 
                   <div style="height: 2px; background-color: #E0E0E0; margin-bottom: 8px; margin-top: 12px;"></div>
+
+                  <div class="uk-flex uk-flex-center" style="margin-top: 24px; margin-left: 0px;" v-if="loadingUpload.show">
+                    <v-progress-circular :value="loadingUpload.value" color="light-green"></v-progress-circular>
+                  </div>
+
+                  <div class="uk-flex uk-flex-center" v-if="!loadingUpload.show">
+                    <img style="max-height: 240px; margin-bottom: 8px;" :src="dataPost.urlGambar">
+                  </div>
 
                 </div>
               </div>
@@ -97,13 +108,20 @@
         </div>
       </v-dialog>
 
+      <!-- snackbar untuk pesan error -->
+      <v-snackbar :timeout="2000" bottom v-model="snackbar" v-if="snackbar">
+        {{ errorMsg }}
+        <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+      </v-snackbar>
    </div>
 </template>
 
 <script>
+  const axios = require('axios');
   const firebase = require('@firebase/app').default;
   require('@firebase/storage');
 
+  const SyncLoader = require('vue-spinner/dist/vue-spinner.min').SyncLoader;
   const LocationPicker = require('./LocationPicker.vue');
 
   // Initialize Firebase
@@ -146,7 +164,6 @@
         ketemuButtonStyle: tidakDipilihStyle,
         txtNamaLokasi: 'belum di set',
         dataPost:{
-          judul: null,
           deskripsi: null,
           urlGambar: null,
           lokasi: {
@@ -155,31 +172,38 @@
           },
           kategori: null
         },
-        arrKategori: ['lost', 'found']
+        arrKategori: ['lost', 'found'],
+        snackbar: false,
+        errorMsg: null,
+        loadingUpload:{
+          show: false,
+          value: 0
+        },
+        loadingSendPost:{
+          show: false,
+				  color: '#8BC34A'
+        }
       }
     },
     methods:{
       showModalPost: function(){
         this.modalPost = true;
-        console.log('dipanggil');
       },
       hilangButtonClick: function(){
         this.hilangButtonStyle = kategoriDipilihStyle;
         this.ketemuButtonStyle = tidakDipilihStyle;
-        this.dataPost.kategori = this.dataPost.arrKategori[0];
+        this.dataPost.kategori = this.arrKategori[0];
       },
       ketemuButtonClick: function(){
         this.ketemuButtonStyle = kategoriDipilihStyle;
         this.hilangButtonStyle = tidakDipilihStyle;
-        this.dataPost.kategori = this.dataPost.arrKategori[1];
+        this.dataPost.kategori = this.arrKategori[1];
       },
       setUrlGambar: function(urlGambar){
         this.dataPost.urlGambar = urlGambar;
-        console.log(this.dataPost.urlGambar);
       },
       //listener lokasi di set dari location picker
       locationSet: function(location){
-        console.log(location);
         var geocoder = new google.maps.Geocoder;
 
         this.dataPost.lokasi = location;
@@ -190,15 +214,47 @@
             if (results[0]) {
               this.txtNamaLokasi = results[0].formatted_address;
             } else {
-              console.log('No results found');
+              this.errorMsg = 'Nama lokasi tidak ditemukan';
+              this.snackbar = true;
             }
           } else {
-            console.log('Geocoder failed due to: ' + status);
+            this.errorMsg = 'Error: ' + status;
+            this.snackbar = true;
           }
         });
 
         //disable modal location picker
         this.modalMap = false;
+      },
+      //kirim post
+      sendPost: function(){
+        this.loadingSendPost.show = true;
+        axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.accessToken}})
+        .then((response) => {
+          this.loadingSendPost.show = false;
+
+          //set ulang section post
+          this.modalPost = false;
+          this.dataPost = {
+            deskripsi: null,
+            urlGambar: null,
+            lokasi: {
+              lat: null,
+              lng: null
+            },
+            kategori: null
+          };
+        }).catch((error) => {
+          this.loadingSendPost.show = false;
+
+          if(error.response.data.status == 422){
+            this.errorMsg = error.response.data.errors[0].param + ' ' + error.response.data.errors[0].msg;
+            this.snackbar = true;
+          }else if(error.response.data.status == 500){
+            this.errorMsg = error.response.data.message;
+            this.snackbar = true;
+          }
+        });
       }
     },
     props:{
@@ -208,11 +264,14 @@
       //listener untuk pilih file dari storage
       var uploader = document.getElementById('select-image');
       uploader.addEventListener('change', (event) => {
+        //enable loading upload
+        this.loadingUpload.show = true;
+
         //get file
         var file = event.target.files[0];
         
         //init ref
-        var ref = firebase.storage().ref('/postImage/img_' + file.name);
+        var ref = firebase.storage().ref('/postImage/img_'+ Date.now() + file.name);
         
         //upload
         var upload = ref.put(file);
@@ -220,14 +279,17 @@
           //update progress
           (snapshot) => {
             var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
+            this.loadingUpload.value = parseInt(progress, 10);
           },
           //error
           (err) => {
-            console.log(err);
+            this.loadingUpload.show = false;
+            this.errorMsg = err.message;
+            this.snackbar = true;
           },
           //complete
           () => {
+            this.loadingUpload.show = false;
             this.dataPost.urlGambar = upload.snapshot.downloadURL;
           }
         );
@@ -248,21 +310,25 @@
           //update progress
           (snapshot) => {
             var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
+            this.loadingUpload.value = parseInt(progress, 10);
           },
           //error
           (err) => {
-            console.log(err);
+            this.loadingUpload.show = false;
+            this.errorMsg = err.message;
+            this.snackbar = true;
           },
           //complete
           () => {
+            this.loadingUpload.show = false;
             this.dataPost.urlGambar = upload.snapshot.downloadURL;
           }
         );
       });
     },
     components:{
-      'LocationPicker': LocationPicker
+      'LocationPicker': LocationPicker,
+      'sync-loader': SyncLoader
     }
   }
   

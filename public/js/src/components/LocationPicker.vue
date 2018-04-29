@@ -7,7 +7,7 @@
           <button class="uk-button uk-button-default uk-button-small btn-bottom uk-flex uk-flex-middle uk-flex-center" v-on:click="$emit('close')">
             <v-icon>close</v-icon>
           </button>
-          <button class="uk-button uk-button-default btn-bottom uk-button-small uk-flex uk-flex-middle uk-flex-center">
+          <button class="uk-button uk-button-default btn-bottom uk-button-small uk-flex uk-flex-middle uk-flex-center" v-on:click="pusatkanLokasi">
             <v-icon>my_location</v-icon>
           </button>
           <button class="uk-button uk-button-default btn-bottom uk-button-small uk-flex uk-flex-middle uk-flex-center" v-on:click="setLokasi">
@@ -16,6 +16,12 @@
         </div>
       </div>
     </v-bottom-nav>
+
+    <!-- snackbar untuk pesan error -->
+    <v-snackbar :timeout="2000" bottom v-model="snackbar" v-if="snackbar">
+      {{ errorMsg }}
+      <v-btn flat color="pink" @click.native="snackbar = false">Close</v-btn>
+    </v-snackbar>
   </div>
 </template>
 
@@ -26,18 +32,21 @@ module.exports = {
       mapStyle:{
         height: screen.height - 40
       },
-      location: null
+      map: null,
+      location: null,
+      snackbar: false,
+      errorMsg: null
     }
   },
   mounted: function(){
-    var map = new google.maps.Map(document.getElementById('map-google'), {
+    this.map = new google.maps.Map(document.getElementById('map-google'), {
       zoom: 14,
       center: {lat: -7.783, lng: 110.367}
     });
 
     var markers = [];
 
-    map.addListener('click', (event) => {
+    this.map.addListener('click', (event) => {
       //set data lokasi
       this.location = event.latLng;
 
@@ -48,7 +57,7 @@ module.exports = {
 
       var marker = new google.maps.Marker({
         position: event.latLng,
-        map: map
+        map: this.map
       });
 
       markers.push(marker);
@@ -61,7 +70,7 @@ module.exports = {
         lokasiUser.lat = position.coords.latitude;
         lokasiUser.lng = position.coords.longitude;
 
-        map.setOptions({
+        this.map.setOptions({
           zoom: 16,
           center: lokasiUser
         });
@@ -70,8 +79,28 @@ module.exports = {
   },
   methods:{
     setLokasi: function(){
+      console.log(this.snackbar);
       //emit event di parent
+      if(this.location == null){
+        this.errorMsg = 'Lokasi belum dipilih';
+        return this.snackbar = true;
+      }
       this.$emit('location-set', {lat: this.location.lat(), lng: this.location.lng()});
+    },
+    pusatkanLokasi: function(){
+      //dapatkan lokasi user saat ini
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition((position) => {
+          var lokasiUser = {};
+          lokasiUser.lat = position.coords.latitude;
+          lokasiUser.lng = position.coords.longitude;
+
+          this.map.setOptions({
+            zoom: 16,
+            center: lokasiUser
+          });
+        })
+      }
     }
   }
 }

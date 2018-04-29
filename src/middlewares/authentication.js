@@ -43,7 +43,7 @@ passport.use('local', new LocalStrategy(
 
 passport.use('jwt', new JWTStrategy(
   {
-    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    jwtFromRequest: ExtractJWT.fromHeader('x-temuin-token'),
     secretOrKey: key,
   },
   (jwtPayload, done) => {

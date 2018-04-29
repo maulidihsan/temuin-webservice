@@ -19,7 +19,7 @@
    module.exports = {
       data: function(){
          return{
-            CurrentScreen: 'Timeline',
+            CurrentScreen: 'Splash',
             SessionData: {
                user: null,
                accessToken: null,
