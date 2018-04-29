@@ -30,14 +30,14 @@ describe('[GET] /users/profile [POST] /users/profile/update', () => {
                 res.body.should.have.property('data').and.to.be.a('object');
                 res.body.data.should.have.property('user').and.to.be.a('object');
                 res.body.data.should.have.property('accessToken').and.to.be.a('string');
-                ({ accessToken: AccessToken } = res.body.data);
+                AccessToken = res.body.data.accessToken;
                 done();
             });
     });
     it('it should get the profile info', (done) => {
         chai.request(app)
             .get('/users/profile')
-            .set('authorization', `Bearer ${AccessToken}`)
+            .set('x-temuin-token', AccessToken)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
@@ -51,11 +51,11 @@ describe('[GET] /users/profile [POST] /users/profile/update', () => {
         const User = {
             data: {
                 nama: 'Jajang Fauzi',
-            },  
+            },
         };
         chai.request(app)
             .post('/users/profile/update')
-            .set('authorization', `Bearer ${AccessToken}`)
+            .set('x-temuin-token', AccessToken)
             .send(User)
             .end((err, res) => {
                 res.should.have.status(201);

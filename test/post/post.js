@@ -31,7 +31,7 @@ describe('[POST] /timeline/post', () => {
                 res.body.should.have.property('data').and.to.be.a('object');
                 res.body.data.should.have.property('user').and.to.be.a('object');
                 res.body.data.should.have.property('accessToken').and.to.be.a('string');
-                ({ accessToken: AccessToken } = res.body.data);
+                AccessToken = res.body.data.accessToken;
                 done();
             });
     });
@@ -39,14 +39,13 @@ describe('[POST] /timeline/post', () => {
         const lostpost = {
             username: newpost.username,
             email: newpost.email,
-            deskripsi: newpost.deskripsi,
             urlGambar: newpost.urlGambar,
             lokasi: newpost.lokasi,
             kategori: 'lost',
-        }
+        };
         chai.request(app)
             .post('/timeline/new_post')
-            .set('authorization', `Bearer ${AccessToken}`)
+            .set('x-temuin-token', AccessToken)
             .send(lostpost)
             .end((err, res) => {
                 res.should.have.status(422);
@@ -67,10 +66,10 @@ describe('[POST] /timeline/post', () => {
             urlGambar: newpost.urlGambar,
             lokasi: newpost.lokasi,
             kategori: 'lost',
-        }
+        };
         chai.request(app)
             .post('/timeline/new_post')
-            .set('authorization', `Bearer ${AccessToken}`)
+            .set('x-temuin-token', AccessToken)
             .send(lostpost)
             .end((err, res) => {
                 res.should.have.status(201);
@@ -90,10 +89,10 @@ describe('[POST] /timeline/post', () => {
             urlGambar: newpost.urlGambar,
             lokasi: newpost.lokasi,
             kategori: 'found',
-        }
+        };
         chai.request(app)
             .post('/timeline/new_post')
-            .set('authorization', `Bearer ${AccessToken}`)
+            .set('x-temuin-token', AccessToken)
             .send(lostpost)
             .end((err, res) => {
                 res.should.have.status(201);
