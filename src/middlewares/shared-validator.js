@@ -115,10 +115,6 @@ module.exports.refreshTokenValidator = [
 ];
 
 module.exports.newPost = [
-  check('judul')
-    .not()
-    .isEmpty()
-    .withMessage('Field kosong'),
   check('deskripsi')
     .not()
     .isEmpty()

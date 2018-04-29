@@ -3,7 +3,6 @@ const PostModel = require('../../models/PostModel');
 module.exports = (req, res, next) => {
   const newPost = new PostModel({
     user: req.user,
-    judul: req.body.judul,
     deskripsi: req.body.deskripsi,
     urlGambar: req.body.urlGambar,
     lokasi: {

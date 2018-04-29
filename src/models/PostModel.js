@@ -13,10 +13,6 @@ const PostSchema = new mongoose.Schema({
       type: String,
     },
   },
-  judul: {
-    type: String,
-    required: true,
-  },
   deskripsi: {
     type: String,
     required: true,
@@ -29,7 +25,7 @@ const PostSchema = new mongoose.Schema({
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number] },
   },
-  float: {
+  support: {
     type: Number,
   },
   kategori: {
