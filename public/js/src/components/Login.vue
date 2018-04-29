@@ -91,7 +91,8 @@ module.exports = {
           this.allert.type = this.allert.typeArr[0];
           this.allert.message = 'Login berhasil';
           this.allert.status = true;
-          this.$emit('initSession', responseBody.data)
+          this.$emit('initSession', responseBody.data);
+          this.$emit('change-screen', 'Timeline');
         })
         .catch(error => {
           console.log(JSON.stringify(error));

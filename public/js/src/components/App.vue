@@ -1,5 +1,10 @@
 <template>
-   <component v-bind:is="CurrentScreen" v-on:change-screen="changeScreen" v-on:initSession="initSession"></component>
+   <component 
+      v-bind:is="CurrentScreen" 
+      v-on:change-screen="changeScreen" 
+      v-on:initSession="initSession" 
+      v-bind:access-token="SessionData.accessToken"></component>
+   
 </template>
 
 <script>
@@ -7,6 +12,9 @@
    const Register = require('./Register.vue');
    const Login = require('./Login.vue');
    const Timeline = require('./Timeline.vue');
+   
+   //sementara
+   const LocationPicker = require('./LocationPicker.vue');
 
    module.exports = {
       data: function(){
@@ -14,7 +22,7 @@
             CurrentScreen: 'Timeline',
             SessionData: {
                user: null,
-               accesToken: null,
+               accessToken: null,
                refreshToken: null
             }
          }
@@ -23,17 +31,21 @@
          'Splash': Splash,
          'Register': Register,
          'Login': Login,
-         'Timeline': Timeline
+         'Timeline': Timeline,
+         'LocationPicker': LocationPicker
       },
       methods:{
          changeScreen: function(screenName){
             this.CurrentScreen = screenName;
          },
          initSession: function(data){
-            console.log('session init....');
+            console.log('data: /n' + JSON.stringify(data));
             this.SessionData.user = data.user;
-            this.SessionData.accesToken = data.accesToken;
+            this.SessionData.accessToken = data.accessToken;
             this.SessionData.refreshToken = data.refreshToken;
+         },
+         getAccesToken: function(){
+            return this.SessionData.accesToken;
          }
       }
    }
