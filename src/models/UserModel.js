@@ -45,7 +45,9 @@ const UserSchema = new mongoose.Schema({
     type: Date,
   },
 });
+
 UserSchema.index({ lastLocation: '2dsphere' });
+
 UserSchema.pre('save', function (next) {
   this.created = new Date();
   if (this.lastLocation.coordinates.length === 0) {
