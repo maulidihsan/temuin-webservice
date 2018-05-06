@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
           $nearSphere: {
             $geometry: {
               type: 'Point',
-              coordinates: [Number(req.query.lng), Number(req.query.lat)],
+              coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)],
             },
             $maxDistance: Number(req.query.radius),
           },
@@ -24,7 +24,7 @@ module.exports = (req, res, next) => {
           $nearSphere: {
             $geometry: {
               type: 'Point',
-              coordinates: [Number(req.query.lng), Number(req.query.lat)],
+              coordinates: [parseFloat(req.query.lng), parseFloat(req.query.lat)],
             },
           },
         },

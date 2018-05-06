@@ -31,6 +31,13 @@ const UserSchema = new mongoose.Schema({
     type: String,
     validate: value => validator.isIn(value, ['Laki-Laki', 'Perempuan']),
   },
+  lastLocation: {
+    type: { type: String, default: 'Point' },
+    coordinates: { type: [Number] },
+  },
+  sockets: {
+    type: [String],
+  },
   created: {
     type: Date,
   },
@@ -38,7 +45,7 @@ const UserSchema = new mongoose.Schema({
     type: Date,
   },
 });
-
+UserSchema.index({ lastLocation: '2dsphere' });
 UserSchema.pre('save', function (next) {
   this.created = new Date();
   next();
