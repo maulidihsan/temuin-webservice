@@ -1,9 +1,9 @@
 const PostModel = require('../../models/PostModel');
+const socket = require('../../middlewares/socket');
 
 module.exports = (req, res, next) => {
   const newPost = new PostModel({
     user: req.user,
-    judul: req.body.judul,
     deskripsi: req.body.deskripsi,
     urlGambar: req.body.urlGambar,
     lokasi: {
@@ -15,6 +15,7 @@ module.exports = (req, res, next) => {
   newPost.save()
     .then((data) => {
       if (data) {
+        socket.notif_new_post(data);
         return res.status(201).json({ success: true, status: 201 });
       }
       throw new Error('Gagal membuat post');

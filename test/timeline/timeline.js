@@ -11,9 +11,10 @@ const {
 } = require('../common');
 
 let AccessToken;
+
 chai.use(chaiHttp);
 // Our parent block
-describe('[GET] /users/profile [POST] /users/profile/update', () => {
+describe('[GET] /users/timeline', () => {
     it('it should authenticate with the right credentials', (done) => {
         const User = {
             usernameOrEmail: profile.username,
@@ -34,35 +35,34 @@ describe('[GET] /users/profile [POST] /users/profile/update', () => {
                 done();
             });
     });
-    it('it should get the profile info', (done) => {
+    it('it should get the timeline', (done) => {
         chai.request(app)
-            .get('/users/profile')
-            .set('x-temuin-token', AccessToken)
+            .get('/timeline?lat=40.7143528&lng=-74.0059731&radius=2')
+            .set('x-temuin-token', AccessToken )
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
                 res.body.should.have.property('success').and.to.be.a('boolean');
                 res.body.should.have.property('status').and.to.be.a('number');
-                res.body.should.have.property('data').and.to.be.a('object');
+                res.body.should.have.property('data').and.to.be.a('array');
+                // res.body.data.should.have.property('lokasi').and.to.be.a('object');
                 done();
             });
     });
-    it('it should change the profile info', (done) => {
-        const User = {
-            data: {
-                nama: 'Jajang Fauzi',
-            },
-        };
+});
+
+describe('[GET] /users/location', () => {
+    it('it should get the user location', (done) => {
         chai.request(app)
-            .post('/users/profile/update')
+            .get('/users/location?lat=40.7143528&lng=-74.0059731')
             .set('x-temuin-token', AccessToken)
-            .send(User)
             .end((err, res) => {
                 res.should.have.status(201);
                 res.body.should.be.a('object');
                 res.body.should.have.property('success').and.to.be.a('boolean');
                 res.body.should.have.property('status').and.to.be.a('number');
                 res.body.should.have.property('data').and.to.be.a('object');
+                res.body.data.should.have.property('lastLocation').and.to.be.a('object');
                 done();
             });
     });

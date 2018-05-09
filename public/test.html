@@ -1,0 +1,11 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
+<script>
+    var socket = io.connect( "http://localhost:3000"); // TIP: io() with no args does auto-discovery
+    socket.on('whois', function (data, cb) { // TIP: you can avoid listening on `connect` and listen on events directly too!
+      alert('whois');
+        cb('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhZGI2NWJjNzNiMzI1OWY4NTMzYjkxYyIsInVzZXJuYW1lIjoiYmFndXMiLCJlbWFpbCI6Imloc2FuQGdtYWlsLmNvbSIsImlhdCI6MTUyNTU4ODQxMCwiZXhwIjoxNTI1NjI0NDEwfQ.GALrs1do7F4KXlYZRpStv5F7Du_tFbfD8fOq0_HkeRE')
+    });
+    socket.on('new_post', function (data) {
+        alert('new post');
+    });
+  </script>

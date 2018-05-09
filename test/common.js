@@ -6,6 +6,7 @@ const Credentials = require('../src/models/CredsModel');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app');
+const ioClient = require('socket.io-client');
 
 const profile = {
   email: 'maulid@gmail.com',
@@ -31,6 +32,7 @@ module.exports.assert = chai.assert;
 module.exports.should = chai.should();
 module.exports.expect = chai.expect;
 module.exports.chaiHttp = chaiHttp;
+module.exports.ioClient = ioClient;
 module.exports.UserData = UserData;
 module.exports.Credentials = Credentials;
 module.exports.app = app;

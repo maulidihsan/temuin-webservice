@@ -13,10 +13,6 @@ const PostSchema = new mongoose.Schema({
       type: String,
     },
   },
-  judul: {
-    type: String,
-    required: true,
-  },
   deskripsi: {
     type: String,
     required: true,
@@ -29,7 +25,7 @@ const PostSchema = new mongoose.Schema({
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number] },
   },
-  float: {
+  support: {
     type: Number,
   },
   kategori: {
@@ -43,7 +39,7 @@ const PostSchema = new mongoose.Schema({
     type: Date,
   },
 });
-
+PostSchema.index({ lokasi: '2dsphere' });
 PostSchema.pre('save', function (next) {
   this.created = new Date();
   next();
@@ -53,4 +49,4 @@ PostSchema.pre('findOneAndUpdate', function (next) {
   this.lastUpdate = new Date();
   next();
 });
-module.exports = mongoose.model('Lost', PostSchema, 'lost');
+module.exports = mongoose.model('Post', PostSchema, 'posts');
