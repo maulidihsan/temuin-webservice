@@ -5,18 +5,20 @@ const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE
 let IO;
 module.exports = (io) => {
   IO = io;
-  io.on('connection', (socket) => {
-    socket.emit('whois', socket.id, (data) => {
-      jwt.verify(data, key, (err, decoded) => {
-        socket.username = decoded.username; // eslint-disable-line
-        UserModel.findOneAndUpdate(
-          { username: decoded.username },
-          { $addToSet: { sockets: socket.id } },
-        )
-          .then(() => console.log('user connected'))
-          .catch(error => console.log(error));
-      });
+  io.use((socket, next) => {
+    const header = socket.handshake.headers['x-temuin-token'];
+    jwt.verify(header, key, (err, decoded) => {
+      socket.username = decoded.username; // eslint-disable-line
+      UserModel.findOneAndUpdate(
+        { username: decoded.username },
+        { $addToSet: { sockets: socket.id } },
+      )
+        .then(() => next())
+        .catch(error => console.log(error));
     });
+    return next(new Error('authentication error'));
+  });
+  io.on('connection', (socket) => {
     socket.on('disconnect', () => {
       UserModel.findOneAndUpdate(
         { username: socket.username },
