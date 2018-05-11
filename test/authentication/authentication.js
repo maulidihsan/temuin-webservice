@@ -68,7 +68,7 @@ describe('[POST] /users/authenticate', () => {
                 res.body.data.should.have.property('accessToken').and.to.be.a('string');
                 res.body.data.should.have.property('refreshToken').and.to.be.a('string');
                 const AccessToken = res.body.data.accessToken;
-                exports.AccessToken = AccessToken;
+                exports.Token = AccessToken;
                 done();
             });
     });

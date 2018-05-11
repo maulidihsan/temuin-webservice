@@ -7,6 +7,7 @@ module.exports = (io) => {
   IO = io;
   io.use((socket, next) => {
     const header = socket.handshake.headers['x-temuin-token'];
+    console.log('Header', header);
     jwt.verify(header, key, (err, decoded) => {
       socket.username = decoded.username; // eslint-disable-line
       UserModel.findOneAndUpdate(

@@ -5,19 +5,21 @@
 const {
     should, // eslint-disable-line no-unused-vars
     chai,
+    chaiHttp,
     ioClient,
+    profile,
     app,
 } = require('../common');
 
-const AccessToken = require('../authentication/authentication');
-
+const holder = require('../authentication/authentication');
 
 describe('Send Ack', () => {
+    
     const options = {
         transportOptions: {
             polling: {
                 extraHeaders: {
-                    'x-temuin-token': AccessToken,
+                    'x-temuin-token': holder.Token,
                 },
             },
         },
@@ -25,19 +27,19 @@ describe('Send Ack', () => {
         'force new connection': true,
     };
 
-    beforeEach((done) => { // eslint-disable-line
-        // start the server
-        const server = app.server;
-        done();
-    });
+    
+
+    // beforeEach((done) => { // eslint-disable-line
+    //     // start the server
+    //     server = app;
+    //     done();
+    // });
 
     it('send ack', (done) => {
         const client = ioClient.connect('http://localhost:3001', options);
         client.once("connect", function () {
-            client.once("whois", function (message, callback) {
-                callback()
-            });
-            client.disconnect();
+            console.log('berhasil');
+            client.disconnect(); 
             done();
         });
     });
