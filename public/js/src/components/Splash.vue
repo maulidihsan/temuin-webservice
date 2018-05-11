@@ -10,19 +10,55 @@
 </template>
 
 <script>
-module.exports = {
-   created: function(){
-      console.log('dibuat');
+const axios = require('axios');
 
-      //sementara
-      var timer = 3000;
-      var countDown = setInterval(() => {
-         timer = timer - 1000;
-         if(timer == 0){
-            clearInterval(countDown);
-            this.$emit('change-screen', 'Login');
+module.exports = {
+   data(){
+      return{
+         windowSupport:{
+            cache: false
          }
-      }, 1000);
+      }
+   },
+   created: function(){
+      //cek support cache
+      if (!('caches' in self)) {
+         this.windowSupport.cache = false;
+      }else{
+         this.windowSupport.cache = true;
+      }
+
+      if(this.windowSupport.cache){
+         //cek cache data login
+         caches.open('temuin-ch').then(cache => {
+            cache.match(new Request('/users/authentication')).then(response => {
+               if(!response){
+                  return this.$emit('change-screen', 'Login');
+               }
+               //retrieve data cache
+               response.json().then(data => {
+                  var userData = data.data.data;
+                  //console.log(JSON.stringify(userData));
+
+                  axios.post('/users/authentication/refresh', {
+                     usernameOrEmail: userData.user.username,
+                     refreshToken: userData.refreshToken
+                  }).then(response => {
+                     //console.log(JSON.stringify(response.data.accessToken));
+                     userData.accessToken = response.data.accessToken;
+
+                     //userData sudah berbentuk data yang diperlukan pada sessionInit
+                     this.$emit('initSession', userData);
+                     return this.$emit('change-screen', 'MainFrame');
+                  }).catch(err => {
+                     return this.$emit('change-screen', 'Login');         
+                  });
+               });
+            });
+         });
+      }else{
+         return this.$emit('change-screen', 'Login');  
+      }   
    }
 }
 </script>
