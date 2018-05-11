@@ -20,7 +20,6 @@ const profile = {
 const newpost = {
   username: 'mldihsn',
   email: 'maulid@gmail.com',
-  judul: 'Macbook Pro 2015',
   deskripsi: 'Macbook punya maulid enteng',
   urlGambar: 'http://i64.tinypic.com/293hd6r.jpg',
   lokasi: { lat: '40.7143528', lng: '-74.0059731' },
