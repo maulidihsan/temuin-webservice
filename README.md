@@ -46,6 +46,8 @@ Add additional notes about how to deploy this on a live system
 
 * [Node.js](https://nodejs.org/) - Runtime environment
 * [Vue](https://vuejs.org/) - Web framework
+* [Express](https://expressjs.com/) - Application framework
+* [Mocha](https://mochajs.org/) - Testing framework
 
 ## Versioning
 
@@ -55,7 +57,7 @@ Still on development
 
 * **Maulid Ihsan** - *backend* - [maulidihsan](https://github.com/maulidihsan)
 * **Wisnu Kurniawan** - *frontend* - [wskurniawan](https://github.com/wskurniawan)
-* **Bagus Bimo** - *test scripting* - [bagusbimo](https://github.com/bagusbimo)
+* **Bagus Bimo** - *QA* - [bagusbimo](https://github.com/bagusbimo)
 * **Ade Dwi Payana** - *project manager*
 * **Albert Juan Rama** - *design*
 
