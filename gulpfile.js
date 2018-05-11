@@ -7,7 +7,7 @@ gulp.task('build', function(){
    var mainJS = browserify('./public/js/src/main.js');
 
    mainJS.transform(vueify)
-      .transform('uglifyify', {global: true})
+      //.transform('uglifyify', {global: true})
       .bundle()
       .pipe(fs.createWriteStream('./public/js/dist/main.js'));
 });

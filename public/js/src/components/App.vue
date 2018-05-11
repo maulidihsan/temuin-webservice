@@ -11,7 +11,7 @@
    const Splash = require('./Splash.vue');
    const Register = require('./Register.vue');
    const Login = require('./Login.vue');
-   const Timeline = require('./Timeline.vue');
+   const MainFrame = require('./MainFrame.vue');
    
    //sementara
    const LocationPicker = require('./LocationPicker.vue');
@@ -31,7 +31,7 @@
          'Splash': Splash,
          'Register': Register,
          'Login': Login,
-         'Timeline': Timeline,
+         'MainFrame': MainFrame,
          'LocationPicker': LocationPicker
       },
       methods:{
@@ -39,7 +39,7 @@
             this.CurrentScreen = screenName;
          },
          initSession: function(data){
-            console.log('data: /n' + JSON.stringify(data));
+            //console.log('data: /n' + JSON.stringify(data));
             this.SessionData.user = data.user;
             this.SessionData.accessToken = data.accessToken;
             this.SessionData.refreshToken = data.refreshToken;
