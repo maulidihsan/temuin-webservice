@@ -27,7 +27,6 @@
     "express-session": "^1.15.6",
     "express-validator": "^5.1.2",
     "jsonwebtoken": "^8.2.1",
-    "moment": "^2.22.1",
     "mongoose": "^5.0.14",
     "morgan": "^1.9.0",
     "passport": "^0.4.0",
@@ -49,6 +48,8 @@
     "chai-http": "^4.0.0",
     "gulp": "^3.9.1",
     "mocha": "^5.1.0",
+    "moment": "^2.22.1",
+    "socket.io-client": "^2.1.0",
     "uglifyify": "^4.0.5",
     "vueify": "^9.4.1"
   },
