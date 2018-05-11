@@ -4,43 +4,21 @@
 // Require the dev-dependencies
 const {
     should, // eslint-disable-line no-unused-vars
-    chai,
-    chaiHttp,
     ioClient,
-    profile,
-    app,
 } = require('../common');
 
-const holder = require('../authentication/authentication');
+const tokenakses = require('../authentication/authentication');
 
-describe('Send Ack', () => {
-    
-    const options = {
-        transportOptions: {
-            polling: {
-                extraHeaders: {
-                    'x-temuin-token': holder.Token,
-                },
+describe('TEST Websocket', () => {
+    it('Send token as ack on connect', (done) => {
+        const options = {
+            extraHeaders: {
+                'x-temuin-token': tokenakses.Token,
             },
-        },
-        transports: ['websocket'],
-        'force new connection': true,
-    };
-
-    
-
-    // beforeEach((done) => { // eslint-disable-line
-    //     // start the server
-    //     server = app;
-    //     done();
-    // });
-
-    it('send ack', (done) => {
+        };
         const client = ioClient.connect('http://localhost:3001', options);
-        client.once("connect", function () {
-            console.log('berhasil');
-            client.disconnect(); 
-            done();
-        });
+        client.on('connect', () => {
+        })
+        done();
     });
 });

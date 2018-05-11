@@ -1,14 +1,15 @@
 const UserModel = require('../models/UserModel');
-const jwt = require('jsonwebtoken');
-const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE_ENV || 'development');
+const jwtoken = require('jsonwebtoken');
+const { jwt: { secret: key } } = require('../../config').get(process.env.NODE_ENV || 'development');
 
 let IO;
 module.exports = (io) => {
   IO = io;
   io.use((socket, next) => {
+    // console.log('SOCKET:', socket.handshake.headers);
     const header = socket.handshake.headers['x-temuin-token'];
-    console.log('Header', header);
-    jwt.verify(header, key, (err, decoded) => {
+    jwtoken.verify(header, key, (err, decoded) => {
+      if(err) { console.log(err)}
       socket.username = decoded.username; // eslint-disable-line
       UserModel.findOneAndUpdate(
         { username: decoded.username },
@@ -20,6 +21,7 @@ module.exports = (io) => {
     return next(new Error('authentication error'));
   });
   io.on('connection', (socket) => {
+    socket.emit('berhasil', 'ok')
     socket.on('disconnect', () => {
       UserModel.findOneAndUpdate(
         { username: socket.username },
