@@ -35,7 +35,7 @@ const UserSchema = new mongoose.Schema({
     type: { type: String },
     coordinates: { type: [Number] },
   },
-  sockets: {
+  chatRoom: {
     type: [String],
   },
   created: {

@@ -116,6 +116,7 @@ module.exports.refreshTokenValidator = [
 
 module.exports.newPost = [
   check('deskripsi')
+    .trim()
     .not()
     .isEmpty()
     .withMessage('Field kosong'),
@@ -123,6 +124,8 @@ module.exports.newPost = [
     .not()
     .isEmpty()
     .withMessage('Field kosong'),
+  check('namaLokasi')
+    .trim(),
   check('lokasi')
     .not()
     .isEmpty()
