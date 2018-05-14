@@ -1,4 +1,5 @@
 const UserModel = require('../models/UserModel');
+
 const ChatModel = require('../models/ChatModel');
 const jwt = require('jsonwebtoken');
 const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE_ENV || 'development');
@@ -7,6 +8,7 @@ let IO;
 module.exports = (io) => {
   IO = io;
   io.use((socket, next) => {
+    // console.log('SOCKET:', socket.handshake.headers);
     const header = socket.handshake.headers['x-temuin-token'];
     jwt.verify(header, key, (err, decoded) => {
       if (!err) {
