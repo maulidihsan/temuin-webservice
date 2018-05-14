@@ -29,6 +29,9 @@ const PostSchema = new mongoose.Schema({
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number] },
   },
+  namaLokasi: {
+    type: String,
+  },
   support: {
     type: Number,
   },

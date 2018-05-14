@@ -1,6 +1,8 @@
 const UserModel = require('../models/UserModel');
-const jwtoken = require('jsonwebtoken');
-const { jwt: { secret: key } } = require('../../config').get(process.env.NODE_ENV || 'development');
+
+const ChatModel = require('../models/ChatModel');
+const jwt = require('jsonwebtoken');
+const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE_ENV || 'development');
 
 let IO;
 module.exports = (io) => {
@@ -8,20 +10,63 @@ module.exports = (io) => {
   io.use((socket, next) => {
     // console.log('SOCKET:', socket.handshake.headers);
     const header = socket.handshake.headers['x-temuin-token'];
-    jwtoken.verify(header, key, (err, decoded) => {
-      if(err) { console.log(err)}
-      socket.username = decoded.username; // eslint-disable-line
-      UserModel.findOneAndUpdate(
-        { username: decoded.username },
-        { $addToSet: { sockets: socket.id } },
-      )
-        .then(() => next())
-        .catch(error => console.log(error));
+    jwt.verify(header, key, (err, decoded) => {
+      if (!err) {
+        socket.username = decoded.username; // eslint-disable-line
+        next();
+      }
+      return next(new Error('authentication error'));
     });
     return next(new Error('authentication error'));
   });
   io.on('connection', (socket) => {
-    socket.emit('berhasil', 'ok')
+    UserModel.findOne({ username: socket.username })
+      .then((data) => {
+        // lengkapi data user
+        socket.nama = data.nama; // eslint-disable-line
+        socket.urlFoto = data.urlFoto; // eslint-disable-line
+        // subscribe to user chatbox
+        socket.join(socket.username);
+      })
+      .catch(error => console.log(error));
+    socket.on('send_msg', (data) => {
+      const senderData = { username: socket.username, nama: socket.nama, urlFoto: socket.urlFoto };
+      data.sender = senderData; // eslint-disable-line
+      if (data.to) {
+        ChatModel.findOneAndUpdate(
+          { owner: senderData.username, sender: data.to },
+          {
+            $set: {
+              'messages.-1': {
+                sender: senderData.username,
+                timestamp: Date.now(),
+                body: data.message,
+              },
+            },
+          },
+          { new: true },
+        )
+          .then(() => {
+            ChatModel.findOneAndUpdate(
+              { owner: data.to, sender: senderData.username },
+              {
+                $set: {
+                  'messages.-1': {
+                    sender: senderData.username,
+                    timestamp: Date.now(),
+                    body: data.message,
+                  },
+                },
+              },
+              { new: true },
+            );
+          })
+          .then(() => {
+            io.to(data.to).emit('new_msg', data);
+          })
+          .catch(error => console.log(error));
+      }
+    });
     socket.on('disconnect', () => {
       UserModel.findOneAndUpdate(
         { username: socket.username },
