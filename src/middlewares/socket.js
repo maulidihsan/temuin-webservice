@@ -27,42 +27,47 @@ module.exports = (io) => {
         socket.join(socket.username);
       })
       .catch(error => console.log(error));
-    socket.on('send_msg', (data) => {
+    socket.on('send_msg', (data, cb) => {
       const senderData = { username: socket.username, nama: socket.nama, urlFoto: socket.urlFoto };
       data.sender = senderData; // eslint-disable-line
       if (data.to) {
         ChatModel.findOneAndUpdate(
           { owner: senderData.username, sender: data.to },
           {
-            $set: {
-              'messages.-1': {
-                sender: senderData.username,
-                timestamp: Date.now(),
-                body: data.message,
+            $push: {
+              messages: {
+                $each: [{
+                  sender: senderData.username,
+                  timestamp: Date.now(),
+                  body: data.message,
+                }],
+                $position: 0,
               },
             },
           },
-          { new: true },
+          { upsert: true, new: true },
         )
-          .then(() => {
-            ChatModel.findOneAndUpdate(
-              { owner: data.to, sender: senderData.username },
-              {
-                $set: {
-                  'messages.-1': {
+          .then(() => ChatModel.findOneAndUpdate(
+            { owner: data.to, sender: senderData.username },
+            {
+              $push: {
+                messages: {
+                  $each: [{
                     sender: senderData.username,
                     timestamp: Date.now(),
                     body: data.message,
-                  },
+                  }],
+                  $position: 0,
                 },
               },
-              { new: true },
-            );
-          })
+            },
+            { upsert: true, new: true },
+          ))
           .then(() => {
             io.to(data.to).emit('new_msg', data);
+            cb('Sent');
           })
-          .catch(error => console.log(error));
+          .catch((error) => { console.log('error ya', error); cb('Failed to send'); });
       }
     });
     socket.on('disconnect', () => {

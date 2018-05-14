@@ -6,6 +6,13 @@ const UserSchema = new mongoose.Schema({
   nama: { type: String },
   urlFoto: { type: String },
 });
+
+const MessageSchema = new mongoose.Schema({
+  from: { type: String },
+  timestamp: { type: Number },
+  body: { type: String },
+});
+
 const ChatSchema = new mongoose.Schema({
   owner: {
     type: String,
@@ -20,39 +27,54 @@ const ChatSchema = new mongoose.Schema({
     required: true,
   },
   sender_detail: {
-    type: String,
+    type: UserSchema,
     required: true,
   },
   messages: {
-    type: [{
-      from: { type: String },
-      timestamp: { type: Number },
-      body: { type: String },
-    }],
+    type: [MessageSchema],
+    default: [],
   },
   lastUpdate: { type: Number },
 });
 
-ChatSchema.pre('save', function (next) {
-  UserModel.findOne({ username: this.owner })
+ChatSchema.pre('findOneAndUpdate', function (next) {
+  const self = this;
+  UserModel.findOne({ username: self.getQuery().owner })
     .then((owner) => {
-      this.owner_detail.username = owner.username;
-      this.owner_detail.nama = owner.nama;
-      this.owner_detail.urlFoto = owner.urlFoto;
-    })
-    .then(() => UserModel.findOne({ username: this.sender }))
-    .then((sender) => {
-      this.sender_detail.username = sender.username;
-      this.sender_detail.nama = sender.nama;
-      this.sender_detail.urlFoto = sender.urlFoto;
+      if (owner) {
+        self._update.$set = { // eslint-disable-line
+          owner_detail: {
+            username: owner.username,
+            nama: owner.nama,
+            urlFoto: owner.urlFoto,
+          },
+        };
+        return next();
+      }
+      return next(new Error('user not found'));
     })
     .catch(err => next(new Error(err)));
-  this.lastUpdate = new Date();
-  next();
 });
 
 ChatSchema.pre('findOneAndUpdate', function (next) {
-  this.lastUpdate = new Date();
+  const self = this;
+  UserModel.findOne({ username: self.getQuery().sender })
+    .then((sender) => {
+      if (sender) {
+        self._update.$set.sender_detail = { // eslint-disable-line
+          username: sender.username,
+          nama: sender.nama,
+          urlFoto: sender.urlFoto,
+        };
+        return next();
+      }
+      return next(new Error('user not found'));
+    })
+    .catch(err => next(new Error(err)));
+});
+
+ChatSchema.pre('findOneAndUpdate', function (next) {
+  this._update.$set.lastUpdate = new Date(); // eslint-disable-line
   next();
 });
 
