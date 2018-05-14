@@ -12,6 +12,7 @@ const {
 } = require('../common');
 
 let RefreshToken;
+
 chai.use(chaiHttp);
 // Our parent block
 describe('[POST] /users/authenticate', () => {
@@ -66,6 +67,8 @@ describe('[POST] /users/authenticate', () => {
                 res.body.data.should.have.property('user').and.to.be.a('object');
                 res.body.data.should.have.property('accessToken').and.to.be.a('string');
                 res.body.data.should.have.property('refreshToken').and.to.be.a('string');
+                const AccessToken = res.body.data.accessToken;
+                exports.Token = AccessToken;
                 done();
             });
     });

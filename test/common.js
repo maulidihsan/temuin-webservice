@@ -6,6 +6,7 @@ const Credentials = require('../src/models/CredsModel');
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const app = require('../app');
+const ioClient = require('socket.io-client');
 
 const profile = {
   email: 'maulid@gmail.com',
@@ -19,7 +20,6 @@ const profile = {
 const newpost = {
   username: 'mldihsn',
   email: 'maulid@gmail.com',
-  judul: 'Macbook Pro 2015',
   deskripsi: 'Macbook punya maulid enteng',
   urlGambar: 'http://i64.tinypic.com/293hd6r.jpg',
   lokasi: { lat: '40.7143528', lng: '-74.0059731' },
@@ -31,6 +31,7 @@ module.exports.assert = chai.assert;
 module.exports.should = chai.should();
 module.exports.expect = chai.expect;
 module.exports.chaiHttp = chaiHttp;
+module.exports.ioClient = ioClient;
 module.exports.UserData = UserData;
 module.exports.Credentials = Credentials;
 module.exports.app = app;

@@ -38,6 +38,7 @@ describe('[POST] /timeline/post', () => {
     it('it should not post the items without complete field', (done) => {
         const lostpost = {
             username: newpost.username,
+            deskripsi: '',
             email: newpost.email,
             urlGambar: newpost.urlGambar,
             lokasi: newpost.lokasi,
@@ -61,7 +62,6 @@ describe('[POST] /timeline/post', () => {
         const lostpost = {
             username: newpost.username,
             email: newpost.email,
-            judul: newpost.judul,
             deskripsi: newpost.deskripsi,
             urlGambar: newpost.urlGambar,
             lokasi: newpost.lokasi,
