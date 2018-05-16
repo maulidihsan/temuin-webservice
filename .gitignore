@@ -1,3 +1,4 @@
 /node_modules
 /config/production.js
 log.txt
+/config/temuin-firebase-adminsdk.json

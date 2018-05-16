@@ -1,8 +1,8 @@
 const UserModel = require('../models/UserModel');
-
 const ChatModel = require('../models/ChatModel');
 const jwt = require('jsonwebtoken');
 const { jwt: { secret: key } } = require('../../config.js').get(process.env.NODE_ENV || 'development');
+const fcm = require('../middlewares/fcm');
 
 let IO;
 module.exports = (io) => {
@@ -67,19 +67,25 @@ module.exports = (io) => {
           ))
           .then(() => {
             io.to(data.to).emit('new_msg', data);
-            cb('Sent');
+            fcm.sendToDevice(data.to, data.message)
+              .then((response) => {
+                if (response) {
+                  cb('Sent with FCM');
+                }
+              })
+              .catch(() => cb('Sent with socket'));
           })
           .catch((error) => { console.log('error ya', error); cb('Failed to send'); });
       }
     });
-    socket.on('disconnect', () => {
-      UserModel.findOneAndUpdate(
-        { username: socket.username },
-        { $pull: { sockets: socket.id } },
-      )
-        .then(() => console.log('User disconnected'))
-        .catch(error => console.log(error));
-    });
+    // socket.on('disconnect', () => {
+    //   UserModel.findOneAndUpdate(
+    //     { username: socket.username },
+    //     { $pull: { sockets: socket.id } },
+    //   )
+    //     .then(() => console.log('User disconnected'))
+    //     .catch(error => console.log(error));
+    // });
   });
 };
 
@@ -96,7 +102,10 @@ module.exports.notif_new_post = (data) => {
     },
   })
     .then((users) => {
-      users.map(user => user.sockets.map(client => IO.to(client).emit('new_post', data)));
+      users.map((user) => {
+        IO.to(user.username).emit('new_post', data);
+        return fcm.sendToDevice(user.username, data);
+      });
     })
     .catch(err => console.log(err));
 };

@@ -199,3 +199,18 @@ module.exports.updateProfil = [
     }
   },
 ];
+
+module.exports.saveToken = [
+  check('token')
+    .trim()
+    .not()
+    .isEmpty(),
+  (req, res, next) => {
+    try {
+      validationResult(req).throw();
+      next();
+    } catch (err) {
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
+    }
+  },
+];
