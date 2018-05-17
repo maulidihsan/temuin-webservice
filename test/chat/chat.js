@@ -100,7 +100,6 @@ describe('Testing chat feautes', () => {
             to: profile2.username,
             message: 'Halo',
         };
-        
         client.emit('send_msg', payload, (ok) => {
             console.log(ok);
         });
@@ -108,5 +107,29 @@ describe('Testing chat feautes', () => {
             console.log(data);
             done();
         });
+    });
+    it('it should get all chatroom', (done) => {
+        chai.request(app)
+            .get('/chat')
+            .set('x-temuin-token', AccessToken)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').and.to.be.a('boolean');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('data').and.to.be.a('array');
+                done();
+            });
+    });
+    it('it should get chatroom from profile2 only', (done) => {
+        chai.request(app)
+            .get('/chat')
+            .query({ username: profile2.username })
+            .set('x-temuin-token', AccessToken)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                done();
+            });
     });
 });
