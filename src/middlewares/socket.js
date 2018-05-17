@@ -104,7 +104,7 @@ module.exports.notif_new_post = (data) => {
     .then((users) => {
       users.map((user) => {
         IO.to(user.username).emit('new_post', data);
-        return fcm.sendToDevice(user.username, data);
+        // return fcm.sendToDevice(user.username, data);
       });
     })
     .catch(err => console.log(err));

@@ -38,7 +38,7 @@ describe('[GET] /users/timeline', () => {
     it('it should get the timeline', (done) => {
         chai.request(app)
             .get('/timeline?lat=40.7143528&lng=-74.0059731&radius=2')
-            .set('x-temuin-token', AccessToken )
+            .set('x-temuin-token', AccessToken)
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('object');
