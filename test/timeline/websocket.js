@@ -24,7 +24,9 @@ describe('Real-time new post', () => {
             },
         };
         client = ioClient.connect('http://localhost:3001', options);
-        done();
+        client.on('connect', () => {
+            done();
+        });
     });
     it('Client post new data to timeline and retrieve them via socket', (done) => {
         const lostpost = {

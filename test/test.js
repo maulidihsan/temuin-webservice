@@ -23,4 +23,5 @@ describe('Starting Unit Testing\n', () => {
   importTest('4. Timeline', './timeline/timeline');
   importTest('5. Post Item', './post/post');
   importTest('6. Timeline-Socket', './timeline/websocket');
+  importTest('7. Chat feature', './chat/chat');
 });

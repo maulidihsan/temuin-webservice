@@ -17,13 +17,22 @@ const profile = {
   jenisKelamin: 'Laki-Laki',
 };
 
+const profile2 = {
+  email: 'bimo@bimbim.com',
+  username: 'bbimo',
+  nama: 'Bagus Bimo',
+  ttl: '1999-04-04',
+  password: 'cobaciba',
+  jenisKelamin: 'Laki-Laki',
+};
+
 const newpost = {
   username: 'mldihsn',
   email: 'maulid@gmail.com',
   deskripsi: 'Macbook punya maulid enteng',
   urlGambar: 'http://i64.tinypic.com/293hd6r.jpg',
   lokasi: { lat: '40.7143528', lng: '-74.0059731' },
-}
+};
 
 module.exports.mongoose = mongoose;
 module.exports.chai = chai;
@@ -36,4 +45,5 @@ module.exports.UserData = UserData;
 module.exports.Credentials = Credentials;
 module.exports.app = app;
 module.exports.profile = profile;
+module.exports.profile2 = profile2;
 module.exports.newpost = newpost;
