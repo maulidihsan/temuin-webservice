@@ -27,12 +27,10 @@ module.exports = {
         };
         return admin.messaging().sendToDevice(tokens, payload, options);
       })
-      .then((response) => {
-        console.log(response);
+      .then(() => {
         callback(true);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
         callback(false);
       });
   },
