@@ -35,9 +35,6 @@ const UserSchema = new mongoose.Schema({
     type: { type: String },
     coordinates: { type: [Number] },
   },
-  sockets: {
-    type: [String],
-  },
   created: {
     type: Date,
   },

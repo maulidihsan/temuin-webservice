@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
+const UserModel = require('./UserModel');
 
 const PostSchema = new mongoose.Schema({
   user: {
@@ -7,6 +8,9 @@ const PostSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
     },
     username: {
+      type: String,
+    },
+    urlFoto: {
       type: String,
     },
     email: {
@@ -25,6 +29,9 @@ const PostSchema = new mongoose.Schema({
     type: { type: String, default: 'Point' },
     coordinates: { type: [Number] },
   },
+  namaLokasi: {
+    type: String,
+  },
   support: {
     type: Number,
   },
@@ -41,6 +48,12 @@ const PostSchema = new mongoose.Schema({
 });
 PostSchema.index({ lokasi: '2dsphere' });
 PostSchema.pre('save', function (next) {
+  UserModel.findOne({ username: this.user.username })
+    .then((data) => {
+      if (data.urlFoto) {
+        this.user.urlFoto = data.urlFoto;
+      }
+    });
   this.created = new Date();
   next();
 });

@@ -116,6 +116,7 @@ module.exports.refreshTokenValidator = [
 
 module.exports.newPost = [
   check('deskripsi')
+    .trim()
     .not()
     .isEmpty()
     .withMessage('Field kosong'),
@@ -123,6 +124,8 @@ module.exports.newPost = [
     .not()
     .isEmpty()
     .withMessage('Field kosong'),
+  check('namaLokasi')
+    .trim(),
   check('lokasi')
     .not()
     .isEmpty()
@@ -187,6 +190,21 @@ module.exports.updateProfil = [
         });
       });
     }),
+  (req, res, next) => {
+    try {
+      validationResult(req).throw();
+      next();
+    } catch (err) {
+      res.status(422).json({ success: false, status: 422, errors: err.array() });
+    }
+  },
+];
+
+module.exports.saveToken = [
+  check('token')
+    .trim()
+    .not()
+    .isEmpty(),
   (req, res, next) => {
     try {
       validationResult(req).throw();
