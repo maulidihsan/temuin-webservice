@@ -8,13 +8,26 @@
 </template>
 
 <script>
-   const Splash = require('./Splash.vue');
+	const firebase = require('@firebase/app').default;
+	require('@firebase/storage');
+	
+	const Splash = require('./Splash.vue');
    const Register = require('./Register.vue');
    const Login = require('./Login.vue');
    const MainFrame = require('./MainFrame.vue');
-   
-   //sementara
-   const LocationPicker = require('./LocationPicker.vue');
+
+	// Initialize Firebase
+	var config = {
+		apiKey: "AIzaSyCF68Qkzd4ojW1kAu9EKf4H9eVUmqtjzYg",
+		authDomain: "temuin-9f8ed.firebaseapp.com",
+		databaseURL: "https://temuin-9f8ed.firebaseio.com",
+		projectId: "temuin-9f8ed",
+		storageBucket: "temuin-9f8ed.appspot.com",
+		messagingSenderId: "171200043046"
+	};
+
+
+	firebase.initializeApp(config);
 
    module.exports = {
       data: function(){
@@ -31,8 +44,7 @@
          'Splash': Splash,
          'Register': Register,
          'Login': Login,
-         'MainFrame': MainFrame,
-         'LocationPicker': LocationPicker
+         'MainFrame': MainFrame
       },
       methods:{
          changeScreen: function(screenName){

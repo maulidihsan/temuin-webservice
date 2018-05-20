@@ -1,5 +1,5 @@
 <template>
-	<div style="background-color: #EEEEEE;" uk-height-viewport>
+	<div style="background-color: #EEEEEE; padding-top: 48px;" uk-height-viewport>
 
 		<!-- timeline -->
 		<div class="uk-width-1-1 uk-flex uk-flex-center">
@@ -10,8 +10,8 @@
 
 		<!-- FAB -->
 		<v-fab-transition>
-			<v-btn color="light-green" v-show="!modalPost" fab fixed bottom right v-on:click="modalPost = !modalPost">
-				<v-icon>mode_edit</v-icon>
+			<v-btn color="light-green" v-show="!modalPost" fab fixed bottom right v-on:click="modalPost = !modalPost" id="fab">
+				<v-icon color="white">mode_edit</v-icon>
 			</v-btn>
 		</v-fab-transition>
 
@@ -134,18 +134,6 @@
 	const SyncLoader = require('vue-spinner/dist/vue-spinner.min').SyncLoader;
 	const LocationPicker = require('./LocationPicker.vue');
 	const TimelineItem = require('./ItemTimeline.vue');
-
-	// Initialize Firebase
-	var config = {
-		apiKey: "AIzaSyCF68Qkzd4ojW1kAu9EKf4H9eVUmqtjzYg",
-		authDomain: "temuin-9f8ed.firebaseapp.com",
-		databaseURL: "https://temuin-9f8ed.firebaseio.com",
-		projectId: "temuin-9f8ed",
-		storageBucket: "temuin-9f8ed.appspot.com",
-		messagingSenderId: "171200043046"
-	};
-
-	firebase.initializeApp(config);
 
 	var kategoriDipilihStyle = {
 		'background-color': '#8BC34A', 
@@ -284,6 +272,7 @@
 			},
 			//get data timeline
 			getTimelineData: function(){
+				//console.log(this.accessToken);
 				axios.get('/timeline?lat=' + this.lokasiUser.lat + '&lng=' + this.lokasiUser.lng + '&radius=3000',
 					{
 						headers: {
@@ -293,6 +282,7 @@
 					//simpan ke state
 					this.timelinePosts = response.data.data;
 				}).catch(err => {
+					console.log(JSON.stringify(err));
 					this.errorMsg = "Gagal memuat data posting";
 					this.snackbar = true;
 				});
@@ -373,8 +363,8 @@
 			socket.on('whois', (data, cb) => {
 				cb(this.accessToken)
 			});
-			socket.on('new_post', function (data) {
-				alert('new post');
+			socket.on('new_post', (data) => {
+				this.timelinePosts.unshift(data);
 			});
 		},
 		components:{
@@ -420,5 +410,8 @@
    margin-left: 12px;
    margin-bottom: 42px;
    max-width: 486px;
+}
+#fab{
+	margin-bottom: 56px;
 }
 </style>
