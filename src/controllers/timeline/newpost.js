@@ -8,7 +8,7 @@ module.exports = (req, res, next) => {
     urlGambar: req.body.urlGambar,
     namaLokasi: req.body.namaLokasi,
     lokasi: {
-      coordinates: [req.body.lokasi.lng, req.body.lokasi.lat],
+      coordinates: [Number(req.body.lokasi.lng), Number(req.body.lokasi.lat)],
     },
     kategori: req.body.kategori,
     float: 0,
