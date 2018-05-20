@@ -6,6 +6,7 @@ module.exports = (req, res, next) => {
     user: req.user,
     deskripsi: req.body.deskripsi,
     urlGambar: req.body.urlGambar,
+    namaLokasi: req.body.namaLokasi,
     lokasi: {
       coordinates: [req.body.lokasi.lng, req.body.lokasi.lat],
     },
