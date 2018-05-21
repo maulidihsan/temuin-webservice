@@ -13,6 +13,7 @@ module.exports = {
       .then((device) => {
         const tokens = device.devices;
         const payload = {
+          ttl: 48 * 3600 * 1000,
           notification: {
             title: 'TemuIn',
             body: message,
