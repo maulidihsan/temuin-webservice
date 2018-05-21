@@ -125,7 +125,7 @@ module.exports = {
 					storeCache('/users/authentication', response);
 				}
 
-				this.$emit('initSession', responseBody.data);
+				this.$session.accessToken = responseBody.data.accessToken;
 				this.$emit('change-screen', 'MainFrame');
 			})
 			.catch(error => {

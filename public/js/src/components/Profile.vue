@@ -53,9 +53,6 @@ const firebase = require('@firebase/app').default;
 require('@firebase/storage');
 
 module.exports = {
-	props:{
-		accessToken:String
-	},
 	data: function(){
 		return{
 			dataUser: {
@@ -85,7 +82,7 @@ module.exports = {
 
 			axios.post('/users/profile/update', body, {
 				headers:{
-					'x-temuin-token': this.accessToken
+					'x-temuin-token': this.$session.accessToken
 				}
 			}).then(response => {
 				var data = response.data.data;
@@ -110,8 +107,7 @@ module.exports = {
 		}
 	},
 	created:function(){
-		//console.log(this.accessToken);
-		axios.get('/users/profile', { headers: { 'x-temuin-token': this.accessToken }})
+		axios.get('/users/profile', { headers: { 'x-temuin-token': this.$session.accessToken }})
 			.then(response => {
 				var data = response.data.data;
 				if(data.nama){

@@ -243,7 +243,7 @@
 			//kirim post
 			sendPost: function(){
 				this.loadingSendPost.show = true;
-				axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.accessToken}})
+				axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.$session.accessToken}})
 				.then((response) => {
 					this.loadingSendPost.show = false;
 
@@ -276,7 +276,7 @@
 				axios.get('/timeline?lat=' + this.lokasiUser.lat + '&lng=' + this.lokasiUser.lng + '&radius=3000',
 					{
 						headers: {
-							'x-temuin-token': this.accessToken}
+							'x-temuin-token': this.$session.accessToken}
 					}
 				).then(response => {
 					//simpan ke state
@@ -287,9 +287,6 @@
 					this.snackbar = true;
 				});
 			}
-		},
-		props:{
-			accessToken: String
 		},
 		mounted: function(){
 			//listener untuk pilih file dari storage
@@ -361,7 +358,7 @@
 			
 			var socket = io.connect(window.location.origin);
 			socket.on('whois', (data, cb) => {
-				cb(this.accessToken)
+				cb(this.$session.accessToken)
 			});
 			socket.on('new_post', (data) => {
 				this.timelinePosts.unshift(data);
@@ -373,7 +370,7 @@
 			'timeline-item': TimelineItem
 		},
 		created: function(){
-			updateLocation(this.lokasiUser, this.accessToken);
+			updateLocation(this.lokasiUser, this.$session.accessToken);
 
 			if(navigator.geolocation){
 				navigator.geolocation.getCurrentPosition((position) => {
@@ -382,7 +379,7 @@
 					lokasiUser.lng = position.coords.longitude;
 
 					this.lokasiUser = lokasiUser;
-					updateLocation(this.lokasiUser, this.accessToken);
+					updateLocation(this.lokasiUser, this.$session.accessToken);
 					this.getTimelineData();
 				})
 			}

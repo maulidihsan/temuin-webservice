@@ -20,9 +20,9 @@
       </v-toolbar>
       </div>
       <div id="tab-holder">
-         <Pesan v-show="currentTab == 'Pesan'" :access-token="accessToken"></Pesan>
-         <Timeline v-show="currentTab == 'Timeline'" :access-token="accessToken"></Timeline>
-         <Profil v-show="currentTab == 'Profil'" :access-token="accessToken"></Profil>
+         <Pesan v-show="currentTab == 'Pesan'"></Pesan>
+         <Timeline v-show="currentTab == 'Timeline'"></Timeline>
+         <Profil v-show="currentTab == 'Profil'"></Profil>
       </div>
 
       <!-- Bottom nav -->
@@ -45,6 +45,7 @@
 <script>
 const Timeline = require('./Timeline.vue');
 const Profile = require('./Profile.vue');
+const ChatFrame = require('./ChatFrame.vue');
 
 module.exports = {
    data(){
@@ -52,9 +53,6 @@ module.exports = {
          currentTab: 'Timeline',
          toolbar: true
       }
-   },
-   props:{
-      accessToken: String
    },
    mounted: function(){
       var tabHolder = document.getElementById('tab-holder');
@@ -73,7 +71,8 @@ module.exports = {
    },
    components:{
       'Timeline': Timeline,
-      'Profil': Profile
+      'Profil': Profile,
+      'Pesan': ChatFrame
    }
 }
 </script>
