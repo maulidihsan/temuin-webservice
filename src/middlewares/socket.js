@@ -39,7 +39,7 @@ module.exports = (io) => {
             $push: {
               messages: {
                 $each: [{
-                  sender: senderData.username,
+                  from: senderData.username,
                   timestamp: Date.now(),
                   body: data.message,
                 }],
@@ -55,7 +55,7 @@ module.exports = (io) => {
               $push: {
                 messages: {
                   $each: [{
-                    sender: senderData.username,
+                    from: senderData.username,
                     timestamp: Date.now(),
                     body: data.message,
                   }],
@@ -75,7 +75,7 @@ module.exports = (io) => {
               })
               .catch(() => cb('Sent with socket'));
           })
-          .catch((error) => { console.log('error ya', error); cb('Failed to send'); });
+          .catch(() => { cb('Failed to send'); });
       }
     });
     // socket.on('disconnect', () => {
