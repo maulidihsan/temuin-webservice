@@ -47278,7 +47278,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-3f4e03de", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-3f4e03de", __vue__options__)
+    hotAPI.reload("data-v-3f4e03de", __vue__options__)
   }
 })()}
 },{"./ChatPage.vue":87,"./Login.vue":91,"./MainFrame.vue":92,"./Register.vue":94,"./Splash.vue":95,"@firebase/app":1,"@firebase/storage":2,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],84:[function(require,module,exports){
@@ -47348,7 +47348,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6bae9636", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-6bae9636", __vue__options__)
+    hotAPI.reload("data-v-6bae9636", __vue__options__)
   }
 })()}
 },{"./ChatListItem.vue":86,"axios":6,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],85:[function(require,module,exports){
@@ -47422,7 +47422,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-790abc3c", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-790abc3c", __vue__options__)
+    hotAPI.reload("data-v-790abc3c", __vue__options__)
   }
 })()}
 },{"moment":57,"vue":79,"vue-hot-reload-api":77}],86:[function(require,module,exports){
@@ -47494,7 +47494,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-bdf720ee", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-bdf720ee", __vue__options__)
+    hotAPI.reload("data-v-bdf720ee", __vue__options__)
   }
 })()}
 },{"moment":57,"vue":79,"vue-hot-reload-api":77}],87:[function(require,module,exports){
@@ -47678,7 +47678,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-40e4f247", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-40e4f247", __vue__options__)
+    hotAPI.reload("data-v-40e4f247", __vue__options__)
   }
 })()}
 },{"./ChatFrom.vue":85,"./ChatTo.vue":88,"socket.io-client":62,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],88:[function(require,module,exports){
@@ -47751,7 +47751,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-00e77033", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-00e77033", __vue__options__)
+    hotAPI.reload("data-v-00e77033", __vue__options__)
   }
 })()}
 },{"moment":57,"vue":79,"vue-hot-reload-api":77}],89:[function(require,module,exports){
@@ -47999,7 +47999,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6e5dfe3a", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-6e5dfe3a", __vue__options__)
+    hotAPI.reload("data-v-6e5dfe3a", __vue__options__)
   }
 })()}
 },{"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],91:[function(require,module,exports){
@@ -48171,7 +48171,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-a5b30d4e", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-a5b30d4e", __vue__options__)
+    hotAPI.reload("data-v-a5b30d4e", __vue__options__)
   }
 })()}
 },{"axios":6,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],92:[function(require,module,exports){
@@ -48267,7 +48267,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-5a4f40b8", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-5a4f40b8", __vue__options__)
+    hotAPI.reload("data-v-5a4f40b8", __vue__options__)
   }
 })()}
 },{"./ChatFrame.vue":84,"./Profile.vue":93,"./Timeline.vue":96,"vue":79,"vue-hot-reload-api":77}],93:[function(require,module,exports){
@@ -48458,7 +48458,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-0ecb44ce", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-0ecb44ce", __vue__options__)
+    hotAPI.reload("data-v-0ecb44ce", __vue__options__)
   }
 })()}
 },{"@firebase/app":1,"@firebase/storage":2,"axios":6,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],94:[function(require,module,exports){
@@ -48627,7 +48627,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6e9474e3", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-6e9474e3", __vue__options__)
+    hotAPI.reload("data-v-6e9474e3", __vue__options__)
   }
 })()}
 },{"axios":6,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],95:[function(require,module,exports){
@@ -48713,7 +48713,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-b487ceb2", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-b487ceb2", __vue__options__)
+    hotAPI.reload("data-v-b487ceb2", __vue__options__)
   }
 })()}
 },{"axios":6,"vue":79,"vue-hot-reload-api":77}],96:[function(require,module,exports){
@@ -49149,7 +49149,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-2bc91b81", __vue__options__)
   } else {
-    hotAPI.rerender("data-v-2bc91b81", __vue__options__)
+    hotAPI.reload("data-v-2bc91b81", __vue__options__)
   }
 })()}
 },{"./ItemTimeline.vue":89,"./LocationPicker.vue":90,"@firebase/app":1,"@firebase/storage":2,"axios":6,"socket.io-client":62,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],97:[function(require,module,exports){
