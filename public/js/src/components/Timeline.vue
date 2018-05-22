@@ -1,17 +1,20 @@
 <template>
-	<div style="background-color: #EEEEEE;" uk-height-viewport>
+	<div style="background-color: #EEEEEE; padding-top: 48px;" uk-height-viewport>
 
 		<!-- timeline -->
 		<div class="uk-width-1-1 uk-flex uk-flex-center">
 			<div class="main-content uk-width-1-1">
-				<timeline-item v-for="(post, index) in timelinePosts" :key="index" :data-post="post"></timeline-item>
+				<div class="uk-flex uk-flex-center uk-flex-middle uk-width-1-1" v-if="loadingTimeline">
+					<sync-loader v-bind:loading="loadingTimeline" v-if="loadingTimeline" :color="loadingSendPost.color" size="10"></sync-loader>
+				</div>
+				<timeline-item v-for="(post) in timelinePosts" :key="post._id" :data-post="post"></timeline-item>
 			</div>
 		</div>
 
 		<!-- FAB -->
 		<v-fab-transition>
-			<v-btn color="light-green" v-show="!modalPost" fab fixed bottom right v-on:click="modalPost = !modalPost">
-				<v-icon>mode_edit</v-icon>
+			<v-btn color="light-green" v-show="!modalPost" fab fixed bottom right v-on:click="modalPost = !modalPost" id="fab">
+				<v-icon color="white">mode_edit</v-icon>
 			</v-btn>
 		</v-fab-transition>
 
@@ -135,18 +138,6 @@
 	const LocationPicker = require('./LocationPicker.vue');
 	const TimelineItem = require('./ItemTimeline.vue');
 
-	// Initialize Firebase
-	var config = {
-		apiKey: "AIzaSyCF68Qkzd4ojW1kAu9EKf4H9eVUmqtjzYg",
-		authDomain: "temuin-9f8ed.firebaseapp.com",
-		databaseURL: "https://temuin-9f8ed.firebaseio.com",
-		projectId: "temuin-9f8ed",
-		storageBucket: "temuin-9f8ed.appspot.com",
-		messagingSenderId: "171200043046"
-	};
-
-	firebase.initializeApp(config);
-
 	var kategoriDipilihStyle = {
 		'background-color': '#8BC34A', 
 		'color': 'white', 
@@ -190,7 +181,8 @@
 						lat: null,
 						lng: null
 					},
-					kategori: null
+					kategori: null,
+					namaLokasi: null
 				},
 				arrKategori: ['lost', 'found'],
 				snackbar: false,
@@ -208,7 +200,8 @@
 					lng: 110.3647725
 				},
 				//untuk menyimpan data post yang masuk
-				timelinePosts: []
+				timelinePosts: [],
+				loadingTimeline: false
 			}
 		},
 		methods:{
@@ -255,7 +248,8 @@
 			//kirim post
 			sendPost: function(){
 				this.loadingSendPost.show = true;
-				axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.accessToken}})
+				this.dataPost.namaLokasi = this.txtNamaLokasi;
+				axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.$session.accessToken}})
 				.then((response) => {
 					this.loadingSendPost.show = false;
 
@@ -268,7 +262,8 @@
 						lat: null,
 						lng: null
 						},
-						kategori: null
+						kategori: null,
+						namaLokasi: null
 					};
 				}).catch((error) => {
 					this.loadingSendPost.show = false;
@@ -284,22 +279,26 @@
 			},
 			//get data timeline
 			getTimelineData: function(){
+				//console.log(this.accessToken);
+				this.setLoadingTimeline(true);
 				axios.get('/timeline?lat=' + this.lokasiUser.lat + '&lng=' + this.lokasiUser.lng + '&radius=3000',
 					{
 						headers: {
-							'x-temuin-token': this.accessToken}
+							'x-temuin-token': this.$session.accessToken}
 					}
 				).then(response => {
 					//simpan ke state
+					this.setLoadingTimeline(false);
 					this.timelinePosts = response.data.data;
 				}).catch(err => {
+					this.setLoadingTimeline(false);
 					this.errorMsg = "Gagal memuat data posting";
 					this.snackbar = true;
 				});
+			},
+			setLoadingTimeline: function(isShow){
+				this.loadingTimeline = isShow;
 			}
-		},
-		props:{
-			accessToken: String
 		},
 		mounted: function(){
 			//listener untuk pilih file dari storage
@@ -368,13 +367,23 @@
 			});
 
 			//listener untuk socket
-			
-			var socket = io.connect(window.location.origin);
-			socket.on('whois', (data, cb) => {
-				cb(this.accessToken)
+			var socket = io({
+				transportOptions: {
+					polling: {
+						extraHeaders: {
+							'x-temuin-token': this.$session.accessToken
+						}
+					}
+				}
+			}); // TIP: io() with no args does auto-discovery
+			socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
+				console.log('connected');
 			});
-			socket.on('new_post', function (data) {
-				alert('new post');
+			
+			socket.on('new_post', (data) => {
+				this.setLoadingTimeline(true);
+				this.timelinePosts.unshift(data);
+				this.setLoadingTimeline(false);
 			});
 		},
 		components:{
@@ -383,7 +392,8 @@
 			'timeline-item': TimelineItem
 		},
 		created: function(){
-			updateLocation(this.lokasiUser, this.accessToken);
+			this.setLoadingTimeline(true);
+			updateLocation(this.lokasiUser, this.$session.accessToken);
 
 			if(navigator.geolocation){
 				navigator.geolocation.getCurrentPosition((position) => {
@@ -392,7 +402,7 @@
 					lokasiUser.lng = position.coords.longitude;
 
 					this.lokasiUser = lokasiUser;
-					updateLocation(this.lokasiUser, this.accessToken);
+					updateLocation(this.lokasiUser, this.$session.accessToken);
 					this.getTimelineData();
 				})
 			}
@@ -420,5 +430,8 @@
    margin-left: 12px;
    margin-bottom: 42px;
    max-width: 486px;
+}
+#fab{
+	margin-bottom: 56px;
 }
 </style>

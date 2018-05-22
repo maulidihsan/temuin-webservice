@@ -29,7 +29,10 @@
          </div>
       </div>
       <div class="uk-card-footer uk-flex uk-flex-right" style="padding-top: 0px; padding-bottom: 2px; padding-left: 0px; padding-right: 0px;">
-         <v-btn icon>
+			<v-btn icon @click="openChat">
+            <v-icon color="grey lighten-1">mail_outline</v-icon>
+         </v-btn>
+			<v-btn icon>
             <v-icon color="grey lighten-1">location_on</v-icon>
          </v-btn>
          <v-btn icon>
@@ -54,6 +57,17 @@ module.exports = {
 	props:{
 		dataPost: Object
 	},
+	methods:{
+		openChat: function(){
+			var data = {
+				pageName: 'chat-page',
+				data:{
+					toUsername: this.dataPost.user.username
+				}
+			}
+			this.$eventBus.$emit('open-secondary', data);
+		}
+	},
 	created: function(){
 		var geocoder = new google.maps.Geocoder;
 
@@ -62,23 +76,28 @@ module.exports = {
 		this.strWaktu = moment(this.timestamp).format('MMMM Do YYYY - HH:mm');
 		this.strTimeAgo = moment(this.timestamp).fromNow();
 
-		//terjemahkan lat lng ke address
-		var location = {
-			lat: this.dataPost.lokasi.coordinates[1],
-			lng: this.dataPost.lokasi.coordinates[0]
-		}
-
-		geocoder.geocode({location: location}, (results, status) => {
-			if (status === 'OK') {
-				if (results[0]) {
-					this.strLokasi = results[0].formatted_address;
-				} else {
-					this.strLokasi = 'Nama lokasi tidak ditemukan';
-				}
-			} else {
-				this.strLokasi = 'Error: ' + status;
+		if(!this.dataPost.namaLokasi){
+			//terjemahkan lat lng ke address
+			var location = {
+				lat: this.dataPost.lokasi.coordinates[1],
+				lng: this.dataPost.lokasi.coordinates[0]
 			}
-		});
+
+			geocoder.geocode({location: location}, (results, status) => {
+				if (status === 'OK') {
+					if (results[0]) {
+						this.strLokasi = results[0].formatted_address;
+					} else {
+						this.strLokasi = 'Nama lokasi tidak ditemukan';
+					}
+				} else {
+					this.strLokasi = 'Error: ' + status;
+				}
+			});
+		}else{
+			this.strLokasi = this.dataPost.namaLokasi;
+			console.log('sudah ada lokasi')
+		}
 	}
 }
 </script>

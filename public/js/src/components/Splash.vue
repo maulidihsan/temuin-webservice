@@ -27,12 +27,14 @@ module.exports = {
       }else{
          this.windowSupport.cache = true;
       }
-
+      
       if(this.windowSupport.cache){
          //cek cache data login
          caches.open('temuin-ch').then(cache => {
+            console.log('disini');
             cache.match(new Request('/users/authentication')).then(response => {
                if(!response){
+                  console.log('disini');
                   return this.$emit('change-screen', 'Login');
                }
                //retrieve data cache
@@ -43,18 +45,20 @@ module.exports = {
                   axios.post('/users/authentication/refresh', {
                      usernameOrEmail: userData.user.username,
                      refreshToken: userData.refreshToken
-                  }).then(response => {
-                     //console.log(JSON.stringify(response.data.accessToken));
-                     userData.accessToken = response.data.accessToken;
-
+                  }).then((response) => {
                      //userData sudah berbentuk data yang diperlukan pada sessionInit
-                     this.$emit('initSession', userData);
+                     
+                     this.$session.accessToken = response.data.accessToken;
                      return this.$emit('change-screen', 'MainFrame');
                   }).catch(err => {
                      return this.$emit('change-screen', 'Login');         
                   });
                });
-            });
+            }).catch(err => {
+               return this.$emit('change-screen', 'Login'); 
+            })
+         }).catch(err => {
+            return this.$emit('change-screen', 'Login'); 
          });
       }else{
          return this.$emit('change-screen', 'Login');  
