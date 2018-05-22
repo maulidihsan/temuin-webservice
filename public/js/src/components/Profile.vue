@@ -5,8 +5,8 @@
 		<!-- Foto profil -->
 		<div class="uk-width-1-1 uk-flex uk-flex-center" style="margin-top: -90px;">
 			<div>
-				<div class="uk-border-circle" style="background-color: white; padding: 2px; width: 180px; height: 180px; overflow: hidden;">
-					<img class="uk-border-circle" :src="dataUser.urlFoto" width="180" height="180">	
+				<div class="uk-border-circle" style="background-color: white; width: 180px; height: 180px; overflow: hidden;">
+					<img :src="dataUser.urlFoto">	
 				</div>
 			</div>
 		</div>

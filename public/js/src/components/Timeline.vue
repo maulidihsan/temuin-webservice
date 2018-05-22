@@ -4,7 +4,10 @@
 		<!-- timeline -->
 		<div class="uk-width-1-1 uk-flex uk-flex-center">
 			<div class="main-content uk-width-1-1">
-				<timeline-item v-for="(post, index) in timelinePosts" :key="index" :data-post="post"></timeline-item>
+				<div class="uk-flex uk-flex-center uk-flex-middle uk-width-1-1" v-if="loadingTimeline">
+					<sync-loader v-bind:loading="loadingTimeline" v-if="loadingTimeline" :color="loadingSendPost.color" size="10"></sync-loader>
+				</div>
+				<timeline-item v-for="(post) in timelinePosts" :key="post._id" :data-post="post"></timeline-item>
 			</div>
 		</div>
 
@@ -178,7 +181,8 @@
 						lat: null,
 						lng: null
 					},
-					kategori: null
+					kategori: null,
+					namaLokasi: null
 				},
 				arrKategori: ['lost', 'found'],
 				snackbar: false,
@@ -196,7 +200,8 @@
 					lng: 110.3647725
 				},
 				//untuk menyimpan data post yang masuk
-				timelinePosts: []
+				timelinePosts: [],
+				loadingTimeline: false
 			}
 		},
 		methods:{
@@ -243,6 +248,7 @@
 			//kirim post
 			sendPost: function(){
 				this.loadingSendPost.show = true;
+				this.dataPost.namaLokasi = this.txtNamaLokasi;
 				axios.post('/timeline/new_post', this.dataPost, { headers: {'x-temuin-token': this.$session.accessToken}})
 				.then((response) => {
 					this.loadingSendPost.show = false;
@@ -256,7 +262,8 @@
 						lat: null,
 						lng: null
 						},
-						kategori: null
+						kategori: null,
+						namaLokasi: null
 					};
 				}).catch((error) => {
 					this.loadingSendPost.show = false;
@@ -273,6 +280,7 @@
 			//get data timeline
 			getTimelineData: function(){
 				//console.log(this.accessToken);
+				this.setLoadingTimeline(true);
 				axios.get('/timeline?lat=' + this.lokasiUser.lat + '&lng=' + this.lokasiUser.lng + '&radius=3000',
 					{
 						headers: {
@@ -280,12 +288,16 @@
 					}
 				).then(response => {
 					//simpan ke state
+					this.setLoadingTimeline(false);
 					this.timelinePosts = response.data.data;
 				}).catch(err => {
-					console.log(JSON.stringify(err));
+					this.setLoadingTimeline(false);
 					this.errorMsg = "Gagal memuat data posting";
 					this.snackbar = true;
 				});
+			},
+			setLoadingTimeline: function(isShow){
+				this.loadingTimeline = isShow;
 			}
 		},
 		mounted: function(){
@@ -355,13 +367,23 @@
 			});
 
 			//listener untuk socket
-			
-			var socket = io.connect(window.location.origin);
-			socket.on('whois', (data, cb) => {
-				cb(this.$session.accessToken)
+			var socket = io({
+				transportOptions: {
+					polling: {
+						extraHeaders: {
+							'x-temuin-token': this.$session.accessToken
+						}
+					}
+				}
+			}); // TIP: io() with no args does auto-discovery
+			socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
+				console.log('connected');
 			});
+			
 			socket.on('new_post', (data) => {
+				this.setLoadingTimeline(true);
 				this.timelinePosts.unshift(data);
+				this.setLoadingTimeline(false);
 			});
 		},
 		components:{
@@ -370,6 +392,7 @@
 			'timeline-item': TimelineItem
 		},
 		created: function(){
+			this.setLoadingTimeline(true);
 			updateLocation(this.lokasiUser, this.$session.accessToken);
 
 			if(navigator.geolocation){

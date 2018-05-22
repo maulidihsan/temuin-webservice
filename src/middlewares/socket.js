@@ -73,9 +73,13 @@ module.exports = (io) => {
                   cb('Sent with FCM');
                 }
               })
-              .catch(() => cb('Sent with socket'));
+              .catch(() => {
+                cb('Sent with socket')
+              });
           })
-          .catch(() => { cb('Failed to send'); });
+          .catch(() => { 
+            cb('Failed to send'); 
+          });
       }
     });
     // socket.on('disconnect', () => {

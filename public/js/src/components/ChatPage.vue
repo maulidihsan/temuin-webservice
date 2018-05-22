@@ -6,7 +6,7 @@
             <v-icon>arrow_back</v-icon>
          </v-btn>
          <v-toolbar-title>
-            <span style="color: white;">Wisnu Kurniawan</span>
+            <span style="color: white;">{{propsData.toUsername}}</span>
          </v-toolbar-title>
          
          <v-spacer></v-spacer>
@@ -21,9 +21,11 @@
       </v-toolbar>
       <!-- end section -->
 
-      <div class="uk-width-1-1 section padding-content" style="margin-top: 54px;">
-         <chat-to></chat-to>
-         <chat-from></chat-from>
+      <div class="uk-width-1-1 section padding-content" style="margin-top: 54px; margin-bottom: 90px;">
+         <div v-for="(itemMessage, index) in messageList" :key="index">
+            <chat-to v-if="itemMessage.from == propsData.toUsername" :message-data="itemMessage" :user-data="senderDetail"></chat-to>
+            <chat-from v-else :message-data="itemMessage" :user-data="ownerDetail"></chat-from>
+         </div>
       </div>
 
       <div class="uk-width-1-1 uk-flex uk-flex-center" style="position: fixed; bottom: 0; background-color: white;">
@@ -51,7 +53,10 @@ var socket;
 module.exports = {
    data(){
       return{
-         message: 'Halo'
+         message: '',
+         messageList: [],
+         ownerDetail: {},
+         senderDetail: {}
       }
    },
    beforeCreate: function(){
@@ -90,18 +95,47 @@ module.exports = {
                'x-temuin-token': this.$session.accessToken
             }
          }).then(response => {
-            console.log(JSON.stringify(response.data));
+            var data = response.data.data;
+            this.messageList = data.messages;
+
+            //reverse urutan
+            this.messageList.reverse();
+
+            this.ownerDetail = data.owner_detail;
+            this.senderDetail = data.sender_detail;
+
+            //validasi tambahan untuk urlFoto
+            if(!this.ownerDetail.urlFoto){
+               this.ownerDetail.urlFoto = '';
+            }
+
+            if(!this.senderDetail.urlFoto){
+               this.senderDetail.urlFoto = '';
+            }
          }).catch(err => {
             console.log(JSON.stringify(err));
          });
       },
       sendChat: function(){
-         console.log('clicked');
+         var message = this.message;
+
+         var dataMessage = {
+            from: this.ownerDetailusername,
+            body: this.message,
+            timestamp: Date.now()
+         };
+      
+         this.messageList.push(dataMessage);
+
+         //set ulang message
+         this.message = '';
+
          socket.emit('send_msg', {
             to: this.propsData.toUsername,
-            message: this.message
-         }, function(cb){
-            console.log(cb);
+            message: message
+         }, (cb) => {
+            //apapun
+
          });
       }
    },
@@ -109,8 +143,21 @@ module.exports = {
       console.log(JSON.stringify(this.propsData));
       
       this.getChat();
-      socket.on('new_msg', function(data) {
+      socket.on('new_msg', (data) => {
+         if(data.sender.username != this.propsData.toUsername){
+            return;
+         }
+
+         var dataMessage = {
+            from: data.sender.username,
+            body: data.message,
+            timestamp: Date.now()
+         };
+         
+         this.messageList.push(dataMessage);
+         console.log(dataMessage);
          console.log(data);
+         //window.scrollBy(0, window.innerHeight);
       });
    }
 }
