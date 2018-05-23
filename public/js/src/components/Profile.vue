@@ -24,7 +24,7 @@
 			</div>
 		</div>
 		<div class="uk-width-1-1 uk-flex uk-flex-center">
-			<button class="uk-button uk-button-small uk-button-primary" style="background-color: #8BC34A; color: white; font-family: Gibson Regular;">
+			<button @click="logout" class="uk-button uk-button-small uk-button-primary" style="background-color: #8BC34A; color: white; font-family: Gibson Regular;">
 				logout
 			</button>
 		</div>
@@ -102,8 +102,31 @@ module.exports = {
 					this.dataUser.urlFoto = data.urlFoto;
 				}
 			}).catch(err => {
-				console.log(JSON.stringify(err));
+				//console.log(JSON.stringify(err));
+				this.snackbar.msg = err.message;
+				this.snackbar.show = true;
 			});
+		},
+		logout: function(){
+			this.$session.accessToken = '';
+			if(('caches' in self)){
+         	//cek cache data login
+				caches.open('temuin-ch').then(cache => {
+					//console.log('disini');
+					cache.delete(new Request('/users/authentication'))
+					.then(isSucces => {
+						//console.log(isSucces);
+						return this.$eventBus.$emit('change-screen', 'Login');
+					}).catch(err => {
+						//console.log(err);
+						return this.$eventBus.$emit('change-screen', 'Login');
+					});
+				}).catch(err => {
+					return this.$eventBus.$emit('change-screen', 'Login'); 
+				});
+			}else{
+				return this.$eventBus.$emit('change-screen', 'Login');  
+			}
 		}
 	},
 	created:function(){

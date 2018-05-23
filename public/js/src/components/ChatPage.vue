@@ -155,8 +155,6 @@ module.exports = {
          };
          
          this.messageList.push(dataMessage);
-         console.log(dataMessage);
-         console.log(data);
          //window.scrollBy(0, window.innerHeight);
       });
    }

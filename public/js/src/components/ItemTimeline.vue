@@ -96,7 +96,7 @@ module.exports = {
 			});
 		}else{
 			this.strLokasi = this.dataPost.namaLokasi;
-			console.log('sudah ada lokasi')
+			//console.log('sudah ada lokasi')
 		}
 	}
 }

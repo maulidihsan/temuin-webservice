@@ -425,11 +425,11 @@
    src: url('./public/font/Gibson-RegularItalic.ttf');
 }
 .main-content{
-   margin-top: 12px; 
-   margin-right: 12px;
-   margin-left: 12px;
+   margin-top: 12px;
    margin-bottom: 42px;
    max-width: 486px;
+	margin-left: 0px;
+	margin-right: 0px;
 }
 #fab{
 	margin-bottom: 56px;

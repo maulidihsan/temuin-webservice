@@ -69,6 +69,7 @@
 		mounted: function(){
 			this.$eventBus.$on('open-secondary', this.openSecondary);
 			this.$eventBus.$on('back-secondary', this.backSecondary);
+			this.$eventBus.$on('change-screen', this.changeScreen);
 		}
    }
 </script>

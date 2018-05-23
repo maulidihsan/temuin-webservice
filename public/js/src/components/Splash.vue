@@ -31,10 +31,10 @@ module.exports = {
       if(this.windowSupport.cache){
          //cek cache data login
          caches.open('temuin-ch').then(cache => {
-            console.log('disini');
+            //console.log('disini');
             cache.match(new Request('/users/authentication')).then(response => {
                if(!response){
-                  console.log('disini');
+                  //console.log('disini');
                   return this.$emit('change-screen', 'Login');
                }
                //retrieve data cache

@@ -8,19 +8,19 @@
             </div>
          </div>
          <div class="uk-width-auto" style="padding-left: 4px; max-width: 80%;">
-            <v-card color="white">
-               <div style="padding: 4px;">
-                  <div class="col-normal" style="font-size: 13px;">
-                     <b>{{userData.username}}</b>
-                  </div>
+            <div class="col-normal" style="font-size: 12px;">
+               <b>{{userData.username}}</b>
+            </div>
 
-                  <div style="margin-top: 0px; font-size: 13px;">
+            <v-card color="white">
+               <div style="padding: 8px;">
+                  <div style="margin-top: 0px; font-size: 14px;">
                      {{messageData.body}}
                   </div>
                </div>
             </v-card>
 
-            <div class="uk-width-1-1 col-normal uk-text-right" style="font-size: 9px; margin-top: 0px;">
+            <div class="uk-width-1-1 col-normal uk-text-right" style="font-size: 9px; margin-top: 2px;">
                {{this.strDate}}
             </div>
 
