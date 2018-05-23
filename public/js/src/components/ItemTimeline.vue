@@ -2,11 +2,11 @@
   <!-- Item timeline -->
    <div class="uk-card uk-card-default" style="margin-bottom: 12px;">
       <div class="uk-card-body" style="padding: 12px;">
-         <div uk-grid>
-            <div class="uk-width-auto">
-               <img class="uk-border-circle" src="/public/img/user.png" width="38" height="38" style="background-color: white; border: 1px solid #8BC34A;">
+         <div uk-grid style="margin-left: 0px;">
+            <div class="uk-width-auto uk-border-circle" style="width: 38px; height: 38px; background-color: #8BC34A">
+               <!-- <img class="uk-border-circle" :src="dataPost.user.urlFoto" width="38" height="38" style="background-color: white; border: 1px solid #8BC34A;"> -->
             </div>
-            <div class="uk-width-expand uk-flex uk-flex-middle" uk-grid style="margin-bottom: 12px;">
+            <div class="uk-width-expand" uk-grid style="margin-bottom: 12px;">
                <div class="uk-width-2-3" style="padding-left: 12px;">
                   <span style="font-family: Gibson Regular; color: #8BC34A;"><b>{{dataPost.user.username}}</b></span>
                   <!-- light-green lighten-2 #AED581 (Keterangan Found) -->
@@ -69,6 +69,7 @@ module.exports = {
 		}
 	},
 	created: function(){
+		console.log(JSON.stringify(this.dataPost));
 		var geocoder = new google.maps.Geocoder;
 
 		//console.log(JSON.stringify(this.dataPost));

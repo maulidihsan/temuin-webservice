@@ -22,7 +22,7 @@
       <!-- end section -->
 
       <div class="uk-width-1-1 section padding-content" style="margin-top: 54px; margin-bottom: 90px;">
-         <div v-for="(itemMessage, index) in messageList" :key="index">
+         <div v-for="(itemMessage) in messageList" :key="itemMessage._id">
             <chat-to v-if="itemMessage.from == propsData.toUsername" :message-data="itemMessage" :user-data="senderDetail"></chat-to>
             <chat-from v-else :message-data="itemMessage" :user-data="ownerDetail"></chat-from>
          </div>
