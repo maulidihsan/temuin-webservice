@@ -398,7 +398,3912 @@ var firebase = createFirebaseNamespace();
 exports.firebase = firebase;
 exports.default = firebase;
 
-},{"@firebase/util":3}],2:[function(require,module,exports){
+},{"@firebase/util":5}],2:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var util = require('@firebase/util');
+var tslib_1 = require('tslib');
+var firebase = _interopDefault(require('@firebase/app'));
+
+/**
+ * Copyright 2018 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var ERROR_CODES = {
+    AVAILABLE_IN_WINDOW: 'only-available-in-window',
+    AVAILABLE_IN_SW: 'only-available-in-sw',
+    SHOULD_BE_INHERITED: 'should-be-overriden',
+    BAD_SENDER_ID: 'bad-sender-id',
+    INCORRECT_GCM_SENDER_ID: 'incorrect-gcm-sender-id',
+    PERMISSION_DEFAULT: 'permission-default',
+    PERMISSION_BLOCKED: 'permission-blocked',
+    UNSUPPORTED_BROWSER: 'unsupported-browser',
+    NOTIFICATIONS_BLOCKED: 'notifications-blocked',
+    FAILED_DEFAULT_REGISTRATION: 'failed-serviceworker-registration',
+    SW_REGISTRATION_EXPECTED: 'sw-registration-expected',
+    GET_SUBSCRIPTION_FAILED: 'get-subscription-failed',
+    INVALID_SAVED_TOKEN: 'invalid-saved-token',
+    SW_REG_REDUNDANT: 'sw-reg-redundant',
+    TOKEN_SUBSCRIBE_FAILED: 'token-subscribe-failed',
+    TOKEN_SUBSCRIBE_NO_TOKEN: 'token-subscribe-no-token',
+    TOKEN_SUBSCRIBE_NO_PUSH_SET: 'token-subscribe-no-push-set',
+    TOKEN_UNSUBSCRIBE_FAILED: 'token-unsubscribe-failed',
+    TOKEN_UPDATE_FAILED: 'token-update-failed',
+    TOKEN_UPDATE_NO_TOKEN: 'token-update-no-token',
+    USE_SW_BEFORE_GET_TOKEN: 'use-sw-before-get-token',
+    INVALID_DELETE_TOKEN: 'invalid-delete-token',
+    DELETE_TOKEN_NOT_FOUND: 'delete-token-not-found',
+    DELETE_SCOPE_NOT_FOUND: 'delete-scope-not-found',
+    BG_HANDLER_FUNCTION_EXPECTED: 'bg-handler-function-expected',
+    NO_WINDOW_CLIENT_TO_MSG: 'no-window-client-to-msg',
+    UNABLE_TO_RESUBSCRIBE: 'unable-to-resubscribe',
+    NO_FCM_TOKEN_FOR_RESUBSCRIBE: 'no-fcm-token-for-resubscribe',
+    FAILED_TO_DELETE_TOKEN: 'failed-to-delete-token',
+    NO_SW_IN_REG: 'no-sw-in-reg',
+    BAD_SCOPE: 'bad-scope',
+    BAD_VAPID_KEY: 'bad-vapid-key',
+    BAD_SUBSCRIPTION: 'bad-subscription',
+    BAD_TOKEN: 'bad-token',
+    BAD_PUSH_SET: 'bad-push-set',
+    FAILED_DELETE_VAPID_KEY: 'failed-delete-vapid-key',
+    INVALID_PUBLIC_VAPID_KEY: 'invalid-public-vapid-key',
+    USE_PUBLIC_KEY_BEFORE_GET_TOKEN: 'use-public-key-before-get-token',
+    PUBLIC_KEY_DECRYPTION_FAILED: 'public-vapid-key-decryption-failed'
+};
+var ERROR_MAP = (_a = {}, _a[ERROR_CODES.AVAILABLE_IN_WINDOW] = 'This method is available in a Window context.', _a[ERROR_CODES.AVAILABLE_IN_SW] = 'This method is available in a service worker ' + 'context.', _a[ERROR_CODES.SHOULD_BE_INHERITED] = 'This method should be overriden by ' + 'extended classes.', _a[ERROR_CODES.BAD_SENDER_ID] = "Please ensure that 'messagingSenderId' is set " +
+        'correctly in the options passed into firebase.initializeApp().', _a[ERROR_CODES.PERMISSION_DEFAULT] = 'The required permissions were not granted and ' + 'dismissed instead.', _a[ERROR_CODES.PERMISSION_BLOCKED] = 'The required permissions were not granted and ' + 'blocked instead.', _a[ERROR_CODES.UNSUPPORTED_BROWSER] = "This browser doesn't support the API's " +
+        'required to use the firebase SDK.', _a[ERROR_CODES.NOTIFICATIONS_BLOCKED] = 'Notifications have been blocked.', _a[ERROR_CODES.FAILED_DEFAULT_REGISTRATION] = 'We are unable to register the ' +
+        'default service worker. {$browserErrorMessage}', _a[ERROR_CODES.SW_REGISTRATION_EXPECTED] = 'A service worker registration was the ' + 'expected input.', _a[ERROR_CODES.GET_SUBSCRIPTION_FAILED] = 'There was an error when trying to get ' +
+        'any existing Push Subscriptions.', _a[ERROR_CODES.INVALID_SAVED_TOKEN] = 'Unable to access details of the saved token.', _a[ERROR_CODES.SW_REG_REDUNDANT] = 'The service worker being used for push was made ' + 'redundant.', _a[ERROR_CODES.TOKEN_SUBSCRIBE_FAILED] = 'A problem occured while subscribing the ' + 'user to FCM: {$message}', _a[ERROR_CODES.TOKEN_SUBSCRIBE_NO_TOKEN] = 'FCM returned no token when subscribing ' + 'the user to push.', _a[ERROR_CODES.TOKEN_SUBSCRIBE_NO_PUSH_SET] = 'FCM returned an invalid response ' + 'when getting an FCM token.', _a[ERROR_CODES.TOKEN_UNSUBSCRIBE_FAILED] = 'A problem occured while unsubscribing the ' + 'user from FCM: {$message}', _a[ERROR_CODES.TOKEN_UPDATE_FAILED] = 'A problem occured while updating the ' + 'user from FCM: {$message}', _a[ERROR_CODES.TOKEN_UPDATE_NO_TOKEN] = 'FCM returned no token when updating ' + 'the user to push.', _a[ERROR_CODES.USE_SW_BEFORE_GET_TOKEN] = 'The useServiceWorker() method may only be called once and must be ' +
+        'called before calling getToken() to ensure your service worker is used.', _a[ERROR_CODES.INVALID_DELETE_TOKEN] = 'You must pass a valid token into ' +
+        'deleteToken(), i.e. the token from getToken().', _a[ERROR_CODES.DELETE_TOKEN_NOT_FOUND] = 'The deletion attempt for token could not ' +
+        'be performed as the token was not found.', _a[ERROR_CODES.DELETE_SCOPE_NOT_FOUND] = 'The deletion attempt for service worker ' +
+        'scope could not be performed as the scope was not found.', _a[ERROR_CODES.BG_HANDLER_FUNCTION_EXPECTED] = 'The input to ' + 'setBackgroundMessageHandler() must be a function.', _a[ERROR_CODES.NO_WINDOW_CLIENT_TO_MSG] = 'An attempt was made to message a ' + 'non-existant window client.', _a[ERROR_CODES.UNABLE_TO_RESUBSCRIBE] = 'There was an error while re-subscribing ' +
+        'the FCM token for push messaging. Will have to resubscribe the ' +
+        'user on next visit. {$message}', _a[ERROR_CODES.NO_FCM_TOKEN_FOR_RESUBSCRIBE] = 'Could not find an FCM token ' +
+        'and as a result, unable to resubscribe. Will have to resubscribe the ' +
+        'user on next visit.', _a[ERROR_CODES.FAILED_TO_DELETE_TOKEN] = 'Unable to delete the currently saved token.', _a[ERROR_CODES.NO_SW_IN_REG] = 'Even though the service worker registration was ' +
+        'successful, there was a problem accessing the service worker itself.', _a[ERROR_CODES.INCORRECT_GCM_SENDER_ID] = "Please change your web app manifest's " +
+        "'gcm_sender_id' value to '103953800507' to use Firebase messaging.", _a[ERROR_CODES.BAD_SCOPE] = 'The service worker scope must be a string with at ' +
+        'least one character.', _a[ERROR_CODES.BAD_VAPID_KEY] = 'The public VAPID key is not a Uint8Array with 65 bytes.', _a[ERROR_CODES.BAD_SUBSCRIPTION] = 'The subscription must be a valid ' + 'PushSubscription.', _a[ERROR_CODES.BAD_TOKEN] = 'The FCM Token used for storage / lookup was not ' +
+        'a valid token string.', _a[ERROR_CODES.BAD_PUSH_SET] = 'The FCM push set used for storage / lookup was not ' +
+        'not a valid push set string.', _a[ERROR_CODES.FAILED_DELETE_VAPID_KEY] = 'The VAPID key could not be deleted.', _a[ERROR_CODES.INVALID_PUBLIC_VAPID_KEY] = 'The public VAPID key must be a string.', _a[ERROR_CODES.PUBLIC_KEY_DECRYPTION_FAILED] = 'The public VAPID key did not equal ' + '65 bytes when decrypted.', _a);
+var errorFactory = new util.ErrorFactory('messaging', 'Messaging', ERROR_MAP);
+var _a;
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var DEFAULT_PUBLIC_VAPID_KEY = new Uint8Array([
+    0x04,
+    0x33,
+    0x94,
+    0xf7,
+    0xdf,
+    0xa1,
+    0xeb,
+    0xb1,
+    0xdc,
+    0x03,
+    0xa2,
+    0x5e,
+    0x15,
+    0x71,
+    0xdb,
+    0x48,
+    0xd3,
+    0x2e,
+    0xed,
+    0xed,
+    0xb2,
+    0x34,
+    0xdb,
+    0xb7,
+    0x47,
+    0x3a,
+    0x0c,
+    0x8f,
+    0xc4,
+    0xcc,
+    0xe1,
+    0x6f,
+    0x3c,
+    0x8c,
+    0x84,
+    0xdf,
+    0xab,
+    0xb6,
+    0x66,
+    0x3e,
+    0xf2,
+    0x0c,
+    0xd4,
+    0x8b,
+    0xfe,
+    0xe3,
+    0xf9,
+    0x76,
+    0x2f,
+    0x14,
+    0x1c,
+    0x63,
+    0x08,
+    0x6a,
+    0x6f,
+    0x2d,
+    0xb1,
+    0x1a,
+    0x95,
+    0xb0,
+    0xce,
+    0x37,
+    0xc0,
+    0x9c,
+    0x6e
+]);
+var ENDPOINT = 'https://fcm.googleapis.com';
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var MessageParameter;
+(function (MessageParameter) {
+    MessageParameter["TYPE_OF_MSG"] = "firebase-messaging-msg-type";
+    MessageParameter["DATA"] = "firebase-messaging-msg-data";
+})(MessageParameter || (MessageParameter = {}));
+var MessageType;
+(function (MessageType) {
+    MessageType["PUSH_MSG_RECEIVED"] = "push-msg-received";
+    MessageType["NOTIFICATION_CLICKED"] = "notification-clicked";
+})(MessageType || (MessageType = {}));
+
+/**
+ * Copyright 2018 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function isArrayBufferEqual(a, b) {
+    if (a == null || b == null) {
+        return false;
+    }
+    if (a === b) {
+        return true;
+    }
+    if (a.byteLength !== b.byteLength) {
+        return false;
+    }
+    var viewA = new DataView(a);
+    var viewB = new DataView(b);
+    for (var i = 0; i < a.byteLength; i++) {
+        if (viewA.getUint8(i) !== viewB.getUint8(i)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function toBase64(arrayBuffer) {
+    var uint8Version = new Uint8Array(arrayBuffer);
+    return btoa(String.fromCharCode.apply(null, uint8Version));
+}
+function arrayBufferToBase64(arrayBuffer) {
+    var base64String = toBase64(arrayBuffer);
+    return base64String
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var IidModel = /** @class */ (function () {
+    function IidModel() {
+    }
+    IidModel.prototype.getToken = function (senderId, subscription, publicVapidKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var p256dh, auth, fcmSubscribeBody, applicationPubKey, headers, subscribeOptions, responseData, response, err_1, message;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        p256dh = arrayBufferToBase64(subscription.getKey('p256dh'));
+                        auth = arrayBufferToBase64(subscription.getKey('auth'));
+                        fcmSubscribeBody = "authorized_entity=" + senderId + "&" +
+                            ("endpoint=" + subscription.endpoint + "&") +
+                            ("encryption_key=" + p256dh + "&") +
+                            ("encryption_auth=" + auth);
+                        if (publicVapidKey !== DEFAULT_PUBLIC_VAPID_KEY) {
+                            applicationPubKey = arrayBufferToBase64(publicVapidKey);
+                            fcmSubscribeBody += "&application_pub_key=" + applicationPubKey;
+                        }
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+                        subscribeOptions = {
+                            method: 'POST',
+                            headers: headers,
+                            body: fcmSubscribeBody
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, fetch(ENDPOINT + '/fcm/connect/subscribe', subscribeOptions)];
+                    case 2:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 3:
+                        responseData = _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        err_1 = _a.sent();
+                        throw errorFactory.create(ERROR_CODES.TOKEN_SUBSCRIBE_FAILED);
+                    case 5:
+                        if (responseData.error) {
+                            message = responseData.error.message;
+                            throw errorFactory.create(ERROR_CODES.TOKEN_SUBSCRIBE_FAILED, {
+                                message: message
+                            });
+                        }
+                        if (!responseData.token) {
+                            throw errorFactory.create(ERROR_CODES.TOKEN_SUBSCRIBE_NO_TOKEN);
+                        }
+                        if (!responseData.pushSet) {
+                            throw errorFactory.create(ERROR_CODES.TOKEN_SUBSCRIBE_NO_PUSH_SET);
+                        }
+                        return [2 /*return*/, {
+                                token: responseData.token,
+                                pushSet: responseData.pushSet
+                            }];
+                }
+            });
+        });
+    };
+    /**
+     * Update the underlying token details for fcmToken.
+     */
+    IidModel.prototype.updateToken = function (senderId, fcmToken, fcmPushSet, subscription, publicVapidKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var p256dh, auth, fcmUpdateBody, applicationPubKey, headers, updateOptions, responseData, response, err_2, message;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        p256dh = arrayBufferToBase64(subscription.getKey('p256dh'));
+                        auth = arrayBufferToBase64(subscription.getKey('auth'));
+                        fcmUpdateBody = "push_set=" + fcmPushSet + "&" +
+                            ("token=" + fcmToken + "&") +
+                            ("authorized_entity=" + senderId + "&") +
+                            ("endpoint=" + subscription.endpoint + "&") +
+                            ("encryption_key=" + p256dh + "&") +
+                            ("encryption_auth=" + auth);
+                        if (publicVapidKey !== DEFAULT_PUBLIC_VAPID_KEY) {
+                            applicationPubKey = arrayBufferToBase64(publicVapidKey);
+                            fcmUpdateBody += "&application_pub_key=" + applicationPubKey;
+                        }
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+                        updateOptions = {
+                            method: 'POST',
+                            headers: headers,
+                            body: fcmUpdateBody
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, fetch(ENDPOINT + '/fcm/connect/subscribe', updateOptions)];
+                    case 2:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 3:
+                        responseData = _a.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        err_2 = _a.sent();
+                        throw errorFactory.create(ERROR_CODES.TOKEN_UPDATE_FAILED);
+                    case 5:
+                        if (responseData.error) {
+                            message = responseData.error.message;
+                            throw errorFactory.create(ERROR_CODES.TOKEN_UPDATE_FAILED, {
+                                message: message
+                            });
+                        }
+                        if (!responseData.token) {
+                            throw errorFactory.create(ERROR_CODES.TOKEN_UPDATE_NO_TOKEN);
+                        }
+                        return [2 /*return*/, responseData.token];
+                }
+            });
+        });
+    };
+    /**
+     * Given a fcmToken, pushSet and messagingSenderId, delete an FCM token.
+     */
+    IidModel.prototype.deleteToken = function (senderId, fcmToken, fcmPushSet) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var fcmUnsubscribeBody, headers, unsubscribeOptions, response, responseData, message, err_3;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        fcmUnsubscribeBody = "authorized_entity=" + senderId + "&" +
+                            ("token=" + fcmToken + "&") +
+                            ("pushSet=" + fcmPushSet);
+                        headers = new Headers();
+                        headers.append('Content-Type', 'application/x-www-form-urlencoded');
+                        unsubscribeOptions = {
+                            method: 'POST',
+                            headers: headers,
+                            body: fcmUnsubscribeBody
+                        };
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 4, , 5]);
+                        return [4 /*yield*/, fetch(ENDPOINT + '/fcm/connect/unsubscribe', unsubscribeOptions)];
+                    case 2:
+                        response = _a.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 3:
+                        responseData = _a.sent();
+                        if (responseData.error) {
+                            message = responseData.error.message;
+                            throw errorFactory.create(ERROR_CODES.TOKEN_UNSUBSCRIBE_FAILED, {
+                                message: message
+                            });
+                        }
+                        return [3 /*break*/, 5];
+                    case 4:
+                        err_3 = _a.sent();
+                        throw errorFactory.create(ERROR_CODES.TOKEN_UNSUBSCRIBE_FAILED);
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return IidModel;
+}());
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function base64ToArrayBuffer(base64String) {
+    var padding = '='.repeat((4 - base64String.length % 4) % 4);
+    var base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+    var rawData = atob(base64);
+    var outputArray = new Uint8Array(rawData.length);
+    for (var i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var OLD_DB_NAME = 'undefined';
+var OLD_OBJECT_STORE_NAME = 'fcm_token_object_Store';
+function handleDb(db) {
+    if (!db.objectStoreNames.contains(OLD_OBJECT_STORE_NAME)) {
+        // We found a database with the name 'undefined', but our expected object
+        // store isn't defined.
+        return;
+    }
+    var transaction = db.transaction(OLD_OBJECT_STORE_NAME);
+    var objectStore = transaction.objectStore(OLD_OBJECT_STORE_NAME);
+    var iidModel = new IidModel();
+    var openCursorRequest = objectStore.openCursor();
+    openCursorRequest.onerror = function (event) {
+        // NOOP - Nothing we can do.
+        console.warn('Unable to cleanup old IDB.', event);
+    };
+    openCursorRequest.onsuccess = function () {
+        var cursor = openCursorRequest.result;
+        if (cursor) {
+            // cursor.value contains the current record being iterated through
+            // this is where you'd do something with the result
+            var tokenDetails = cursor.value;
+            iidModel.deleteToken(tokenDetails.fcmSenderId, tokenDetails.fcmToken, tokenDetails.fcmPushSet);
+            cursor.continue();
+        }
+        else {
+            db.close();
+            indexedDB.deleteDatabase(OLD_DB_NAME);
+        }
+    };
+}
+function cleanV1() {
+    var request = indexedDB.open(OLD_DB_NAME);
+    request.onerror = function (event) {
+        // NOOP - Nothing we can do.
+    };
+    request.onsuccess = function (event) {
+        var db = request.result;
+        handleDb(db);
+    };
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var DbInterface = /** @class */ (function () {
+    function DbInterface() {
+        this.dbPromise = null;
+    }
+    /** Gets record(s) from the objectStore that match the given key. */
+    DbInterface.prototype.get = function (key) {
+        return this.createTransaction(function (objectStore) { return objectStore.get(key); });
+    };
+    /** Gets record(s) from the objectStore that match the given index. */
+    DbInterface.prototype.getIndex = function (index, key) {
+        function runRequest(objectStore) {
+            var idbIndex = objectStore.index(index);
+            return idbIndex.get(key);
+        }
+        return this.createTransaction(runRequest);
+    };
+    /** Assigns or overwrites the record for the given value. */
+    // tslint:disable-next-line:no-any IndexedDB values are of type "any"
+    DbInterface.prototype.put = function (value) {
+        return this.createTransaction(function (objectStore) { return objectStore.put(value); }, 'readwrite');
+    };
+    /** Deletes record(s) from the objectStore that match the given key. */
+    DbInterface.prototype.delete = function (key) {
+        return this.createTransaction(function (objectStore) { return objectStore.delete(key); }, 'readwrite');
+    };
+    /**
+     * Close the currently open database.
+     */
+    DbInterface.prototype.closeDatabase = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var db;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.dbPromise) return [3 /*break*/, 2];
+                        return [4 /*yield*/, this.dbPromise];
+                    case 1:
+                        db = _a.sent();
+                        db.close();
+                        this.dbPromise = null;
+                        _a.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Creates an IndexedDB Transaction and passes its objectStore to the
+     * runRequest function, which runs the database request.
+     *
+     * @return Promise that resolves with the result of the runRequest function
+     */
+    DbInterface.prototype.createTransaction = function (runRequest, mode) {
+        if (mode === void 0) { mode = 'readonly'; }
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var db, transaction, request, result;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getDb()];
+                    case 1:
+                        db = _a.sent();
+                        transaction = db.transaction(this.objectStoreName, mode);
+                        request = transaction.objectStore(this.objectStoreName);
+                        return [4 /*yield*/, promisify(runRequest(request))];
+                    case 2:
+                        result = _a.sent();
+                        return [2 /*return*/, new Promise(function (resolve, reject) {
+                                transaction.oncomplete = function () {
+                                    resolve(result);
+                                };
+                                transaction.onerror = function () {
+                                    reject(transaction.error);
+                                };
+                            })];
+                }
+            });
+        });
+    };
+    /** Gets the cached db connection or opens a new one. */
+    DbInterface.prototype.getDb = function () {
+        var _this = this;
+        if (!this.dbPromise) {
+            this.dbPromise = new Promise(function (resolve, reject) {
+                var request = indexedDB.open(_this.dbName, _this.dbVersion);
+                request.onsuccess = function () {
+                    resolve(request.result);
+                };
+                request.onerror = function () {
+                    _this.dbPromise = null;
+                    reject(request.error);
+                };
+                request.onupgradeneeded = function (event) { return _this.onDbUpgrade(request, event); };
+            });
+        }
+        return this.dbPromise;
+    };
+    return DbInterface;
+}());
+/** Promisifies an IDBRequest. Resolves with the IDBRequest's result. */
+function promisify(request) {
+    return new Promise(function (resolve, reject) {
+        request.onsuccess = function () {
+            resolve(request.result);
+        };
+        request.onerror = function () {
+            reject(request.error);
+        };
+    });
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var TokenDetailsModel = /** @class */ (function (_super) {
+    tslib_1.__extends(TokenDetailsModel, _super);
+    function TokenDetailsModel() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.dbName = 'fcm_token_details_db';
+        _this.dbVersion = 3;
+        _this.objectStoreName = 'fcm_token_object_Store';
+        return _this;
+    }
+    TokenDetailsModel.prototype.onDbUpgrade = function (request, event) {
+        var db = request.result;
+        // Lack of 'break' statements is intentional.
+        switch (event.oldVersion) {
+            case 0: {
+                // New IDB instance
+                var objectStore = db.createObjectStore(this.objectStoreName, {
+                    keyPath: 'swScope'
+                });
+                // Make sure the sender ID can be searched
+                objectStore.createIndex('fcmSenderId', 'fcmSenderId', {
+                    unique: false
+                });
+                objectStore.createIndex('fcmToken', 'fcmToken', { unique: true });
+            }
+            case 1: {
+                // Prior to version 2, we were using either 'fcm_token_details_db'
+                // or 'undefined' as the database name due to bug in the SDK
+                // So remove the old tokens and databases.
+                cleanV1();
+            }
+            case 2: {
+                var objectStore = request.transaction.objectStore(this.objectStoreName);
+                var cursorRequest_1 = objectStore.openCursor();
+                cursorRequest_1.onsuccess = function () {
+                    var cursor = cursorRequest_1.result;
+                    if (cursor) {
+                        var value = cursor.value;
+                        var newValue = tslib_1.__assign({}, value);
+                        if (!value.createTime) {
+                            newValue.createTime = Date.now();
+                        }
+                        if (typeof value.vapidKey === 'string') {
+                            newValue.vapidKey = base64ToArrayBuffer(value.vapidKey);
+                        }
+                        if (typeof value.auth === 'string') {
+                            newValue.auth = base64ToArrayBuffer(value.auth).buffer;
+                        }
+                        if (typeof value.auth === 'string') {
+                            newValue.p256dh = base64ToArrayBuffer(value.p256dh).buffer;
+                        }
+                        cursor.update(newValue);
+                        cursor.continue();
+                    }
+                };
+            }
+        }
+    };
+    /**
+     * Given a token, this method will look up the details in indexedDB.
+     */
+    TokenDetailsModel.prototype.getTokenDetailsFromToken = function (fcmToken) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (!fcmToken) {
+                    throw errorFactory.create(ERROR_CODES.BAD_TOKEN);
+                }
+                validateInputs({ fcmToken: fcmToken });
+                return [2 /*return*/, this.getIndex('fcmToken', fcmToken)];
+            });
+        });
+    };
+    /**
+     * Given a service worker scope, this method will look up the details in
+     * indexedDB.
+     * @return The details associated with that token.
+     */
+    TokenDetailsModel.prototype.getTokenDetailsFromSWScope = function (swScope) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (!swScope) {
+                    throw errorFactory.create(ERROR_CODES.BAD_SCOPE);
+                }
+                validateInputs({ swScope: swScope });
+                return [2 /*return*/, this.get(swScope)];
+            });
+        });
+    };
+    /**
+     * Save the details for the fcm token for re-use at a later date.
+     * @param input A plain js object containing args to save.
+     */
+    TokenDetailsModel.prototype.saveTokenDetails = function (tokenDetails) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (!tokenDetails.swScope) {
+                    throw errorFactory.create(ERROR_CODES.BAD_SCOPE);
+                }
+                if (!tokenDetails.vapidKey) {
+                    throw errorFactory.create(ERROR_CODES.BAD_VAPID_KEY);
+                }
+                if (!tokenDetails.endpoint || !tokenDetails.auth || !tokenDetails.p256dh) {
+                    throw errorFactory.create(ERROR_CODES.BAD_SUBSCRIPTION);
+                }
+                if (!tokenDetails.fcmSenderId) {
+                    throw errorFactory.create(ERROR_CODES.BAD_SENDER_ID);
+                }
+                if (!tokenDetails.fcmToken) {
+                    throw errorFactory.create(ERROR_CODES.BAD_TOKEN);
+                }
+                if (!tokenDetails.fcmPushSet) {
+                    throw errorFactory.create(ERROR_CODES.BAD_PUSH_SET);
+                }
+                validateInputs(tokenDetails);
+                return [2 /*return*/, this.put(tokenDetails)];
+            });
+        });
+    };
+    /**
+     * This method deletes details of the current FCM token.
+     * It's returning a promise in case we need to move to an async
+     * method for deleting at a later date.
+     *
+     * @return Resolves once the FCM token details have been deleted and returns
+     * the deleted details.
+     */
+    TokenDetailsModel.prototype.deleteToken = function (token) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var details;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (typeof token !== 'string' || token.length === 0) {
+                            return [2 /*return*/, Promise.reject(errorFactory.create(ERROR_CODES.INVALID_DELETE_TOKEN))];
+                        }
+                        return [4 /*yield*/, this.getTokenDetailsFromToken(token)];
+                    case 1:
+                        details = _a.sent();
+                        if (!details) {
+                            throw errorFactory.create(ERROR_CODES.DELETE_TOKEN_NOT_FOUND);
+                        }
+                        return [4 /*yield*/, this.delete(details.swScope)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, details];
+                }
+            });
+        });
+    };
+    return TokenDetailsModel;
+}(DbInterface));
+/**
+ * This method takes an object and will check for known arguments and
+ * validate the input.
+ * @return Promise that resolves if input is valid, rejects otherwise.
+ */
+function validateInputs(input) {
+    if (input.fcmToken) {
+        if (typeof input.fcmToken !== 'string' || input.fcmToken.length === 0) {
+            throw errorFactory.create(ERROR_CODES.BAD_TOKEN);
+        }
+    }
+    if (input.swScope) {
+        if (typeof input.swScope !== 'string' || input.swScope.length === 0) {
+            throw errorFactory.create(ERROR_CODES.BAD_SCOPE);
+        }
+    }
+    if (input.vapidKey) {
+        if (!(input.vapidKey instanceof Uint8Array) ||
+            input.vapidKey.length !== 65) {
+            throw errorFactory.create(ERROR_CODES.BAD_VAPID_KEY);
+        }
+    }
+    if (input.endpoint) {
+        if (typeof input.endpoint !== 'string' || input.endpoint.length === 0) {
+            throw errorFactory.create(ERROR_CODES.BAD_SUBSCRIPTION);
+        }
+    }
+    if (input.auth) {
+        if (!(input.auth instanceof ArrayBuffer)) {
+            throw errorFactory.create(ERROR_CODES.BAD_SUBSCRIPTION);
+        }
+    }
+    if (input.p256dh) {
+        if (!(input.p256dh instanceof ArrayBuffer)) {
+            throw errorFactory.create(ERROR_CODES.BAD_SUBSCRIPTION);
+        }
+    }
+    if (input.fcmSenderId) {
+        if (typeof input.fcmSenderId !== 'string' ||
+            input.fcmSenderId.length === 0) {
+            throw errorFactory.create(ERROR_CODES.BAD_SENDER_ID);
+        }
+    }
+    if (input.fcmPushSet) {
+        if (typeof input.fcmPushSet !== 'string' || input.fcmPushSet.length === 0) {
+            throw errorFactory.create(ERROR_CODES.BAD_PUSH_SET);
+        }
+    }
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var UNCOMPRESSED_PUBLIC_KEY_SIZE = 65;
+var VapidDetailsModel = /** @class */ (function (_super) {
+    tslib_1.__extends(VapidDetailsModel, _super);
+    function VapidDetailsModel() {
+        var _this = _super !== null && _super.apply(this, arguments) || this;
+        _this.dbName = 'fcm_vapid_details_db';
+        _this.dbVersion = 1;
+        _this.objectStoreName = 'fcm_vapid_object_Store';
+        return _this;
+    }
+    VapidDetailsModel.prototype.onDbUpgrade = function (request) {
+        var db = request.result;
+        db.createObjectStore(this.objectStoreName, { keyPath: 'swScope' });
+    };
+    /**
+     * Given a service worker scope, this method will look up the vapid key
+     * in indexedDB.
+     */
+    VapidDetailsModel.prototype.getVapidFromSWScope = function (swScope) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var result;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (typeof swScope !== 'string' || swScope.length === 0) {
+                            throw errorFactory.create(ERROR_CODES.BAD_SCOPE);
+                        }
+                        return [4 /*yield*/, this.get(swScope)];
+                    case 1:
+                        result = _a.sent();
+                        return [2 /*return*/, result ? result.vapidKey : undefined];
+                }
+            });
+        });
+    };
+    /**
+     * Save a vapid key against a swScope for later date.
+     */
+    VapidDetailsModel.prototype.saveVapidDetails = function (swScope, vapidKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var details;
+            return tslib_1.__generator(this, function (_a) {
+                if (typeof swScope !== 'string' || swScope.length === 0) {
+                    throw errorFactory.create(ERROR_CODES.BAD_SCOPE);
+                }
+                if (vapidKey === null || vapidKey.length !== UNCOMPRESSED_PUBLIC_KEY_SIZE) {
+                    throw errorFactory.create(ERROR_CODES.BAD_VAPID_KEY);
+                }
+                details = {
+                    swScope: swScope,
+                    vapidKey: vapidKey
+                };
+                return [2 /*return*/, this.put(details)];
+            });
+        });
+    };
+    /**
+     * This method deletes details of the current FCM VAPID key for a SW scope.
+     * Resolves once the scope/vapid details have been deleted and returns the
+     * deleted vapid key.
+     */
+    VapidDetailsModel.prototype.deleteVapidDetails = function (swScope) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var vapidKey;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getVapidFromSWScope(swScope)];
+                    case 1:
+                        vapidKey = _a.sent();
+                        if (!vapidKey) {
+                            throw errorFactory.create(ERROR_CODES.DELETE_SCOPE_NOT_FOUND);
+                        }
+                        return [4 /*yield*/, this.delete(swScope)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/, vapidKey];
+                }
+            });
+        });
+    };
+    return VapidDetailsModel;
+}(DbInterface));
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var SENDER_ID_OPTION_NAME = 'messagingSenderId';
+// Database cache should be invalidated once a week.
+var TOKEN_EXPIRATION_MILLIS = 7 * 24 * 60 * 60 * 1000; // 7 days
+var BaseController = /** @class */ (function () {
+    /**
+     * An interface of the Messaging Service API
+     */
+    function BaseController(app) {
+        var _this = this;
+        if (!app.options[SENDER_ID_OPTION_NAME] ||
+            typeof app.options[SENDER_ID_OPTION_NAME] !== 'string') {
+            throw errorFactory.create(ERROR_CODES.BAD_SENDER_ID);
+        }
+        this.messagingSenderId = app.options[SENDER_ID_OPTION_NAME];
+        this.tokenDetailsModel = new TokenDetailsModel();
+        this.vapidDetailsModel = new VapidDetailsModel();
+        this.iidModel = new IidModel();
+        this.app = app;
+        this.INTERNAL = {
+            delete: function () { return _this.delete(); }
+        };
+    }
+    /**
+     * @export
+     */
+    BaseController.prototype.getToken = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var currentPermission, swReg, publicVapidKey, pushSubscription, tokenDetails;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        currentPermission = this.getNotificationPermission_();
+                        if (currentPermission === 'denied') {
+                            throw errorFactory.create(ERROR_CODES.NOTIFICATIONS_BLOCKED);
+                        }
+                        else if (currentPermission !== 'granted') {
+                            // We must wait for permission to be granted
+                            return [2 /*return*/, null];
+                        }
+                        return [4 /*yield*/, this.getSWRegistration_()];
+                    case 1:
+                        swReg = _a.sent();
+                        return [4 /*yield*/, this.getPublicVapidKey_()];
+                    case 2:
+                        publicVapidKey = _a.sent();
+                        return [4 /*yield*/, this.getPushSubscription(swReg, publicVapidKey)];
+                    case 3:
+                        pushSubscription = _a.sent();
+                        return [4 /*yield*/, this.tokenDetailsModel.getTokenDetailsFromSWScope(swReg.scope)];
+                    case 4:
+                        tokenDetails = _a.sent();
+                        if (tokenDetails) {
+                            return [2 /*return*/, this.manageExistingToken(swReg, pushSubscription, publicVapidKey, tokenDetails)];
+                        }
+                        return [2 /*return*/, this.getNewToken(swReg, pushSubscription, publicVapidKey)];
+                }
+            });
+        });
+    };
+    /**
+     * manageExistingToken is triggered if there's an existing FCM token in the
+     * database and it can take 3 different actions:
+     * 1) Retrieve the existing FCM token from the database.
+     * 2) If VAPID details have changed: Delete the existing token and create a
+     * new one with the new VAPID key.
+     * 3) If the database cache is invalidated: Send a request to FCM to update
+     * the token, and to check if the token is still valid on FCM-side.
+     */
+    BaseController.prototype.manageExistingToken = function (swReg, pushSubscription, publicVapidKey, tokenDetails) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var isTokenValid, now;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        isTokenValid = isTokenStillValid(pushSubscription, publicVapidKey, tokenDetails);
+                        if (isTokenValid) {
+                            now = Date.now();
+                            if (now < tokenDetails.createTime + TOKEN_EXPIRATION_MILLIS) {
+                                return [2 /*return*/, tokenDetails.fcmToken];
+                            }
+                            else {
+                                return [2 /*return*/, this.updateToken(swReg, pushSubscription, publicVapidKey, tokenDetails)];
+                            }
+                        }
+                        // If the token is no longer valid (for example if the VAPID details
+                        // have changed), delete the existing token from the FCM client and server
+                        // database. No need to unsubscribe from the Service Worker as we have a
+                        // good push subscription that we'd like to use in getNewToken.
+                        return [4 /*yield*/, this.deleteTokenFromDB(tokenDetails.fcmToken)];
+                    case 1:
+                        // If the token is no longer valid (for example if the VAPID details
+                        // have changed), delete the existing token from the FCM client and server
+                        // database. No need to unsubscribe from the Service Worker as we have a
+                        // good push subscription that we'd like to use in getNewToken.
+                        _a.sent();
+                        return [2 /*return*/, this.getNewToken(swReg, pushSubscription, publicVapidKey)];
+                }
+            });
+        });
+    };
+    BaseController.prototype.updateToken = function (swReg, pushSubscription, publicVapidKey, tokenDetails) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var updatedToken, allDetails, e_1;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 4, , 6]);
+                        return [4 /*yield*/, this.iidModel.updateToken(this.messagingSenderId, tokenDetails.fcmToken, tokenDetails.fcmPushSet, pushSubscription, publicVapidKey)];
+                    case 1:
+                        updatedToken = _a.sent();
+                        allDetails = {
+                            swScope: swReg.scope,
+                            vapidKey: publicVapidKey,
+                            fcmSenderId: this.messagingSenderId,
+                            fcmToken: updatedToken,
+                            fcmPushSet: tokenDetails.fcmPushSet,
+                            createTime: Date.now(),
+                            endpoint: pushSubscription.endpoint,
+                            auth: pushSubscription.getKey('auth'),
+                            p256dh: pushSubscription.getKey('p256dh')
+                        };
+                        return [4 /*yield*/, this.tokenDetailsModel.saveTokenDetails(allDetails)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.vapidDetailsModel.saveVapidDetails(swReg.scope, publicVapidKey)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/, updatedToken];
+                    case 4:
+                        e_1 = _a.sent();
+                        return [4 /*yield*/, this.deleteToken(tokenDetails.fcmToken)];
+                    case 5:
+                        _a.sent();
+                        throw e_1;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    BaseController.prototype.getNewToken = function (swReg, pushSubscription, publicVapidKey) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var tokenDetails, allDetails;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.iidModel.getToken(this.messagingSenderId, pushSubscription, publicVapidKey)];
+                    case 1:
+                        tokenDetails = _a.sent();
+                        allDetails = {
+                            swScope: swReg.scope,
+                            vapidKey: publicVapidKey,
+                            fcmSenderId: this.messagingSenderId,
+                            fcmToken: tokenDetails.token,
+                            fcmPushSet: tokenDetails.pushSet,
+                            createTime: Date.now(),
+                            endpoint: pushSubscription.endpoint,
+                            auth: pushSubscription.getKey('auth'),
+                            p256dh: pushSubscription.getKey('p256dh')
+                        };
+                        return [4 /*yield*/, this.tokenDetailsModel.saveTokenDetails(allDetails)];
+                    case 2:
+                        _a.sent();
+                        return [4 /*yield*/, this.vapidDetailsModel.saveVapidDetails(swReg.scope, publicVapidKey)];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/, tokenDetails.token];
+                }
+            });
+        });
+    };
+    /**
+     * This method deletes tokens that the token manager looks after,
+     * unsubscribes the token from FCM  and then unregisters the push
+     * subscription if it exists. It returns a promise that indicates
+     * whether or not the unsubscribe request was processed successfully.
+     */
+    BaseController.prototype.deleteToken = function (token) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var registration, pushSubscription;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: 
+                    // Delete the token details from the database.
+                    return [4 /*yield*/, this.deleteTokenFromDB(token)];
+                    case 1:
+                        // Delete the token details from the database.
+                        _a.sent();
+                        return [4 /*yield*/, this.getSWRegistration_()];
+                    case 2:
+                        registration = _a.sent();
+                        if (!registration) return [3 /*break*/, 4];
+                        return [4 /*yield*/, registration.pushManager.getSubscription()];
+                    case 3:
+                        pushSubscription = _a.sent();
+                        if (pushSubscription) {
+                            return [2 /*return*/, pushSubscription.unsubscribe()];
+                        }
+                        _a.label = 4;
+                    case 4: 
+                    // If there's no SW, consider it a success.
+                    return [2 /*return*/, true];
+                }
+            });
+        });
+    };
+    /**
+     * This method will delete the token from the client database, and make a
+     * call to FCM to remove it from the server DB. Does not temper with the
+     * push subscription.
+     */
+    BaseController.prototype.deleteTokenFromDB = function (token) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var details;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.tokenDetailsModel.deleteToken(token)];
+                    case 1:
+                        details = _a.sent();
+                        return [4 /*yield*/, this.iidModel.deleteToken(details.fcmSenderId, details.fcmToken, details.fcmPushSet)];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Gets a PushSubscription for the current user.
+     */
+    BaseController.prototype.getPushSubscription = function (swRegistration, publicVapidKey) {
+        return swRegistration.pushManager.getSubscription().then(function (subscription) {
+            if (subscription) {
+                return subscription;
+            }
+            return swRegistration.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: publicVapidKey
+            });
+        });
+    };
+    //
+    // The following methods should only be available in the window.
+    //
+    BaseController.prototype.requestPermission = function () {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_WINDOW);
+    };
+    BaseController.prototype.useServiceWorker = function (registration) {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_WINDOW);
+    };
+    BaseController.prototype.usePublicVapidKey = function (b64PublicKey) {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_WINDOW);
+    };
+    BaseController.prototype.onMessage = function (nextOrObserver, error, completed) {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_WINDOW);
+    };
+    BaseController.prototype.onTokenRefresh = function (nextOrObserver, error, completed) {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_WINDOW);
+    };
+    //
+    // The following methods are used by the service worker only.
+    //
+    BaseController.prototype.setBackgroundMessageHandler = function (callback) {
+        throw errorFactory.create(ERROR_CODES.AVAILABLE_IN_SW);
+    };
+    //
+    // The following methods are used by the service themselves and not exposed
+    // publicly or not expected to be used by developers.
+    //
+    /**
+     * This method is required to adhere to the Firebase interface.
+     * It closes any currently open indexdb database connections.
+     */
+    BaseController.prototype.delete = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, Promise.all([
+                            this.tokenDetailsModel.closeDatabase(),
+                            this.vapidDetailsModel.closeDatabase()
+                        ])];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * Returns the current Notification Permission state.
+     */
+    BaseController.prototype.getNotificationPermission_ = function () {
+        // TODO: Remove the cast when this issue is fixed:
+        // https://github.com/Microsoft/TypeScript/issues/14701
+        // tslint:disable-next-line no-any
+        return Notification.permission;
+    };
+    BaseController.prototype.getTokenDetailsModel = function () {
+        return this.tokenDetailsModel;
+    };
+    BaseController.prototype.getVapidDetailsModel = function () {
+        return this.vapidDetailsModel;
+    };
+    // Visible for testing
+    // TODO: make protected
+    BaseController.prototype.getIidModel = function () {
+        return this.iidModel;
+    };
+    return BaseController;
+}());
+/**
+ * Checks if the tokenDetails match the details provided in the clients.
+ */
+function isTokenStillValid(pushSubscription, publicVapidKey, tokenDetails) {
+    if (!tokenDetails.vapidKey ||
+        !isArrayBufferEqual(publicVapidKey.buffer, tokenDetails.vapidKey.buffer)) {
+        return false;
+    }
+    var isEndpointEqual = pushSubscription.endpoint === tokenDetails.endpoint;
+    var isAuthEqual = isArrayBufferEqual(pushSubscription.getKey('auth'), tokenDetails.auth);
+    var isP256dhEqual = isArrayBufferEqual(pushSubscription.getKey('p256dh'), tokenDetails.p256dh);
+    return isEndpointEqual && isAuthEqual && isP256dhEqual;
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var FCM_MSG = 'FCM_MSG';
+var SwController = /** @class */ (function (_super) {
+    tslib_1.__extends(SwController, _super);
+    function SwController(app) {
+        var _this = _super.call(this, app) || this;
+        _this.bgMessageHandler = null;
+        self.addEventListener('push', function (e) {
+            _this.onPush(e);
+        });
+        self.addEventListener('pushsubscriptionchange', function (e) {
+            _this.onSubChange(e);
+        });
+        self.addEventListener('notificationclick', function (e) {
+            _this.onNotificationClick(e);
+        });
+        return _this;
+    }
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.onPush = function (event) {
+        event.waitUntil(this.onPush_(event));
+    };
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.onSubChange = function (event) {
+        event.waitUntil(this.onSubChange_(event));
+    };
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.onNotificationClick = function (event) {
+        event.waitUntil(this.onNotificationClick_(event));
+    };
+    /**
+     * A handler for push events that shows notifications based on the content of
+     * the payload.
+     *
+     * The payload must be a JSON-encoded Object with a `notification` key. The
+     * value of the `notification` property will be used as the NotificationOptions
+     * object passed to showNotification. Additionally, the `title` property of the
+     * notification object will be used as the title.
+     *
+     * If there is no notification data in the payload then no notification will be
+     * shown.
+     */
+    SwController.prototype.onPush_ = function (event) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var msgPayload, hasVisibleClients, notificationDetails, notificationTitle, reg, actions, maxActions;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!event.data) {
+                            return [2 /*return*/];
+                        }
+                        try {
+                            msgPayload = event.data.json();
+                        }
+                        catch (err) {
+                            // Not JSON so not an FCM message
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this.hasVisibleClients_()];
+                    case 1:
+                        hasVisibleClients = _a.sent();
+                        if (hasVisibleClients) {
+                            // App in foreground. Send to page.
+                            return [2 /*return*/, this.sendMessageToWindowClients_(msgPayload)];
+                        }
+                        notificationDetails = this.getNotificationData_(msgPayload);
+                        if (!notificationDetails) return [3 /*break*/, 3];
+                        notificationTitle = notificationDetails.title || '';
+                        return [4 /*yield*/, this.getSWRegistration_()];
+                    case 2:
+                        reg = _a.sent();
+                        actions = notificationDetails.actions;
+                        maxActions = Notification.maxActions;
+                        // tslint:enable no-any
+                        if (actions && maxActions && actions.length > maxActions) {
+                            console.warn("This browser only supports " + maxActions + " actions." +
+                                "The remaining actions will not be displayed.");
+                        }
+                        return [2 /*return*/, reg.showNotification(notificationTitle, notificationDetails)];
+                    case 3:
+                        if (!this.bgMessageHandler) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.bgMessageHandler(msgPayload)];
+                    case 4:
+                        _a.sent();
+                        return [2 /*return*/];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SwController.prototype.onSubChange_ = function (event) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var registration, err_1, err_2, tokenDetailsModel, tokenDetails;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.getSWRegistration_()];
+                    case 1:
+                        registration = _a.sent();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        err_1 = _a.sent();
+                        throw errorFactory.create(ERROR_CODES.UNABLE_TO_RESUBSCRIBE, {
+                            message: err_1
+                        });
+                    case 3:
+                        _a.trys.push([3, 5, , 8]);
+                        return [4 /*yield*/, registration.pushManager.getSubscription()];
+                    case 4:
+                        _a.sent();
+                        return [3 /*break*/, 8];
+                    case 5:
+                        err_2 = _a.sent();
+                        tokenDetailsModel = this.getTokenDetailsModel();
+                        return [4 /*yield*/, tokenDetailsModel.getTokenDetailsFromSWScope(registration.scope)];
+                    case 6:
+                        tokenDetails = _a.sent();
+                        if (!tokenDetails) {
+                            // This should rarely occure, but could if indexedDB
+                            // is corrupted or wiped
+                            throw err_2;
+                        }
+                        // Attempt to delete the token if we know it's bad
+                        return [4 /*yield*/, this.deleteToken(tokenDetails.fcmToken)];
+                    case 7:
+                        // Attempt to delete the token if we know it's bad
+                        _a.sent();
+                        throw err_2;
+                    case 8: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    SwController.prototype.onNotificationClick_ = function (event) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var msgPayload, clickAction, windowClient, internalMsg;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!event.notification ||
+                            !event.notification.data ||
+                            !event.notification.data[FCM_MSG]) {
+                            // Not an FCM notification, do nothing.
+                            return [2 /*return*/];
+                        }
+                        else if (event.action) {
+                            // User clicked on an action button.
+                            // This will allow devs to act on action button clicks by using a custom
+                            // onNotificationClick listener that they define.
+                            return [2 /*return*/];
+                        }
+                        // Prevent other listeners from receiving the event
+                        event.stopImmediatePropagation();
+                        event.notification.close();
+                        msgPayload = event.notification.data[FCM_MSG];
+                        if (!msgPayload.notification) {
+                            // Nothing to do.
+                            return [2 /*return*/];
+                        }
+                        clickAction = msgPayload.notification.click_action;
+                        if (!clickAction) {
+                            // Nothing to do.
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this.getWindowClient_(clickAction)];
+                    case 1:
+                        windowClient = _a.sent();
+                        if (!!windowClient) return [3 /*break*/, 3];
+                        return [4 /*yield*/, self.clients.openWindow(clickAction)];
+                    case 2:
+                        // Unable to find window client so need to open one.
+                        windowClient = _a.sent();
+                        return [3 /*break*/, 5];
+                    case 3: return [4 /*yield*/, windowClient.focus()];
+                    case 4:
+                        windowClient = _a.sent();
+                        _a.label = 5;
+                    case 5:
+                        if (!windowClient) {
+                            // Window Client will not be returned if it's for a third party origin.
+                            return [2 /*return*/];
+                        }
+                        // Delete notification data from payload before sending to the page.
+                        delete msgPayload.notification;
+                        internalMsg = createNewMsg(MessageType.NOTIFICATION_CLICKED, msgPayload);
+                        // Attempt to send a message to the client to handle the data
+                        // Is affected by: https://github.com/slightlyoff/ServiceWorker/issues/728
+                        return [2 /*return*/, this.attemptToMessageClient_(windowClient, internalMsg)];
+                }
+            });
+        });
+    };
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.getNotificationData_ = function (msgPayload) {
+        if (!msgPayload) {
+            return;
+        }
+        if (typeof msgPayload.notification !== 'object') {
+            return;
+        }
+        var notificationInformation = tslib_1.__assign({}, msgPayload.notification);
+        // Put the message payload under FCM_MSG name so we can identify the
+        // notification as being an FCM notification vs a notification from
+        // somewhere else (i.e. normal web push or developer generated
+        // notification).
+        notificationInformation.data = tslib_1.__assign({}, msgPayload.notification.data, (_a = {}, _a[FCM_MSG] = msgPayload, _a));
+        return notificationInformation;
+        var _a;
+    };
+    /**
+     * Calling setBackgroundMessageHandler will opt in to some specific
+     * behaviours.
+     * 1.) If a notification doesn't need to be shown due to a window already
+     * being visible, then push messages will be sent to the page.
+     * 2.) If a notification needs to be shown, and the message contains no
+     * notification data this method will be called
+     * and the promise it returns will be passed to event.waitUntil.
+     * If you do not set this callback then all push messages will let and the
+     * developer can handle them in a their own 'push' event callback
+     *
+     * @param callback The callback to be called when a push message is received
+     * and a notification must be shown. The callback will be given the data from
+     * the push message.
+     */
+    SwController.prototype.setBackgroundMessageHandler = function (callback) {
+        if (!callback || typeof callback !== 'function') {
+            throw errorFactory.create(ERROR_CODES.BG_HANDLER_FUNCTION_EXPECTED);
+        }
+        this.bgMessageHandler = callback;
+    };
+    /**
+     * @param url The URL to look for when focusing a client.
+     * @return Returns an existing window client or a newly opened WindowClient.
+     */
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.getWindowClient_ = function (url) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var parsedURL, clientList, suitableClient, i, parsedClientUrl;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        parsedURL = new URL(url, self.location.href).href;
+                        return [4 /*yield*/, getClientList()];
+                    case 1:
+                        clientList = _a.sent();
+                        suitableClient = null;
+                        for (i = 0; i < clientList.length; i++) {
+                            parsedClientUrl = new URL(clientList[i].url, self.location.href)
+                                .href;
+                            if (parsedClientUrl === parsedURL) {
+                                suitableClient = clientList[i];
+                                break;
+                            }
+                        }
+                        return [2 /*return*/, suitableClient];
+                }
+            });
+        });
+    };
+    /**
+     * This message will attempt to send the message to a window client.
+     * @param client The WindowClient to send the message to.
+     * @param message The message to send to the client.
+     * @returns Returns a promise that resolves after sending the message. This
+     * does not guarantee that the message was successfully received.
+     */
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.attemptToMessageClient_ = function (client, message) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                // NOTE: This returns a promise in case this API is abstracted later on to
+                // do additional work
+                if (!client) {
+                    throw errorFactory.create(ERROR_CODES.NO_WINDOW_CLIENT_TO_MSG);
+                }
+                client.postMessage(message);
+                return [2 /*return*/];
+            });
+        });
+    };
+    /**
+     * @returns If there is currently a visible WindowClient, this method will
+     * resolve to true, otherwise false.
+     */
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.hasVisibleClients_ = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var clientList;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getClientList()];
+                    case 1:
+                        clientList = _a.sent();
+                        return [2 /*return*/, clientList.some(function (client) { return client.visibilityState === 'visible'; })];
+                }
+            });
+        });
+    };
+    /**
+     * @param msgPayload The data from the push event that should be sent to all
+     * available pages.
+     * @returns Returns a promise that resolves once the message has been sent to
+     * all WindowClients.
+     */
+    // Visible for testing
+    // TODO: Make private
+    SwController.prototype.sendMessageToWindowClients_ = function (msgPayload) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            var clientList, internalMsg;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, getClientList()];
+                    case 1:
+                        clientList = _a.sent();
+                        internalMsg = createNewMsg(MessageType.PUSH_MSG_RECEIVED, msgPayload);
+                        return [4 /*yield*/, Promise.all(clientList.map(function (client) {
+                                return _this.attemptToMessageClient_(client, internalMsg);
+                            }))];
+                    case 2:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * This will register the default service worker and return the registration.
+     * @return he service worker registration to be used for the push service.
+     */
+    SwController.prototype.getSWRegistration_ = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                return [2 /*return*/, self.registration];
+            });
+        });
+    };
+    /**
+     * This will return the default VAPID key or the uint8array version of the
+     * public VAPID key provided by the developer.
+     */
+    SwController.prototype.getPublicVapidKey_ = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var swReg, vapidKeyFromDatabase;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getSWRegistration_()];
+                    case 1:
+                        swReg = _a.sent();
+                        if (!swReg) {
+                            throw errorFactory.create(ERROR_CODES.SW_REGISTRATION_EXPECTED);
+                        }
+                        return [4 /*yield*/, this.getVapidDetailsModel().getVapidFromSWScope(swReg.scope)];
+                    case 2:
+                        vapidKeyFromDatabase = _a.sent();
+                        if (vapidKeyFromDatabase == null) {
+                            return [2 /*return*/, DEFAULT_PUBLIC_VAPID_KEY];
+                        }
+                        return [2 /*return*/, vapidKeyFromDatabase];
+                }
+            });
+        });
+    };
+    return SwController;
+}(BaseController));
+function getClientList() {
+    return self.clients.matchAll({
+        type: 'window',
+        includeUncontrolled: true
+        // TS doesn't know that "type: 'window'" means it'll return WindowClient[]
+    });
+}
+function createNewMsg(msgType, msgData) {
+    return _a = {}, _a[MessageParameter.TYPE_OF_MSG] = msgType, _a[MessageParameter.DATA] = msgData, _a;
+    var _a;
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var DEFAULT_SW_PATH = '/firebase-messaging-sw.js';
+var DEFAULT_SW_SCOPE = '/firebase-cloud-messaging-push-scope';
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var WindowController = /** @class */ (function (_super) {
+    tslib_1.__extends(WindowController, _super);
+    /**
+     * A service that provides a MessagingService instance.
+     */
+    function WindowController(app) {
+        var _this = _super.call(this, app) || this;
+        _this.registrationToUse = null;
+        _this.publicVapidKeyToUse = null;
+        _this.manifestCheckPromise = null;
+        _this.messageObserver = null;
+        // @ts-ignore: Unused variable error, this is not implemented yet.
+        _this.tokenRefreshObserver = null;
+        _this.onMessageInternal = util.createSubscribe(function (observer) {
+            _this.messageObserver = observer;
+        });
+        _this.onTokenRefreshInternal = util.createSubscribe(function (observer) {
+            _this.tokenRefreshObserver = observer;
+        });
+        _this.setupSWMessageListener_();
+        return _this;
+    }
+    /**
+     * This method returns an FCM token if it can be generated.
+     * The return promise will reject if the browser doesn't support
+     * FCM, if permission is denied for notifications or it's not
+     * possible to generate a token.
+     *
+     * @return Returns a promise that resolves to an FCM token or null if
+     * permission isn't granted.
+     */
+    WindowController.prototype.getToken = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (!this.manifestCheckPromise) {
+                            this.manifestCheckPromise = manifestCheck();
+                        }
+                        return [4 /*yield*/, this.manifestCheckPromise];
+                    case 1:
+                        _a.sent();
+                        return [2 /*return*/, _super.prototype.getToken.call(this)];
+                }
+            });
+        });
+    };
+    /**
+     * Request permission if it is not currently granted
+     *
+     * @return Resolves if the permission was granted, otherwise rejects
+     */
+    WindowController.prototype.requestPermission = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var permissionResult;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        if (this.getNotificationPermission_() === 'granted') {
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, Notification.requestPermission()];
+                    case 1:
+                        permissionResult = _a.sent();
+                        if (permissionResult === 'granted') {
+                            return [2 /*return*/];
+                        }
+                        else if (permissionResult === 'denied') {
+                            throw errorFactory.create(ERROR_CODES.PERMISSION_BLOCKED);
+                        }
+                        else {
+                            throw errorFactory.create(ERROR_CODES.PERMISSION_DEFAULT);
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    /**
+     * This method allows a developer to override the default service worker and
+     * instead use a custom service worker.
+     *
+     * @param registration The service worker registration that should be used to
+     * receive the push messages.
+     */
+    WindowController.prototype.useServiceWorker = function (registration) {
+        if (!(registration instanceof ServiceWorkerRegistration)) {
+            throw errorFactory.create(ERROR_CODES.SW_REGISTRATION_EXPECTED);
+        }
+        if (this.registrationToUse != null) {
+            throw errorFactory.create(ERROR_CODES.USE_SW_BEFORE_GET_TOKEN);
+        }
+        this.registrationToUse = registration;
+    };
+    /**
+     * This method allows a developer to override the default vapid key
+     * and instead use a custom VAPID public key.
+     *
+     * @param publicKey A URL safe base64 encoded string.
+     */
+    WindowController.prototype.usePublicVapidKey = function (publicKey) {
+        if (typeof publicKey !== 'string') {
+            throw errorFactory.create(ERROR_CODES.INVALID_PUBLIC_VAPID_KEY);
+        }
+        if (this.publicVapidKeyToUse != null) {
+            throw errorFactory.create(ERROR_CODES.USE_PUBLIC_KEY_BEFORE_GET_TOKEN);
+        }
+        var parsedKey = base64ToArrayBuffer(publicKey);
+        if (parsedKey.length !== 65) {
+            throw errorFactory.create(ERROR_CODES.PUBLIC_KEY_DECRYPTION_FAILED);
+        }
+        this.publicVapidKeyToUse = parsedKey;
+    };
+    /**
+     * @export
+     * @param nextOrObserver An observer object or a function triggered on
+     * message.
+     * @param error A function triggered on message error.
+     * @param completed function triggered when the observer is removed.
+     * @return The unsubscribe function for the observer.
+     */
+    WindowController.prototype.onMessage = function (nextOrObserver, error, completed) {
+        if (typeof nextOrObserver === 'function') {
+            return this.onMessageInternal(nextOrObserver, error, completed);
+        }
+        else {
+            return this.onMessageInternal(nextOrObserver);
+        }
+    };
+    /**
+     * @param nextOrObserver An observer object or a function triggered on token
+     * refresh.
+     * @param error A function triggered on token refresh error.
+     * @param completed function triggered when the observer is removed.
+     * @return The unsubscribe function for the observer.
+     */
+    WindowController.prototype.onTokenRefresh = function (nextOrObserver, error, completed) {
+        if (typeof nextOrObserver === 'function') {
+            return this.onTokenRefreshInternal(nextOrObserver, error, completed);
+        }
+        else {
+            return this.onTokenRefreshInternal(nextOrObserver);
+        }
+    };
+    /**
+     * Given a registration, wait for the service worker it relates to
+     * become activer
+     * @param registration Registration to wait for service worker to become active
+     * @return Wait for service worker registration to become active
+     */
+    // Visible for testing
+    // TODO: Make private
+    WindowController.prototype.waitForRegistrationToActivate_ = function (registration) {
+        var serviceWorker = registration.installing || registration.waiting || registration.active;
+        return new Promise(function (resolve, reject) {
+            if (!serviceWorker) {
+                // This is a rare scenario but has occured in firefox
+                reject(errorFactory.create(ERROR_CODES.NO_SW_IN_REG));
+                return;
+            }
+            // Because the Promise function is called on next tick there is a
+            // small chance that the worker became active or redundant already.
+            if (serviceWorker.state === 'activated') {
+                resolve(registration);
+                return;
+            }
+            if (serviceWorker.state === 'redundant') {
+                reject(errorFactory.create(ERROR_CODES.SW_REG_REDUNDANT));
+                return;
+            }
+            var stateChangeListener = function () {
+                if (serviceWorker.state === 'activated') {
+                    resolve(registration);
+                }
+                else if (serviceWorker.state === 'redundant') {
+                    reject(errorFactory.create(ERROR_CODES.SW_REG_REDUNDANT));
+                }
+                else {
+                    // Return early and wait to next state change
+                    return;
+                }
+                serviceWorker.removeEventListener('statechange', stateChangeListener);
+            };
+            serviceWorker.addEventListener('statechange', stateChangeListener);
+        });
+    };
+    /**
+     * This will register the default service worker and return the registration
+     * @return The service worker registration to be used for the push service.
+     */
+    WindowController.prototype.getSWRegistration_ = function () {
+        var _this = this;
+        if (this.registrationToUse) {
+            return this.waitForRegistrationToActivate_(this.registrationToUse);
+        }
+        // Make the registration null so we know useServiceWorker will not
+        // use a new service worker as registrationToUse is no longer undefined
+        this.registrationToUse = null;
+        return navigator.serviceWorker
+            .register(DEFAULT_SW_PATH, {
+            scope: DEFAULT_SW_SCOPE
+        })
+            .catch(function (err) {
+            throw errorFactory.create(ERROR_CODES.FAILED_DEFAULT_REGISTRATION, {
+                browserErrorMessage: err.message
+            });
+        })
+            .then(function (registration) {
+            return _this.waitForRegistrationToActivate_(registration).then(function () {
+                _this.registrationToUse = registration;
+                // We update after activation due to an issue with Firefox v49 where
+                // a race condition occassionally causes the service work to not
+                // install
+                registration.update();
+                return registration;
+            });
+        });
+    };
+    /**
+     * This will return the default VAPID key or the uint8array version of the public VAPID key
+     * provided by the developer.
+     */
+    WindowController.prototype.getPublicVapidKey_ = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (this.publicVapidKeyToUse) {
+                    return [2 /*return*/, this.publicVapidKeyToUse];
+                }
+                return [2 /*return*/, DEFAULT_PUBLIC_VAPID_KEY];
+            });
+        });
+    };
+    /**
+     * This method will set up a message listener to handle
+     * events from the service worker that should trigger
+     * events in the page.
+     */
+    // Visible for testing
+    // TODO: Make private
+    WindowController.prototype.setupSWMessageListener_ = function () {
+        var _this = this;
+        navigator.serviceWorker.addEventListener('message', function (event) {
+            if (!event.data || !event.data[MessageParameter.TYPE_OF_MSG]) {
+                // Not a message from FCM
+                return;
+            }
+            var workerPageMessage = event.data;
+            switch (workerPageMessage[MessageParameter.TYPE_OF_MSG]) {
+                case MessageType.PUSH_MSG_RECEIVED:
+                case MessageType.NOTIFICATION_CLICKED:
+                    var pushMessage = workerPageMessage[MessageParameter.DATA];
+                    if (_this.messageObserver) {
+                        _this.messageObserver.next(pushMessage);
+                    }
+                    break;
+                default:
+                    // Noop.
+                    break;
+            }
+        }, false);
+    };
+    return WindowController;
+}(BaseController));
+/**
+ * The method checks that a manifest is defined and has the correct GCM
+ * sender ID.
+ * @return Returns a promise that resolves if the manifest matches
+ * our required sender ID
+ */
+// Exported for testing
+function manifestCheck() {
+    return tslib_1.__awaiter(this, void 0, void 0, function () {
+        var manifestTag, manifestContent, response, e_1;
+        return tslib_1.__generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    manifestTag = document.querySelector('link[rel="manifest"]');
+                    if (!manifestTag) {
+                        return [2 /*return*/];
+                    }
+                    _a.label = 1;
+                case 1:
+                    _a.trys.push([1, 4, , 5]);
+                    return [4 /*yield*/, fetch(manifestTag.href)];
+                case 2:
+                    response = _a.sent();
+                    return [4 /*yield*/, response.json()];
+                case 3:
+                    manifestContent = _a.sent();
+                    return [3 /*break*/, 5];
+                case 4:
+                    e_1 = _a.sent();
+                    // If the download or parsing fails allow check.
+                    // We only want to error if we KNOW that the gcm_sender_id is incorrect.
+                    return [2 /*return*/];
+                case 5:
+                    if (!manifestContent || !manifestContent.gcm_sender_id) {
+                        return [2 /*return*/];
+                    }
+                    if (manifestContent.gcm_sender_id !== '103953800507') {
+                        throw errorFactory.create(ERROR_CODES.INCORRECT_GCM_SENDER_ID);
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+function registerMessaging(instance) {
+    var messagingName = 'messaging';
+    var factoryMethod = function (app) {
+        if (!isSupported()) {
+            throw errorFactory.create(ERROR_CODES.UNSUPPORTED_BROWSER);
+        }
+        if (self && 'ServiceWorkerGlobalScope' in self) {
+            // Running in ServiceWorker context
+            return new SwController(app);
+        }
+        else {
+            // Assume we are in the window context.
+            return new WindowController(app);
+        }
+    };
+    var namespaceExports = {
+        isSupported: isSupported
+    };
+    instance.INTERNAL.registerService(messagingName, factoryMethod, namespaceExports);
+}
+registerMessaging(firebase);
+function isSupported() {
+    if (self && 'ServiceWorkerGlobalScope' in self) {
+        // Running in ServiceWorker context
+        return isSWControllerSupported();
+    }
+    else {
+        // Assume we are in the window context.
+        return isWindowControllerSupported();
+    }
+}
+/**
+ * Checks to see if the required APIs exist.
+ */
+function isWindowControllerSupported() {
+    return ('serviceWorker' in navigator &&
+        'PushManager' in window &&
+        'Notification' in window &&
+        'fetch' in window &&
+        ServiceWorkerRegistration.prototype.hasOwnProperty('showNotification') &&
+        PushSubscription.prototype.hasOwnProperty('getKey'));
+}
+/**
+ * Checks to see if the required APIs exist within SW Context.
+ */
+function isSWControllerSupported() {
+    return ('PushManager' in self &&
+        'Notification' in self &&
+        ServiceWorkerRegistration.prototype.hasOwnProperty('showNotification') &&
+        PushSubscription.prototype.hasOwnProperty('getKey'));
+}
+
+exports.registerMessaging = registerMessaging;
+exports.isSupported = isSupported;
+
+},{"@firebase/app":1,"@firebase/util":3,"tslib":78}],3:[function(require,module,exports){
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+var tslib_1 = require('tslib');
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * @fileoverview Firebase constants.  Some of these (@defines) can be overridden at compile-time.
+ */
+var CONSTANTS = {
+    /**
+     * @define {boolean} Whether this is the client Node.js SDK.
+     */
+    NODE_CLIENT: false,
+    /**
+     * @define {boolean} Whether this is the Admin Node.js SDK.
+     */
+    NODE_ADMIN: false,
+    /**
+     * Firebase SDK Version
+     */
+    SDK_VERSION: '${JSCORE_VERSION}'
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Throws an error if the provided assertion is falsy
+ * @param {*} assertion The assertion to be tested for falsiness
+ * @param {!string} message The message to display if the check fails
+ */
+var assert = function (assertion, message) {
+    if (!assertion) {
+        throw assertionError(message);
+    }
+};
+/**
+ * Returns an Error object suitable for throwing.
+ * @param {string} message
+ * @return {!Error}
+ */
+var assertionError = function (message) {
+    return new Error('Firebase Database (' +
+        CONSTANTS.SDK_VERSION +
+        ') INTERNAL ASSERT FAILED: ' +
+        message);
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var stringToByteArray = function (str) {
+    // TODO(user): Use native implementations if/when available
+    var out = [], p = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charCodeAt(i);
+        if (c < 128) {
+            out[p++] = c;
+        }
+        else if (c < 2048) {
+            out[p++] = (c >> 6) | 192;
+            out[p++] = (c & 63) | 128;
+        }
+        else if ((c & 0xfc00) == 0xd800 &&
+            i + 1 < str.length &&
+            (str.charCodeAt(i + 1) & 0xfc00) == 0xdc00) {
+            // Surrogate Pair
+            c = 0x10000 + ((c & 0x03ff) << 10) + (str.charCodeAt(++i) & 0x03ff);
+            out[p++] = (c >> 18) | 240;
+            out[p++] = ((c >> 12) & 63) | 128;
+            out[p++] = ((c >> 6) & 63) | 128;
+            out[p++] = (c & 63) | 128;
+        }
+        else {
+            out[p++] = (c >> 12) | 224;
+            out[p++] = ((c >> 6) & 63) | 128;
+            out[p++] = (c & 63) | 128;
+        }
+    }
+    return out;
+};
+/**
+ * Turns an array of numbers into the string given by the concatenation of the
+ * characters to which the numbers correspond.
+ * @param {Array<number>} bytes Array of numbers representing characters.
+ * @return {string} Stringification of the array.
+ */
+var byteArrayToString = function (bytes) {
+    // TODO(user): Use native implementations if/when available
+    var out = [], pos = 0, c = 0;
+    while (pos < bytes.length) {
+        var c1 = bytes[pos++];
+        if (c1 < 128) {
+            out[c++] = String.fromCharCode(c1);
+        }
+        else if (c1 > 191 && c1 < 224) {
+            var c2 = bytes[pos++];
+            out[c++] = String.fromCharCode(((c1 & 31) << 6) | (c2 & 63));
+        }
+        else if (c1 > 239 && c1 < 365) {
+            // Surrogate Pair
+            var c2 = bytes[pos++];
+            var c3 = bytes[pos++];
+            var c4 = bytes[pos++];
+            var u = (((c1 & 7) << 18) | ((c2 & 63) << 12) | ((c3 & 63) << 6) | (c4 & 63)) -
+                0x10000;
+            out[c++] = String.fromCharCode(0xd800 + (u >> 10));
+            out[c++] = String.fromCharCode(0xdc00 + (u & 1023));
+        }
+        else {
+            var c2 = bytes[pos++];
+            var c3 = bytes[pos++];
+            out[c++] = String.fromCharCode(((c1 & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+        }
+    }
+    return out.join('');
+};
+// Static lookup maps, lazily populated by init_()
+var base64 = {
+    /**
+     * Maps bytes to characters.
+     * @type {Object}
+     * @private
+     */
+    byteToCharMap_: null,
+    /**
+     * Maps characters to bytes.
+     * @type {Object}
+     * @private
+     */
+    charToByteMap_: null,
+    /**
+     * Maps bytes to websafe characters.
+     * @type {Object}
+     * @private
+     */
+    byteToCharMapWebSafe_: null,
+    /**
+     * Maps websafe characters to bytes.
+     * @type {Object}
+     * @private
+     */
+    charToByteMapWebSafe_: null,
+    /**
+     * Our default alphabet, shared between
+     * ENCODED_VALS and ENCODED_VALS_WEBSAFE
+     * @type {string}
+     */
+    ENCODED_VALS_BASE: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' + 'abcdefghijklmnopqrstuvwxyz' + '0123456789',
+    /**
+     * Our default alphabet. Value 64 (=) is special; it means "nothing."
+     * @type {string}
+     */
+    get ENCODED_VALS() {
+        return this.ENCODED_VALS_BASE + '+/=';
+    },
+    /**
+     * Our websafe alphabet.
+     * @type {string}
+     */
+    get ENCODED_VALS_WEBSAFE() {
+        return this.ENCODED_VALS_BASE + '-_.';
+    },
+    /**
+     * Whether this browser supports the atob and btoa functions. This extension
+     * started at Mozilla but is now implemented by many browsers. We use the
+     * ASSUME_* variables to avoid pulling in the full useragent detection library
+     * but still allowing the standard per-browser compilations.
+     *
+     * @type {boolean}
+     */
+    HAS_NATIVE_SUPPORT: typeof atob === 'function',
+    /**
+     * Base64-encode an array of bytes.
+     *
+     * @param {Array<number>|Uint8Array} input An array of bytes (numbers with
+     *     value in [0, 255]) to encode.
+     * @param {boolean=} opt_webSafe Boolean indicating we should use the
+     *     alternative alphabet.
+     * @return {string} The base64 encoded string.
+     */
+    encodeByteArray: function (input, opt_webSafe) {
+        if (!Array.isArray(input)) {
+            throw Error('encodeByteArray takes an array as a parameter');
+        }
+        this.init_();
+        var byteToCharMap = opt_webSafe
+            ? this.byteToCharMapWebSafe_
+            : this.byteToCharMap_;
+        var output = [];
+        for (var i = 0; i < input.length; i += 3) {
+            var byte1 = input[i];
+            var haveByte2 = i + 1 < input.length;
+            var byte2 = haveByte2 ? input[i + 1] : 0;
+            var haveByte3 = i + 2 < input.length;
+            var byte3 = haveByte3 ? input[i + 2] : 0;
+            var outByte1 = byte1 >> 2;
+            var outByte2 = ((byte1 & 0x03) << 4) | (byte2 >> 4);
+            var outByte3 = ((byte2 & 0x0f) << 2) | (byte3 >> 6);
+            var outByte4 = byte3 & 0x3f;
+            if (!haveByte3) {
+                outByte4 = 64;
+                if (!haveByte2) {
+                    outByte3 = 64;
+                }
+            }
+            output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3], byteToCharMap[outByte4]);
+        }
+        return output.join('');
+    },
+    /**
+     * Base64-encode a string.
+     *
+     * @param {string} input A string to encode.
+     * @param {boolean=} opt_webSafe If true, we should use the
+     *     alternative alphabet.
+     * @return {string} The base64 encoded string.
+     */
+    encodeString: function (input, opt_webSafe) {
+        // Shortcut for Mozilla browsers that implement
+        // a native base64 encoder in the form of "btoa/atob"
+        if (this.HAS_NATIVE_SUPPORT && !opt_webSafe) {
+            return btoa(input);
+        }
+        return this.encodeByteArray(stringToByteArray(input), opt_webSafe);
+    },
+    /**
+     * Base64-decode a string.
+     *
+     * @param {string} input to decode.
+     * @param {boolean=} opt_webSafe True if we should use the
+     *     alternative alphabet.
+     * @return {string} string representing the decoded value.
+     */
+    decodeString: function (input, opt_webSafe) {
+        // Shortcut for Mozilla browsers that implement
+        // a native base64 encoder in the form of "btoa/atob"
+        if (this.HAS_NATIVE_SUPPORT && !opt_webSafe) {
+            return atob(input);
+        }
+        return byteArrayToString(this.decodeStringToByteArray(input, opt_webSafe));
+    },
+    /**
+     * Base64-decode a string.
+     *
+     * In base-64 decoding, groups of four characters are converted into three
+     * bytes.  If the encoder did not apply padding, the input length may not
+     * be a multiple of 4.
+     *
+     * In this case, the last group will have fewer than 4 characters, and
+     * padding will be inferred.  If the group has one or two characters, it decodes
+     * to one byte.  If the group has three characters, it decodes to two bytes.
+     *
+     * @param {string} input Input to decode.
+     * @param {boolean=} opt_webSafe True if we should use the web-safe alphabet.
+     * @return {!Array<number>} bytes representing the decoded value.
+     */
+    decodeStringToByteArray: function (input, opt_webSafe) {
+        this.init_();
+        var charToByteMap = opt_webSafe
+            ? this.charToByteMapWebSafe_
+            : this.charToByteMap_;
+        var output = [];
+        for (var i = 0; i < input.length;) {
+            var byte1 = charToByteMap[input.charAt(i++)];
+            var haveByte2 = i < input.length;
+            var byte2 = haveByte2 ? charToByteMap[input.charAt(i)] : 0;
+            ++i;
+            var haveByte3 = i < input.length;
+            var byte3 = haveByte3 ? charToByteMap[input.charAt(i)] : 64;
+            ++i;
+            var haveByte4 = i < input.length;
+            var byte4 = haveByte4 ? charToByteMap[input.charAt(i)] : 64;
+            ++i;
+            if (byte1 == null || byte2 == null || byte3 == null || byte4 == null) {
+                throw Error();
+            }
+            var outByte1 = (byte1 << 2) | (byte2 >> 4);
+            output.push(outByte1);
+            if (byte3 != 64) {
+                var outByte2 = ((byte2 << 4) & 0xf0) | (byte3 >> 2);
+                output.push(outByte2);
+                if (byte4 != 64) {
+                    var outByte3 = ((byte3 << 6) & 0xc0) | byte4;
+                    output.push(outByte3);
+                }
+            }
+        }
+        return output;
+    },
+    /**
+     * Lazy static initialization function. Called before
+     * accessing any of the static map variables.
+     * @private
+     */
+    init_: function () {
+        if (!this.byteToCharMap_) {
+            this.byteToCharMap_ = {};
+            this.charToByteMap_ = {};
+            this.byteToCharMapWebSafe_ = {};
+            this.charToByteMapWebSafe_ = {};
+            // We want quick mappings back and forth, so we precompute two maps.
+            for (var i = 0; i < this.ENCODED_VALS.length; i++) {
+                this.byteToCharMap_[i] = this.ENCODED_VALS.charAt(i);
+                this.charToByteMap_[this.byteToCharMap_[i]] = i;
+                this.byteToCharMapWebSafe_[i] = this.ENCODED_VALS_WEBSAFE.charAt(i);
+                this.charToByteMapWebSafe_[this.byteToCharMapWebSafe_[i]] = i;
+                // Be forgiving when decoding and correctly decode both encodings.
+                if (i >= this.ENCODED_VALS_BASE.length) {
+                    this.charToByteMap_[this.ENCODED_VALS_WEBSAFE.charAt(i)] = i;
+                    this.charToByteMapWebSafe_[this.ENCODED_VALS.charAt(i)] = i;
+                }
+            }
+        }
+    }
+};
+/**
+ * URL-safe base64 encoding
+ * @param {!string} str
+ * @return {!string}
+ */
+var base64Encode = function (str) {
+    var utf8Bytes = stringToByteArray(str);
+    return base64.encodeByteArray(utf8Bytes, true);
+};
+/**
+ * URL-safe base64 decoding
+ *
+ * NOTE: DO NOT use the global atob() function - it does NOT support the
+ * base64Url variant encoding.
+ *
+ * @param {string} str To be decoded
+ * @return {?string} Decoded result, if possible
+ */
+var base64Decode = function (str) {
+    try {
+        return base64.decodeString(str, true);
+    }
+    catch (e) {
+        console.error('base64Decode failed: ', e);
+    }
+    return null;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Do a deep-copy of basic JavaScript Objects or Arrays.
+ */
+function deepCopy(value) {
+    return deepExtend(undefined, value);
+}
+/**
+ * Copy properties from source to target (recursively allows extension
+ * of Objects and Arrays).  Scalar values in the target are over-written.
+ * If target is undefined, an object of the appropriate type will be created
+ * (and returned).
+ *
+ * We recursively copy all child properties of plain Objects in the source- so
+ * that namespace- like dictionaries are merged.
+ *
+ * Note that the target can be a function, in which case the properties in
+ * the source Object are copied onto it as static properties of the Function.
+ */
+function deepExtend(target, source) {
+    if (!(source instanceof Object)) {
+        return source;
+    }
+    switch (source.constructor) {
+        case Date:
+            // Treat Dates like scalars; if the target date object had any child
+            // properties - they will be lost!
+            var dateValue = source;
+            return new Date(dateValue.getTime());
+        case Object:
+            if (target === undefined) {
+                target = {};
+            }
+            break;
+        case Array:
+            // Always copy the array source and overwrite the target.
+            target = [];
+            break;
+        default:
+            // Not a plain Object - treat it as a scalar.
+            return source;
+    }
+    for (var prop in source) {
+        if (!source.hasOwnProperty(prop)) {
+            continue;
+        }
+        target[prop] = deepExtend(target[prop], source[prop]);
+    }
+    return target;
+}
+// TODO: Really needed (for JSCompiler type checking)?
+function patchProperty(obj, prop, value) {
+    obj[prop] = value;
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var Deferred = /** @class */ (function () {
+    function Deferred() {
+        var _this = this;
+        this.promise = new Promise(function (resolve, reject) {
+            _this.resolve = resolve;
+            _this.reject = reject;
+        });
+    }
+    /**
+     * Our API internals are not promiseified and cannot because our callback APIs have subtle expectations around
+     * invoking promises inline, which Promises are forbidden to do. This method accepts an optional node-style callback
+     * and returns a node-style callback which will resolve or reject the Deferred's promise.
+     * @param {((?function(?(Error)): (?|undefined))| (?function(?(Error),?=): (?|undefined)))=} callback
+     * @return {!function(?(Error), ?=)}
+     */
+    Deferred.prototype.wrapCallback = function (callback) {
+        var _this = this;
+        return function (error, value) {
+            if (error) {
+                _this.reject(error);
+            }
+            else {
+                _this.resolve(value);
+            }
+            if (typeof callback === 'function') {
+                // Attaching noop handler just in case developer wasn't expecting
+                // promises
+                _this.promise.catch(function () { });
+                // Some of our callbacks don't expect a value and our own tests
+                // assert that the parameter length is 1
+                if (callback.length === 1) {
+                    callback(error);
+                }
+                else {
+                    callback(error, value);
+                }
+            }
+        };
+    };
+    return Deferred;
+}());
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Returns navigator.userAgent string or '' if it's not defined.
+ * @return {string} user agent string
+ */
+var getUA = function () {
+    if (typeof navigator !== 'undefined' &&
+        typeof navigator['userAgent'] === 'string') {
+        return navigator['userAgent'];
+    }
+    else {
+        return '';
+    }
+};
+/**
+ * Detect Cordova / PhoneGap / Ionic frameworks on a mobile device.
+ *
+ * Deliberately does not rely on checking `file://` URLs (as this fails PhoneGap in the Ripple emulator) nor
+ * Cordova `onDeviceReady`, which would normally wait for a callback.
+ *
+ * @return {boolean} isMobileCordova
+ */
+var isMobileCordova = function () {
+    return (typeof window !== 'undefined' &&
+        !!(window['cordova'] || window['phonegap'] || window['PhoneGap']) &&
+        /ios|iphone|ipod|ipad|android|blackberry|iemobile/i.test(getUA()));
+};
+/**
+ * Detect React Native.
+ *
+ * @return {boolean} True if ReactNative environment is detected.
+ */
+var isReactNative = function () {
+    return (typeof navigator === 'object' && navigator['product'] === 'ReactNative');
+};
+/**
+ * Detect Node.js.
+ *
+ * @return {boolean} True if Node.js environment is detected.
+ */
+var isNodeSdk = function () {
+    return CONSTANTS.NODE_CLIENT === true || CONSTANTS.NODE_ADMIN === true;
+};
+
+var ERROR_NAME = 'FirebaseError';
+var captureStackTrace = Error
+    .captureStackTrace;
+// Export for faking in tests
+function patchCapture(captureFake) {
+    var result = captureStackTrace;
+    captureStackTrace = captureFake;
+    return result;
+}
+var FirebaseError = /** @class */ (function () {
+    function FirebaseError(code, message) {
+        this.code = code;
+        this.message = message;
+        // We want the stack value, if implemented by Error
+        if (captureStackTrace) {
+            // Patches this.stack, omitted calls above ErrorFactory#create
+            captureStackTrace(this, ErrorFactory.prototype.create);
+        }
+        else {
+            try {
+                // In case of IE11, stack will be set only after error is raised.
+                // https://docs.microsoft.com/en-us/scripting/javascript/reference/stack-property-error-javascript
+                throw Error.apply(this, arguments);
+            }
+            catch (err) {
+                this.name = ERROR_NAME;
+                // Make non-enumerable getter for the property.
+                Object.defineProperty(this, 'stack', {
+                    get: function () {
+                        return err.stack;
+                    }
+                });
+            }
+        }
+    }
+    return FirebaseError;
+}());
+// Back-door inheritance
+FirebaseError.prototype = Object.create(Error.prototype);
+FirebaseError.prototype.constructor = FirebaseError;
+FirebaseError.prototype.name = ERROR_NAME;
+var ErrorFactory = /** @class */ (function () {
+    function ErrorFactory(service, serviceName, errors) {
+        this.service = service;
+        this.serviceName = serviceName;
+        this.errors = errors;
+        // Matches {$name}, by default.
+        this.pattern = /\{\$([^}]+)}/g;
+        // empty
+    }
+    ErrorFactory.prototype.create = function (code, data) {
+        if (data === undefined) {
+            data = {};
+        }
+        var template = this.errors[code];
+        var fullCode = this.service + '/' + code;
+        var message;
+        if (template === undefined) {
+            message = 'Error';
+        }
+        else {
+            message = template.replace(this.pattern, function (match, key) {
+                var value = data[key];
+                return value !== undefined ? value.toString() : '<' + key + '?>';
+            });
+        }
+        // Service: Error message (service/code).
+        message = this.serviceName + ': ' + message + ' (' + fullCode + ').';
+        var err = new FirebaseError(fullCode, message);
+        // Populate the Error object with message parts for programmatic
+        // accesses (e.g., e.file).
+        for (var prop in data) {
+            if (!data.hasOwnProperty(prop) || prop.slice(-1) === '_') {
+                continue;
+            }
+            err[prop] = data[prop];
+        }
+        return err;
+    };
+    return ErrorFactory;
+}());
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Evaluates a JSON string into a javascript object.
+ *
+ * @param {string} str A string containing JSON.
+ * @return {*} The javascript object representing the specified JSON.
+ */
+function jsonEval(str) {
+    return JSON.parse(str);
+}
+/**
+ * Returns JSON representing a javascript object.
+ * @param {*} data Javascript object to be stringified.
+ * @return {string} The JSON contents of the object.
+ */
+function stringify(data) {
+    return JSON.stringify(data);
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Decodes a Firebase auth. token into constituent parts.
+ *
+ * Notes:
+ * - May return with invalid / incomplete claims if there's no native base64 decoding support.
+ * - Doesn't check if the token is actually valid.
+ *
+ * @param {?string} token
+ * @return {{header: *, claims: *, data: *, signature: string}}
+ */
+var decode = function (token) {
+    var header = {}, claims = {}, data = {}, signature = '';
+    try {
+        var parts = token.split('.');
+        header = jsonEval(base64Decode(parts[0]) || '');
+        claims = jsonEval(base64Decode(parts[1]) || '');
+        signature = parts[2];
+        data = claims['d'] || {};
+        delete claims['d'];
+    }
+    catch (e) { }
+    return {
+        header: header,
+        claims: claims,
+        data: data,
+        signature: signature
+    };
+};
+/**
+ * Decodes a Firebase auth. token and checks the validity of its time-based claims. Will return true if the
+ * token is within the time window authorized by the 'nbf' (not-before) and 'iat' (issued-at) claims.
+ *
+ * Notes:
+ * - May return a false negative if there's no native base64 decoding support.
+ * - Doesn't check if the token is actually valid.
+ *
+ * @param {?string} token
+ * @return {boolean}
+ */
+var isValidTimestamp = function (token) {
+    var claims = decode(token).claims, now = Math.floor(new Date().getTime() / 1000), validSince, validUntil;
+    if (typeof claims === 'object') {
+        if (claims.hasOwnProperty('nbf')) {
+            validSince = claims['nbf'];
+        }
+        else if (claims.hasOwnProperty('iat')) {
+            validSince = claims['iat'];
+        }
+        if (claims.hasOwnProperty('exp')) {
+            validUntil = claims['exp'];
+        }
+        else {
+            // token will expire after 24h by default
+            validUntil = validSince + 86400;
+        }
+    }
+    return (now && validSince && validUntil && now >= validSince && now <= validUntil);
+};
+/**
+ * Decodes a Firebase auth. token and returns its issued at time if valid, null otherwise.
+ *
+ * Notes:
+ * - May return null if there's no native base64 decoding support.
+ * - Doesn't check if the token is actually valid.
+ *
+ * @param {?string} token
+ * @return {?number}
+ */
+var issuedAtTime = function (token) {
+    var claims = decode(token).claims;
+    if (typeof claims === 'object' && claims.hasOwnProperty('iat')) {
+        return claims['iat'];
+    }
+    return null;
+};
+/**
+ * Decodes a Firebase auth. token and checks the validity of its format. Expects a valid issued-at time and non-empty
+ * signature.
+ *
+ * Notes:
+ * - May return a false negative if there's no native base64 decoding support.
+ * - Doesn't check if the token is actually valid.
+ *
+ * @param {?string} token
+ * @return {boolean}
+ */
+var isValidFormat = function (token) {
+    var decoded = decode(token), claims = decoded.claims;
+    return (!!decoded.signature &&
+        !!claims &&
+        typeof claims === 'object' &&
+        claims.hasOwnProperty('iat'));
+};
+/**
+ * Attempts to peer into an auth token and determine if it's an admin auth token by looking at the claims portion.
+ *
+ * Notes:
+ * - May return a false negative if there's no native base64 decoding support.
+ * - Doesn't check if the token is actually valid.
+ *
+ * @param {?string} token
+ * @return {boolean}
+ */
+var isAdmin = function (token) {
+    var claims = decode(token).claims;
+    return typeof claims === 'object' && claims['admin'] === true;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// See http://www.devthought.com/2012/01/18/an-object-is-not-a-hash/
+var contains = function (obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key);
+};
+var safeGet = function (obj, key) {
+    if (Object.prototype.hasOwnProperty.call(obj, key))
+        return obj[key];
+    // else return undefined.
+};
+/**
+ * Enumerates the keys/values in an object, excluding keys defined on the prototype.
+ *
+ * @param {?Object.<K,V>} obj Object to enumerate.
+ * @param {!function(K, V)} fn Function to call for each key and value.
+ * @template K,V
+ */
+var forEach = function (obj, fn) {
+    for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            fn(key, obj[key]);
+        }
+    }
+};
+/**
+ * Copies all the (own) properties from one object to another.
+ * @param {!Object} objTo
+ * @param {!Object} objFrom
+ * @return {!Object} objTo
+ */
+var extend = function (objTo, objFrom) {
+    forEach(objFrom, function (key, value) {
+        objTo[key] = value;
+    });
+    return objTo;
+};
+/**
+ * Returns a clone of the specified object.
+ * @param {!Object} obj
+ * @return {!Object} cloned obj.
+ */
+var clone = function (obj) {
+    return extend({}, obj);
+};
+/**
+ * Returns true if obj has typeof "object" and is not null.  Unlike goog.isObject(), does not return true
+ * for functions.
+ *
+ * @param obj {*} A potential object.
+ * @returns {boolean} True if it's an object.
+ */
+var isNonNullObject = function (obj) {
+    return typeof obj === 'object' && obj !== null;
+};
+var isEmpty = function (obj) {
+    for (var key in obj) {
+        return false;
+    }
+    return true;
+};
+var getCount = function (obj) {
+    var rv = 0;
+    for (var key in obj) {
+        rv++;
+    }
+    return rv;
+};
+var map = function (obj, f, opt_obj) {
+    var res = {};
+    for (var key in obj) {
+        res[key] = f.call(opt_obj, obj[key], key, obj);
+    }
+    return res;
+};
+var findKey = function (obj, fn, opt_this) {
+    for (var key in obj) {
+        if (fn.call(opt_this, obj[key], key, obj)) {
+            return key;
+        }
+    }
+    return undefined;
+};
+var findValue = function (obj, fn, opt_this) {
+    var key = findKey(obj, fn, opt_this);
+    return key && obj[key];
+};
+var getAnyKey = function (obj) {
+    for (var key in obj) {
+        return key;
+    }
+};
+var getValues = function (obj) {
+    var res = [];
+    var i = 0;
+    for (var key in obj) {
+        res[i++] = obj[key];
+    }
+    return res;
+};
+/**
+ * Tests whether every key/value pair in an object pass the test implemented
+ * by the provided function
+ *
+ * @param {?Object.<K,V>} obj Object to test.
+ * @param {!function(K, V)} fn Function to call for each key and value.
+ * @template K,V
+ */
+var every = function (obj, fn) {
+    for (var key in obj) {
+        if (Object.prototype.hasOwnProperty.call(obj, key)) {
+            if (!fn(key, obj[key])) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Returns a querystring-formatted string (e.g. &arg=val&arg2=val2) from a params
+ * object (e.g. {arg: 'val', arg2: 'val2'})
+ * Note: You must prepend it with ? when adding it to a URL.
+ *
+ * @param {!Object} querystringParams
+ * @return {string}
+ */
+var querystring = function (querystringParams) {
+    var params = [];
+    forEach(querystringParams, function (key, value) {
+        if (Array.isArray(value)) {
+            value.forEach(function (arrayVal) {
+                params.push(encodeURIComponent(key) + '=' + encodeURIComponent(arrayVal));
+            });
+        }
+        else {
+            params.push(encodeURIComponent(key) + '=' + encodeURIComponent(value));
+        }
+    });
+    return params.length ? '&' + params.join('&') : '';
+};
+/**
+ * Decodes a querystring (e.g. ?arg=val&arg2=val2) into a params object (e.g. {arg: 'val', arg2: 'val2'})
+ *
+ * @param {string} querystring
+ * @return {!Object}
+ */
+var querystringDecode = function (querystring) {
+    var obj = {};
+    var tokens = querystring.replace(/^\?/, '').split('&');
+    tokens.forEach(function (token) {
+        if (token) {
+            var key = token.split('=');
+            obj[key[0]] = key[1];
+        }
+    });
+    return obj;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Copyright 2011 The Closure Library Authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS-IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+/**
+ * @fileoverview Abstract cryptographic hash interface.
+ *
+ * See Sha1 and Md5 for sample implementations.
+ *
+ */
+/**
+ * Create a cryptographic hash instance.
+ *
+ * @constructor
+ * @struct
+ */
+var Hash = /** @class */ (function () {
+    function Hash() {
+        /**
+         * The block size for the hasher.
+         * @type {number}
+         */
+        this.blockSize = -1;
+    }
+    return Hash;
+}());
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * @fileoverview SHA-1 cryptographic hash.
+ * Variable names follow the notation in FIPS PUB 180-3:
+ * http://csrc.nist.gov/publications/fips/fips180-3/fips180-3_final.pdf.
+ *
+ * Usage:
+ *   var sha1 = new sha1();
+ *   sha1.update(bytes);
+ *   var hash = sha1.digest();
+ *
+ * Performance:
+ *   Chrome 23:   ~400 Mbit/s
+ *   Firefox 16:  ~250 Mbit/s
+ *
+ */
+/**
+ * SHA-1 cryptographic hash constructor.
+ *
+ * The properties declared here are discussed in the above algorithm document.
+ * @constructor
+ * @extends {Hash}
+ * @final
+ * @struct
+ */
+var Sha1 = /** @class */ (function (_super) {
+    tslib_1.__extends(Sha1, _super);
+    function Sha1() {
+        var _this = _super.call(this) || this;
+        /**
+         * Holds the previous values of accumulated variables a-e in the compress_
+         * function.
+         * @type {!Array<number>}
+         * @private
+         */
+        _this.chain_ = [];
+        /**
+         * A buffer holding the partially computed hash result.
+         * @type {!Array<number>}
+         * @private
+         */
+        _this.buf_ = [];
+        /**
+         * An array of 80 bytes, each a part of the message to be hashed.  Referred to
+         * as the message schedule in the docs.
+         * @type {!Array<number>}
+         * @private
+         */
+        _this.W_ = [];
+        /**
+         * Contains data needed to pad messages less than 64 bytes.
+         * @type {!Array<number>}
+         * @private
+         */
+        _this.pad_ = [];
+        /**
+         * @private {number}
+         */
+        _this.inbuf_ = 0;
+        /**
+         * @private {number}
+         */
+        _this.total_ = 0;
+        _this.blockSize = 512 / 8;
+        _this.pad_[0] = 128;
+        for (var i = 1; i < _this.blockSize; ++i) {
+            _this.pad_[i] = 0;
+        }
+        _this.reset();
+        return _this;
+    }
+    Sha1.prototype.reset = function () {
+        this.chain_[0] = 0x67452301;
+        this.chain_[1] = 0xefcdab89;
+        this.chain_[2] = 0x98badcfe;
+        this.chain_[3] = 0x10325476;
+        this.chain_[4] = 0xc3d2e1f0;
+        this.inbuf_ = 0;
+        this.total_ = 0;
+    };
+    /**
+     * Internal compress helper function.
+     * @param {!Array<number>|!Uint8Array|string} buf Block to compress.
+     * @param {number=} opt_offset Offset of the block in the buffer.
+     * @private
+     */
+    Sha1.prototype.compress_ = function (buf, opt_offset) {
+        if (!opt_offset) {
+            opt_offset = 0;
+        }
+        var W = this.W_;
+        // get 16 big endian words
+        if (typeof buf === 'string') {
+            for (var i = 0; i < 16; i++) {
+                // TODO(user): [bug 8140122] Recent versions of Safari for Mac OS and iOS
+                // have a bug that turns the post-increment ++ operator into pre-increment
+                // during JIT compilation.  We have code that depends heavily on SHA-1 for
+                // correctness and which is affected by this bug, so I've removed all uses
+                // of post-increment ++ in which the result value is used.  We can revert
+                // this change once the Safari bug
+                // (https://bugs.webkit.org/show_bug.cgi?id=109036) has been fixed and
+                // most clients have been updated.
+                W[i] =
+                    (buf.charCodeAt(opt_offset) << 24) |
+                        (buf.charCodeAt(opt_offset + 1) << 16) |
+                        (buf.charCodeAt(opt_offset + 2) << 8) |
+                        buf.charCodeAt(opt_offset + 3);
+                opt_offset += 4;
+            }
+        }
+        else {
+            for (var i = 0; i < 16; i++) {
+                W[i] =
+                    (buf[opt_offset] << 24) |
+                        (buf[opt_offset + 1] << 16) |
+                        (buf[opt_offset + 2] << 8) |
+                        buf[opt_offset + 3];
+                opt_offset += 4;
+            }
+        }
+        // expand to 80 words
+        for (var i = 16; i < 80; i++) {
+            var t = W[i - 3] ^ W[i - 8] ^ W[i - 14] ^ W[i - 16];
+            W[i] = ((t << 1) | (t >>> 31)) & 0xffffffff;
+        }
+        var a = this.chain_[0];
+        var b = this.chain_[1];
+        var c = this.chain_[2];
+        var d = this.chain_[3];
+        var e = this.chain_[4];
+        var f, k;
+        // TODO(user): Try to unroll this loop to speed up the computation.
+        for (var i = 0; i < 80; i++) {
+            if (i < 40) {
+                if (i < 20) {
+                    f = d ^ (b & (c ^ d));
+                    k = 0x5a827999;
+                }
+                else {
+                    f = b ^ c ^ d;
+                    k = 0x6ed9eba1;
+                }
+            }
+            else {
+                if (i < 60) {
+                    f = (b & c) | (d & (b | c));
+                    k = 0x8f1bbcdc;
+                }
+                else {
+                    f = b ^ c ^ d;
+                    k = 0xca62c1d6;
+                }
+            }
+            var t = (((a << 5) | (a >>> 27)) + f + e + k + W[i]) & 0xffffffff;
+            e = d;
+            d = c;
+            c = ((b << 30) | (b >>> 2)) & 0xffffffff;
+            b = a;
+            a = t;
+        }
+        this.chain_[0] = (this.chain_[0] + a) & 0xffffffff;
+        this.chain_[1] = (this.chain_[1] + b) & 0xffffffff;
+        this.chain_[2] = (this.chain_[2] + c) & 0xffffffff;
+        this.chain_[3] = (this.chain_[3] + d) & 0xffffffff;
+        this.chain_[4] = (this.chain_[4] + e) & 0xffffffff;
+    };
+    Sha1.prototype.update = function (bytes, opt_length) {
+        // TODO(johnlenz): tighten the function signature and remove this check
+        if (bytes == null) {
+            return;
+        }
+        if (opt_length === undefined) {
+            opt_length = bytes.length;
+        }
+        var lengthMinusBlock = opt_length - this.blockSize;
+        var n = 0;
+        // Using local instead of member variables gives ~5% speedup on Firefox 16.
+        var buf = this.buf_;
+        var inbuf = this.inbuf_;
+        // The outer while loop should execute at most twice.
+        while (n < opt_length) {
+            // When we have no data in the block to top up, we can directly process the
+            // input buffer (assuming it contains sufficient data). This gives ~25%
+            // speedup on Chrome 23 and ~15% speedup on Firefox 16, but requires that
+            // the data is provided in large chunks (or in multiples of 64 bytes).
+            if (inbuf == 0) {
+                while (n <= lengthMinusBlock) {
+                    this.compress_(bytes, n);
+                    n += this.blockSize;
+                }
+            }
+            if (typeof bytes === 'string') {
+                while (n < opt_length) {
+                    buf[inbuf] = bytes.charCodeAt(n);
+                    ++inbuf;
+                    ++n;
+                    if (inbuf == this.blockSize) {
+                        this.compress_(buf);
+                        inbuf = 0;
+                        // Jump to the outer loop so we use the full-block optimization.
+                        break;
+                    }
+                }
+            }
+            else {
+                while (n < opt_length) {
+                    buf[inbuf] = bytes[n];
+                    ++inbuf;
+                    ++n;
+                    if (inbuf == this.blockSize) {
+                        this.compress_(buf);
+                        inbuf = 0;
+                        // Jump to the outer loop so we use the full-block optimization.
+                        break;
+                    }
+                }
+            }
+        }
+        this.inbuf_ = inbuf;
+        this.total_ += opt_length;
+    };
+    /** @override */
+    Sha1.prototype.digest = function () {
+        var digest = [];
+        var totalBits = this.total_ * 8;
+        // Add pad 0x80 0x00*.
+        if (this.inbuf_ < 56) {
+            this.update(this.pad_, 56 - this.inbuf_);
+        }
+        else {
+            this.update(this.pad_, this.blockSize - (this.inbuf_ - 56));
+        }
+        // Add # bits.
+        for (var i = this.blockSize - 1; i >= 56; i--) {
+            this.buf_[i] = totalBits & 255;
+            totalBits /= 256; // Don't use bit-shifting here!
+        }
+        this.compress_(this.buf_);
+        var n = 0;
+        for (var i = 0; i < 5; i++) {
+            for (var j = 24; j >= 0; j -= 8) {
+                digest[n] = (this.chain_[i] >> j) & 255;
+                ++n;
+            }
+        }
+        return digest;
+    };
+    return Sha1;
+}(Hash));
+
+/**
+ * Helper to make a Subscribe function (just like Promise helps make a
+ * Thenable).
+ *
+ * @param executor Function which can make calls to a single Observer
+ *     as a proxy.
+ * @param onNoObservers Callback when count of Observers goes to zero.
+ */
+function createSubscribe(executor, onNoObservers) {
+    var proxy = new ObserverProxy(executor, onNoObservers);
+    return proxy.subscribe.bind(proxy);
+}
+/**
+ * Implement fan-out for any number of Observers attached via a subscribe
+ * function.
+ */
+var ObserverProxy = /** @class */ (function () {
+    /**
+     * @param executor Function which can make calls to a single Observer
+     *     as a proxy.
+     * @param onNoObservers Callback when count of Observers goes to zero.
+     */
+    function ObserverProxy(executor, onNoObservers) {
+        var _this = this;
+        this.observers = [];
+        this.unsubscribes = [];
+        this.observerCount = 0;
+        // Micro-task scheduling by calling task.then().
+        this.task = Promise.resolve();
+        this.finalized = false;
+        this.onNoObservers = onNoObservers;
+        // Call the executor asynchronously so subscribers that are called
+        // synchronously after the creation of the subscribe function
+        // can still receive the very first value generated in the executor.
+        this.task
+            .then(function () {
+            executor(_this);
+        })
+            .catch(function (e) {
+            _this.error(e);
+        });
+    }
+    ObserverProxy.prototype.next = function (value) {
+        this.forEachObserver(function (observer) {
+            observer.next(value);
+        });
+    };
+    ObserverProxy.prototype.error = function (error) {
+        this.forEachObserver(function (observer) {
+            observer.error(error);
+        });
+        this.close(error);
+    };
+    ObserverProxy.prototype.complete = function () {
+        this.forEachObserver(function (observer) {
+            observer.complete();
+        });
+        this.close();
+    };
+    /**
+     * Subscribe function that can be used to add an Observer to the fan-out list.
+     *
+     * - We require that no event is sent to a subscriber sychronously to their
+     *   call to subscribe().
+     */
+    ObserverProxy.prototype.subscribe = function (nextOrObserver, error, complete) {
+        var _this = this;
+        var observer;
+        if (nextOrObserver === undefined &&
+            error === undefined &&
+            complete === undefined) {
+            throw new Error('Missing Observer.');
+        }
+        // Assemble an Observer object when passed as callback functions.
+        if (implementsAnyMethods(nextOrObserver, ['next', 'error', 'complete'])) {
+            observer = nextOrObserver;
+        }
+        else {
+            observer = {
+                next: nextOrObserver,
+                error: error,
+                complete: complete
+            };
+        }
+        if (observer.next === undefined) {
+            observer.next = noop;
+        }
+        if (observer.error === undefined) {
+            observer.error = noop;
+        }
+        if (observer.complete === undefined) {
+            observer.complete = noop;
+        }
+        var unsub = this.unsubscribeOne.bind(this, this.observers.length);
+        // Attempt to subscribe to a terminated Observable - we
+        // just respond to the Observer with the final error or complete
+        // event.
+        if (this.finalized) {
+            this.task.then(function () {
+                try {
+                    if (_this.finalError) {
+                        observer.error(_this.finalError);
+                    }
+                    else {
+                        observer.complete();
+                    }
+                }
+                catch (e) {
+                    // nothing
+                }
+                return;
+            });
+        }
+        this.observers.push(observer);
+        return unsub;
+    };
+    // Unsubscribe is synchronous - we guarantee that no events are sent to
+    // any unsubscribed Observer.
+    ObserverProxy.prototype.unsubscribeOne = function (i) {
+        if (this.observers === undefined || this.observers[i] === undefined) {
+            return;
+        }
+        delete this.observers[i];
+        this.observerCount -= 1;
+        if (this.observerCount === 0 && this.onNoObservers !== undefined) {
+            this.onNoObservers(this);
+        }
+    };
+    ObserverProxy.prototype.forEachObserver = function (fn) {
+        if (this.finalized) {
+            // Already closed by previous event....just eat the additional values.
+            return;
+        }
+        // Since sendOne calls asynchronously - there is no chance that
+        // this.observers will become undefined.
+        for (var i = 0; i < this.observers.length; i++) {
+            this.sendOne(i, fn);
+        }
+    };
+    // Call the Observer via one of it's callback function. We are careful to
+    // confirm that the observe has not been unsubscribed since this asynchronous
+    // function had been queued.
+    ObserverProxy.prototype.sendOne = function (i, fn) {
+        var _this = this;
+        // Execute the callback asynchronously
+        this.task.then(function () {
+            if (_this.observers !== undefined && _this.observers[i] !== undefined) {
+                try {
+                    fn(_this.observers[i]);
+                }
+                catch (e) {
+                    // Ignore exceptions raised in Observers or missing methods of an
+                    // Observer.
+                    // Log error to console. b/31404806
+                    if (typeof console !== 'undefined' && console.error) {
+                        console.error(e);
+                    }
+                }
+            }
+        });
+    };
+    ObserverProxy.prototype.close = function (err) {
+        var _this = this;
+        if (this.finalized) {
+            return;
+        }
+        this.finalized = true;
+        if (err !== undefined) {
+            this.finalError = err;
+        }
+        // Proxy is no longer needed - garbage collect references
+        this.task.then(function () {
+            _this.observers = undefined;
+            _this.onNoObservers = undefined;
+        });
+    };
+    return ObserverProxy;
+}());
+/** Turn synchronous function into one called asynchronously. */
+function async(fn, onError) {
+    return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        Promise.resolve(true)
+            .then(function () {
+            fn.apply(void 0, args);
+        })
+            .catch(function (error) {
+            if (onError) {
+                onError(error);
+            }
+        });
+    };
+}
+/**
+ * Return true if the object passed in implements any of the named methods.
+ */
+function implementsAnyMethods(obj, methods) {
+    if (typeof obj !== 'object' || obj === null) {
+        return false;
+    }
+    for (var _i = 0, methods_1 = methods; _i < methods_1.length; _i++) {
+        var method = methods_1[_i];
+        if (method in obj && typeof obj[method] === 'function') {
+            return true;
+        }
+    }
+    return false;
+}
+function noop() {
+    // do nothing
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/**
+ * Check to make sure the appropriate number of arguments are provided for a public function.
+ * Throws an error if it fails.
+ *
+ * @param {!string} fnName The function name
+ * @param {!number} minCount The minimum number of arguments to allow for the function call
+ * @param {!number} maxCount The maximum number of argument to allow for the function call
+ * @param {!number} argCount The actual number of arguments provided.
+ */
+var validateArgCount = function (fnName, minCount, maxCount, argCount) {
+    var argError;
+    if (argCount < minCount) {
+        argError = 'at least ' + minCount;
+    }
+    else if (argCount > maxCount) {
+        argError = maxCount === 0 ? 'none' : 'no more than ' + maxCount;
+    }
+    if (argError) {
+        var error = fnName +
+            ' failed: Was called with ' +
+            argCount +
+            (argCount === 1 ? ' argument.' : ' arguments.') +
+            ' Expects ' +
+            argError +
+            '.';
+        throw new Error(error);
+    }
+};
+/**
+ * Generates a string to prefix an error message about failed argument validation
+ *
+ * @param {!string} fnName The function name
+ * @param {!number} argumentNumber The index of the argument
+ * @param {boolean} optional Whether or not the argument is optional
+ * @return {!string} The prefix to add to the error thrown for validation.
+ */
+function errorPrefix(fnName, argumentNumber, optional) {
+    var argName = '';
+    switch (argumentNumber) {
+        case 1:
+            argName = optional ? 'first' : 'First';
+            break;
+        case 2:
+            argName = optional ? 'second' : 'Second';
+            break;
+        case 3:
+            argName = optional ? 'third' : 'Third';
+            break;
+        case 4:
+            argName = optional ? 'fourth' : 'Fourth';
+            break;
+        default:
+            throw new Error('errorPrefix called with argumentNumber > 4.  Need to update it?');
+    }
+    var error = fnName + ' failed: ';
+    error += argName + ' argument ';
+    return error;
+}
+/**
+ * @param {!string} fnName
+ * @param {!number} argumentNumber
+ * @param {!string} namespace
+ * @param {boolean} optional
+ */
+function validateNamespace(fnName, argumentNumber, namespace, optional) {
+    if (optional && !namespace)
+        return;
+    if (typeof namespace !== 'string') {
+        //TODO: I should do more validation here. We only allow certain chars in namespaces.
+        throw new Error(errorPrefix(fnName, argumentNumber, optional) +
+            'must be a valid firebase namespace.');
+    }
+}
+function validateCallback(fnName, argumentNumber, callback, optional) {
+    if (optional && !callback)
+        return;
+    if (typeof callback !== 'function')
+        throw new Error(errorPrefix(fnName, argumentNumber, optional) +
+            'must be a valid function.');
+}
+function validateContextObject(fnName, argumentNumber, context, optional) {
+    if (optional && !context)
+        return;
+    if (typeof context !== 'object' || context === null)
+        throw new Error(errorPrefix(fnName, argumentNumber, optional) +
+            'must be a valid context object.');
+}
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Code originally came from goog.crypt.stringToUtf8ByteArray, but for some reason they
+// automatically replaced '\r\n' with '\n', and they didn't handle surrogate pairs,
+// so it's been modified.
+// Note that not all Unicode characters appear as single characters in JavaScript strings.
+// fromCharCode returns the UTF-16 encoding of a character - so some Unicode characters
+// use 2 characters in Javascript.  All 4-byte UTF-8 characters begin with a first
+// character in the range 0xD800 - 0xDBFF (the first character of a so-called surrogate
+// pair).
+// See http://www.ecma-international.org/ecma-262/5.1/#sec-15.1.3
+/**
+ * @param {string} str
+ * @return {Array}
+ */
+var stringToByteArray$1 = function (str) {
+    var out = [], p = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charCodeAt(i);
+        // Is this the lead surrogate in a surrogate pair?
+        if (c >= 0xd800 && c <= 0xdbff) {
+            var high = c - 0xd800; // the high 10 bits.
+            i++;
+            assert(i < str.length, 'Surrogate pair missing trail surrogate.');
+            var low = str.charCodeAt(i) - 0xdc00; // the low 10 bits.
+            c = 0x10000 + (high << 10) + low;
+        }
+        if (c < 128) {
+            out[p++] = c;
+        }
+        else if (c < 2048) {
+            out[p++] = (c >> 6) | 192;
+            out[p++] = (c & 63) | 128;
+        }
+        else if (c < 65536) {
+            out[p++] = (c >> 12) | 224;
+            out[p++] = ((c >> 6) & 63) | 128;
+            out[p++] = (c & 63) | 128;
+        }
+        else {
+            out[p++] = (c >> 18) | 240;
+            out[p++] = ((c >> 12) & 63) | 128;
+            out[p++] = ((c >> 6) & 63) | 128;
+            out[p++] = (c & 63) | 128;
+        }
+    }
+    return out;
+};
+/**
+ * Calculate length without actually converting; useful for doing cheaper validation.
+ * @param {string} str
+ * @return {number}
+ */
+var stringLength = function (str) {
+    var p = 0;
+    for (var i = 0; i < str.length; i++) {
+        var c = str.charCodeAt(i);
+        if (c < 128) {
+            p++;
+        }
+        else if (c < 2048) {
+            p += 2;
+        }
+        else if (c >= 0xd800 && c <= 0xdbff) {
+            // Lead surrogate of a surrogate pair.  The pair together will take 4 bytes to represent.
+            p += 4;
+            i++; // skip trail surrogate.
+        }
+        else {
+            p += 3;
+        }
+    }
+    return p;
+};
+
+/**
+ * Copyright 2017 Google Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+exports.assert = assert;
+exports.assertionError = assertionError;
+exports.base64 = base64;
+exports.base64Decode = base64Decode;
+exports.base64Encode = base64Encode;
+exports.CONSTANTS = CONSTANTS;
+exports.deepCopy = deepCopy;
+exports.deepExtend = deepExtend;
+exports.patchProperty = patchProperty;
+exports.Deferred = Deferred;
+exports.getUA = getUA;
+exports.isMobileCordova = isMobileCordova;
+exports.isNodeSdk = isNodeSdk;
+exports.isReactNative = isReactNative;
+exports.ErrorFactory = ErrorFactory;
+exports.FirebaseError = FirebaseError;
+exports.patchCapture = patchCapture;
+exports.jsonEval = jsonEval;
+exports.stringify = stringify;
+exports.decode = decode;
+exports.isAdmin = isAdmin;
+exports.issuedAtTime = issuedAtTime;
+exports.isValidFormat = isValidFormat;
+exports.isValidTimestamp = isValidTimestamp;
+exports.clone = clone;
+exports.contains = contains;
+exports.every = every;
+exports.extend = extend;
+exports.findKey = findKey;
+exports.findValue = findValue;
+exports.forEach = forEach;
+exports.getAnyKey = getAnyKey;
+exports.getCount = getCount;
+exports.getValues = getValues;
+exports.isEmpty = isEmpty;
+exports.isNonNullObject = isNonNullObject;
+exports.map = map;
+exports.safeGet = safeGet;
+exports.querystring = querystring;
+exports.querystringDecode = querystringDecode;
+exports.Sha1 = Sha1;
+exports.async = async;
+exports.createSubscribe = createSubscribe;
+exports.errorPrefix = errorPrefix;
+exports.validateArgCount = validateArgCount;
+exports.validateCallback = validateCallback;
+exports.validateContextObject = validateContextObject;
+exports.validateNamespace = validateNamespace;
+exports.stringLength = stringLength;
+exports.stringToByteArray = stringToByteArray$1;
+
+},{"tslib":78}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -3854,7 +7759,7 @@ registerStorage(firebase);
 
 exports.registerStorage = registerStorage;
 
-},{"@firebase/app":1}],3:[function(require,module,exports){
+},{"@firebase/app":1}],5:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -5630,7 +9535,7 @@ exports.validateNamespace = validateNamespace;
 exports.stringLength = stringLength;
 exports.stringToByteArray = stringToByteArray$1;
 
-},{"tslib":76}],4:[function(require,module,exports){
+},{"tslib":78}],6:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -5660,7 +9565,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -5691,9 +9596,9 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 module.exports = require('./lib/axios');
-},{"./lib/axios":8}],7:[function(require,module,exports){
+},{"./lib/axios":10}],9:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -5877,7 +9782,7 @@ module.exports = function xhrAdapter(config) {
 };
 
 }).call(this,require('_process'))
-},{"../core/createError":14,"./../core/settle":17,"./../helpers/btoa":21,"./../helpers/buildURL":22,"./../helpers/cookies":24,"./../helpers/isURLSameOrigin":26,"./../helpers/parseHeaders":28,"./../utils":30,"_process":61}],8:[function(require,module,exports){
+},{"../core/createError":16,"./../core/settle":19,"./../helpers/btoa":23,"./../helpers/buildURL":24,"./../helpers/cookies":26,"./../helpers/isURLSameOrigin":28,"./../helpers/parseHeaders":30,"./../utils":32,"_process":63}],10:[function(require,module,exports){
 'use strict';
 
 var utils = require('./utils');
@@ -5931,7 +9836,7 @@ module.exports = axios;
 // Allow use of default import syntax in TypeScript
 module.exports.default = axios;
 
-},{"./cancel/Cancel":9,"./cancel/CancelToken":10,"./cancel/isCancel":11,"./core/Axios":12,"./defaults":19,"./helpers/bind":20,"./helpers/spread":29,"./utils":30}],9:[function(require,module,exports){
+},{"./cancel/Cancel":11,"./cancel/CancelToken":12,"./cancel/isCancel":13,"./core/Axios":14,"./defaults":21,"./helpers/bind":22,"./helpers/spread":31,"./utils":32}],11:[function(require,module,exports){
 'use strict';
 
 /**
@@ -5952,7 +9857,7 @@ Cancel.prototype.__CANCEL__ = true;
 
 module.exports = Cancel;
 
-},{}],10:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 'use strict';
 
 var Cancel = require('./Cancel');
@@ -6011,14 +9916,14 @@ CancelToken.source = function source() {
 
 module.exports = CancelToken;
 
-},{"./Cancel":9}],11:[function(require,module,exports){
+},{"./Cancel":11}],13:[function(require,module,exports){
 'use strict';
 
 module.exports = function isCancel(value) {
   return !!(value && value.__CANCEL__);
 };
 
-},{}],12:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 'use strict';
 
 var defaults = require('./../defaults');
@@ -6099,7 +10004,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = Axios;
 
-},{"./../defaults":19,"./../utils":30,"./InterceptorManager":13,"./dispatchRequest":15}],13:[function(require,module,exports){
+},{"./../defaults":21,"./../utils":32,"./InterceptorManager":15,"./dispatchRequest":17}],15:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6153,7 +10058,7 @@ InterceptorManager.prototype.forEach = function forEach(fn) {
 
 module.exports = InterceptorManager;
 
-},{"./../utils":30}],14:[function(require,module,exports){
+},{"./../utils":32}],16:[function(require,module,exports){
 'use strict';
 
 var enhanceError = require('./enhanceError');
@@ -6173,7 +10078,7 @@ module.exports = function createError(message, config, code, request, response) 
   return enhanceError(error, config, code, request, response);
 };
 
-},{"./enhanceError":16}],15:[function(require,module,exports){
+},{"./enhanceError":18}],17:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6261,7 +10166,7 @@ module.exports = function dispatchRequest(config) {
   });
 };
 
-},{"../cancel/isCancel":11,"../defaults":19,"./../helpers/combineURLs":23,"./../helpers/isAbsoluteURL":25,"./../utils":30,"./transformData":18}],16:[function(require,module,exports){
+},{"../cancel/isCancel":13,"../defaults":21,"./../helpers/combineURLs":25,"./../helpers/isAbsoluteURL":27,"./../utils":32,"./transformData":20}],18:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6284,7 +10189,7 @@ module.exports = function enhanceError(error, config, code, request, response) {
   return error;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var createError = require('./createError');
@@ -6312,7 +10217,7 @@ module.exports = function settle(resolve, reject, response) {
   }
 };
 
-},{"./createError":14}],18:[function(require,module,exports){
+},{"./createError":16}],20:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6334,7 +10239,7 @@ module.exports = function transformData(data, headers, fns) {
   return data;
 };
 
-},{"./../utils":30}],19:[function(require,module,exports){
+},{"./../utils":32}],21:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -6434,7 +10339,7 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 module.exports = defaults;
 
 }).call(this,require('_process'))
-},{"./adapters/http":7,"./adapters/xhr":7,"./helpers/normalizeHeaderName":27,"./utils":30,"_process":61}],20:[function(require,module,exports){
+},{"./adapters/http":9,"./adapters/xhr":9,"./helpers/normalizeHeaderName":29,"./utils":32,"_process":63}],22:[function(require,module,exports){
 'use strict';
 
 module.exports = function bind(fn, thisArg) {
@@ -6447,7 +10352,7 @@ module.exports = function bind(fn, thisArg) {
   };
 };
 
-},{}],21:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 // btoa polyfill for IE<10 courtesy https://github.com/davidchambers/Base64.js
@@ -6485,7 +10390,7 @@ function btoa(input) {
 
 module.exports = btoa;
 
-},{}],22:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6553,7 +10458,7 @@ module.exports = function buildURL(url, params, paramsSerializer) {
   return url;
 };
 
-},{"./../utils":30}],23:[function(require,module,exports){
+},{"./../utils":32}],25:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6569,7 +10474,7 @@ module.exports = function combineURLs(baseURL, relativeURL) {
     : baseURL;
 };
 
-},{}],24:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6624,7 +10529,7 @@ module.exports = (
   })()
 );
 
-},{"./../utils":30}],25:[function(require,module,exports){
+},{"./../utils":32}],27:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6640,7 +10545,7 @@ module.exports = function isAbsoluteURL(url) {
   return /^([a-z][a-z\d\+\-\.]*:)?\/\//i.test(url);
 };
 
-},{}],26:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6710,7 +10615,7 @@ module.exports = (
   })()
 );
 
-},{"./../utils":30}],27:[function(require,module,exports){
+},{"./../utils":32}],29:[function(require,module,exports){
 'use strict';
 
 var utils = require('../utils');
@@ -6724,7 +10629,7 @@ module.exports = function normalizeHeaderName(headers, normalizedName) {
   });
 };
 
-},{"../utils":30}],28:[function(require,module,exports){
+},{"../utils":32}],30:[function(require,module,exports){
 'use strict';
 
 var utils = require('./../utils');
@@ -6779,7 +10684,7 @@ module.exports = function parseHeaders(headers) {
   return parsed;
 };
 
-},{"./../utils":30}],29:[function(require,module,exports){
+},{"./../utils":32}],31:[function(require,module,exports){
 'use strict';
 
 /**
@@ -6808,7 +10713,7 @@ module.exports = function spread(callback) {
   };
 };
 
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 var bind = require('./helpers/bind');
@@ -7113,7 +11018,7 @@ module.exports = {
   trim: trim
 };
 
-},{"./helpers/bind":20,"is-buffer":56}],31:[function(require,module,exports){
+},{"./helpers/bind":22,"is-buffer":58}],33:[function(require,module,exports){
 
 /**
  * Expose `Backoff`.
@@ -7200,7 +11105,7 @@ Backoff.prototype.setJitter = function(jitter){
 };
 
 
-},{}],32:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -7269,7 +11174,7 @@ Backoff.prototype.setJitter = function(jitter){
   };
 })();
 
-},{}],33:[function(require,module,exports){
+},{}],35:[function(require,module,exports){
 (function (global){
 /**
  * Create a blob builder even when vendor prefixes exist
@@ -7369,9 +11274,9 @@ module.exports = (function() {
 })();
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],34:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 
-},{}],35:[function(require,module,exports){
+},{}],37:[function(require,module,exports){
 /**
  * Slice reference.
  */
@@ -7396,7 +11301,7 @@ module.exports = function(obj, fn){
   }
 };
 
-},{}],36:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -7561,7 +11466,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],37:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 
 module.exports = function(a, b){
   var fn = function(){};
@@ -7569,7 +11474,7 @@ module.exports = function(a, b){
   a.prototype = new fn;
   a.prototype.constructor = a;
 };
-},{}],38:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 
 module.exports = require('./socket');
 
@@ -7581,7 +11486,7 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":39,"engine.io-parser":49}],39:[function(require,module,exports){
+},{"./socket":41,"engine.io-parser":51}],41:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -8328,7 +12233,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./transport":40,"./transports/index":41,"component-emitter":36,"debug":47,"engine.io-parser":49,"indexof":55,"parseqs":59,"parseuri":60}],40:[function(require,module,exports){
+},{"./transport":42,"./transports/index":43,"component-emitter":38,"debug":49,"engine.io-parser":51,"indexof":57,"parseqs":61,"parseuri":62}],42:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -8487,7 +12392,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"component-emitter":36,"engine.io-parser":49}],41:[function(require,module,exports){
+},{"component-emitter":38,"engine.io-parser":51}],43:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies
@@ -8544,7 +12449,7 @@ function polling (opts) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling-jsonp":42,"./polling-xhr":43,"./websocket":45,"xmlhttprequest-ssl":46}],42:[function(require,module,exports){
+},{"./polling-jsonp":44,"./polling-xhr":45,"./websocket":47,"xmlhttprequest-ssl":48}],44:[function(require,module,exports){
 (function (global){
 
 /**
@@ -8779,7 +12684,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":44,"component-inherit":37}],43:[function(require,module,exports){
+},{"./polling":46,"component-inherit":39}],45:[function(require,module,exports){
 (function (global){
 /**
  * Module requirements.
@@ -9195,7 +13100,7 @@ function unloadHandler () {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":44,"component-emitter":36,"component-inherit":37,"debug":47,"xmlhttprequest-ssl":46}],44:[function(require,module,exports){
+},{"./polling":46,"component-emitter":38,"component-inherit":39,"debug":49,"xmlhttprequest-ssl":48}],46:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -9442,7 +13347,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":40,"component-inherit":37,"debug":47,"engine.io-parser":49,"parseqs":59,"xmlhttprequest-ssl":46,"yeast":82}],45:[function(require,module,exports){
+},{"../transport":42,"component-inherit":39,"debug":49,"engine.io-parser":51,"parseqs":61,"xmlhttprequest-ssl":48,"yeast":84}],47:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -9732,7 +13637,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../transport":40,"component-inherit":37,"debug":47,"engine.io-parser":49,"parseqs":59,"ws":34,"yeast":82}],46:[function(require,module,exports){
+},{"../transport":42,"component-inherit":39,"debug":49,"engine.io-parser":51,"parseqs":61,"ws":36,"yeast":84}],48:[function(require,module,exports){
 (function (global){
 // browser shim for xmlhttprequest module
 
@@ -9773,7 +13678,7 @@ module.exports = function (opts) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"has-cors":54}],47:[function(require,module,exports){
+},{"has-cors":56}],49:[function(require,module,exports){
 (function (process){
 /**
  * This is the web browser implementation of `debug()`.
@@ -9972,7 +13877,7 @@ function localstorage() {
 }
 
 }).call(this,require('_process'))
-},{"./debug":48,"_process":61}],48:[function(require,module,exports){
+},{"./debug":50,"_process":63}],50:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -10199,7 +14104,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":58}],49:[function(require,module,exports){
+},{"ms":60}],51:[function(require,module,exports){
 (function (global){
 /**
  * Module dependencies.
@@ -10809,7 +14714,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./keys":50,"./utf8":51,"after":4,"arraybuffer.slice":5,"base64-arraybuffer":32,"blob":33,"has-binary2":52}],50:[function(require,module,exports){
+},{"./keys":52,"./utf8":53,"after":6,"arraybuffer.slice":7,"base64-arraybuffer":34,"blob":35,"has-binary2":54}],52:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -10830,7 +14735,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],51:[function(require,module,exports){
+},{}],53:[function(require,module,exports){
 (function (global){
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
 ;(function(root) {
@@ -11089,7 +14994,7 @@ module.exports = Object.keys || function keys (obj){
 }(this));
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],52:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 (function (global){
 /* global Blob File */
 
@@ -11155,14 +15060,14 @@ function hasBinary (obj) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"isarray":53}],53:[function(require,module,exports){
+},{"isarray":55}],55:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],54:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -11181,7 +15086,7 @@ try {
   module.exports = false;
 }
 
-},{}],55:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -11192,7 +15097,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],56:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -11215,7 +15120,7 @@ function isSlowBuffer (obj) {
   return typeof obj.readFloatLE === 'function' && typeof obj.slice === 'function' && isBuffer(obj.slice(0, 0))
 }
 
-},{}],57:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 //! moment.js
 
 ;(function (global, factory) {
@@ -15723,7 +19628,7 @@ function isSlowBuffer (obj) {
 
 })));
 
-},{}],58:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -15877,7 +19782,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],59:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /**
  * Compiles a querystring
  * Returns string representation of the object
@@ -15916,7 +19821,7 @@ exports.decode = function(qs){
   return qry;
 };
 
-},{}],60:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -15957,7 +19862,7 @@ module.exports = function parseuri(str) {
     return uri;
 };
 
-},{}],61:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -16143,7 +20048,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],62:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -16239,7 +20144,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":63,"./socket":65,"./url":66,"debug":67,"socket.io-parser":70}],63:[function(require,module,exports){
+},{"./manager":65,"./socket":67,"./url":68,"debug":69,"socket.io-parser":72}],65:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -16814,7 +20719,7 @@ Manager.prototype.onreconnect = function () {
   this.emitAll('reconnect', attempt);
 };
 
-},{"./on":64,"./socket":65,"backo2":31,"component-bind":35,"component-emitter":36,"debug":67,"engine.io-client":38,"indexof":55,"socket.io-parser":70}],64:[function(require,module,exports){
+},{"./on":66,"./socket":67,"backo2":33,"component-bind":37,"component-emitter":38,"debug":69,"engine.io-client":40,"indexof":57,"socket.io-parser":72}],66:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -16840,7 +20745,7 @@ function on (obj, ev, fn) {
   };
 }
 
-},{}],65:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -17277,7 +21182,7 @@ Socket.prototype.binary = function (binary) {
   return this;
 };
 
-},{"./on":64,"component-bind":35,"component-emitter":36,"debug":67,"has-binary2":52,"parseqs":59,"socket.io-parser":70,"to-array":75}],66:[function(require,module,exports){
+},{"./on":66,"component-bind":37,"component-emitter":38,"debug":69,"has-binary2":54,"parseqs":61,"socket.io-parser":72,"to-array":77}],68:[function(require,module,exports){
 (function (global){
 
 /**
@@ -17356,11 +21261,11 @@ function url (uri, loc) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"debug":67,"parseuri":60}],67:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"./debug":68,"_process":61,"dup":47}],68:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"dup":48,"ms":58}],69:[function(require,module,exports){
+},{"debug":69,"parseuri":62}],69:[function(require,module,exports){
+arguments[4][49][0].apply(exports,arguments)
+},{"./debug":70,"_process":63,"dup":49}],70:[function(require,module,exports){
+arguments[4][50][0].apply(exports,arguments)
+},{"dup":50,"ms":60}],71:[function(require,module,exports){
 (function (global){
 /*global Blob,File*/
 
@@ -17505,7 +21410,7 @@ exports.removeBlobs = function(data, callback) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./is-buffer":71,"isarray":74}],70:[function(require,module,exports){
+},{"./is-buffer":73,"isarray":76}],72:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -17924,7 +21829,7 @@ function error(msg) {
   };
 }
 
-},{"./binary":69,"./is-buffer":71,"component-emitter":36,"debug":72,"isarray":74}],71:[function(require,module,exports){
+},{"./binary":71,"./is-buffer":73,"component-emitter":38,"debug":74,"isarray":76}],73:[function(require,module,exports){
 (function (global){
 
 module.exports = isBuf;
@@ -17952,13 +21857,13 @@ function isBuf(obj) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],72:[function(require,module,exports){
-arguments[4][47][0].apply(exports,arguments)
-},{"./debug":73,"_process":61,"dup":47}],73:[function(require,module,exports){
-arguments[4][48][0].apply(exports,arguments)
-},{"dup":48,"ms":58}],74:[function(require,module,exports){
-arguments[4][53][0].apply(exports,arguments)
-},{"dup":53}],75:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
+arguments[4][49][0].apply(exports,arguments)
+},{"./debug":75,"_process":63,"dup":49}],75:[function(require,module,exports){
+arguments[4][50][0].apply(exports,arguments)
+},{"dup":50,"ms":60}],76:[function(require,module,exports){
+arguments[4][55][0].apply(exports,arguments)
+},{"dup":55}],77:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
@@ -17973,7 +21878,7 @@ function toArray(list, index) {
     return array
 }
 
-},{}],76:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 (function (global){
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -18218,7 +22123,7 @@ var __importDefault;
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],77:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 var Vue // late bind
 var version
 var map = (window.__VUE_HOT_MAP__ = Object.create(null))
@@ -18460,10 +22365,10 @@ exports.reload = tryWrap(function (id, options) {
   })
 })
 
-},{}],78:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 !function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e():"function"==typeof define&&define.amd?define([],e):"object"==typeof exports?exports.VueSpinner=e():t.VueSpinner=e()}(this,function(){return function(t){function e(n){if(i[n])return i[n].exports;var a=i[n]={exports:{},id:n,loaded:!1};return t[n].call(a.exports,a,a.exports,e),a.loaded=!0,a.exports}var i={};return e.m=t,e.c=i,e.p="",e(0)}([function(t,e,i){"use strict";function n(t){return t&&t.__esModule?t:{default:t}}var a=i(75),r=n(a),o=i(72),s=n(o),l=i(69),d=n(l),p=i(77),f=n(p),c=i(67),u=n(c),v=i(82),m=n(v),y=i(78),b=n(y),h=i(71),g=n(h),x=i(74),S=n(x),k=i(81),w=n(k),D=i(79),Y=n(D),z=i(80),_=n(z),R=i(73),L=n(R),M=i(76),X=n(M),B=i(68),C=n(B),j=i(70),O=n(j),F={PulseLoader:r.default,GridLoader:s.default,ClipLoader:d.default,RiseLoader:f.default,BeatLoader:u.default,SyncLoader:m.default,RotateLoader:b.default,FadeLoader:g.default,PacmanLoader:S.default,SquareLoader:w.default,ScaleLoader:Y.default,SkewLoader:_.default,MoonLoader:L.default,RingLoader:X.default,BounceLoader:C.default,DotLoader:O.default};t.exports=F},function(t,e){t.exports=function(){var t=[];return t.toString=function(){for(var t=[],e=0;e<this.length;e++){var i=this[e];i[2]?t.push("@media "+i[2]+"{"+i[1]+"}"):t.push(i[1])}return t.join("")},t.i=function(e,i){"string"==typeof e&&(e=[[null,e,""]]);for(var n={},a=0;a<this.length;a++){var r=this[a][0];"number"==typeof r&&(n[r]=!0)}for(a=0;a<e.length;a++){var o=e[a];"number"==typeof o[0]&&n[o[0]]||(i&&!o[2]?o[2]=i:i&&(o[2]="("+o[2]+") and ("+i+")"),t.push(o))}},t}},function(t,e,i){function n(t,e){for(var i=0;i<t.length;i++){var n=t[i],a=u[n.id];if(a){a.refs++;for(var r=0;r<a.parts.length;r++)a.parts[r](n.parts[r]);for(;r<n.parts.length;r++)a.parts.push(d(n.parts[r],e))}else{for(var o=[],r=0;r<n.parts.length;r++)o.push(d(n.parts[r],e));u[n.id]={id:n.id,refs:1,parts:o}}}}function a(t){for(var e=[],i={},n=0;n<t.length;n++){var a=t[n],r=a[0],o=a[1],s=a[2],l=a[3],d={css:o,media:s,sourceMap:l};i[r]?i[r].parts.push(d):e.push(i[r]={id:r,parts:[d]})}return e}function r(t,e){var i=y(),n=g[g.length-1];if("top"===t.insertAt)n?n.nextSibling?i.insertBefore(e,n.nextSibling):i.appendChild(e):i.insertBefore(e,i.firstChild),g.push(e);else{if("bottom"!==t.insertAt)throw new Error("Invalid value for parameter 'insertAt'. Must be 'top' or 'bottom'.");i.appendChild(e)}}function o(t){t.parentNode.removeChild(t);var e=g.indexOf(t);e>=0&&g.splice(e,1)}function s(t){var e=document.createElement("style");return e.type="text/css",r(t,e),e}function l(t){var e=document.createElement("link");return e.rel="stylesheet",r(t,e),e}function d(t,e){var i,n,a;if(e.singleton){var r=h++;i=b||(b=s(e)),n=p.bind(null,i,r,!1),a=p.bind(null,i,r,!0)}else t.sourceMap&&"function"==typeof URL&&"function"==typeof URL.createObjectURL&&"function"==typeof URL.revokeObjectURL&&"function"==typeof Blob&&"function"==typeof btoa?(i=l(e),n=c.bind(null,i),a=function(){o(i),i.href&&URL.revokeObjectURL(i.href)}):(i=s(e),n=f.bind(null,i),a=function(){o(i)});return n(t),function(e){if(e){if(e.css===t.css&&e.media===t.media&&e.sourceMap===t.sourceMap)return;n(t=e)}else a()}}function p(t,e,i,n){var a=i?"":n.css;if(t.styleSheet)t.styleSheet.cssText=x(e,a);else{var r=document.createTextNode(a),o=t.childNodes;o[e]&&t.removeChild(o[e]),o.length?t.insertBefore(r,o[e]):t.appendChild(r)}}function f(t,e){var i=e.css,n=e.media;if(n&&t.setAttribute("media",n),t.styleSheet)t.styleSheet.cssText=i;else{for(;t.firstChild;)t.removeChild(t.firstChild);t.appendChild(document.createTextNode(i))}}function c(t,e){var i=e.css,n=e.sourceMap;n&&(i+="\n/*# sourceMappingURL=data:application/json;base64,"+btoa(unescape(encodeURIComponent(JSON.stringify(n))))+" */");var a=new Blob([i],{type:"text/css"}),r=t.href;t.href=URL.createObjectURL(a),r&&URL.revokeObjectURL(r)}var u={},v=function(t){var e;return function(){return"undefined"==typeof e&&(e=t.apply(this,arguments)),e}},m=v(function(){return/msie [6-9]\b/.test(self.navigator.userAgent.toLowerCase())}),y=v(function(){return document.head||document.getElementsByTagName("head")[0]}),b=null,h=0,g=[];t.exports=function(t,e){e=e||{},"undefined"==typeof e.singleton&&(e.singleton=m()),"undefined"==typeof e.insertAt&&(e.insertAt="bottom");var i=a(t);return n(i,e),function(t){for(var r=[],o=0;o<i.length;o++){var s=i[o],l=u[s.id];l.refs--,r.push(l)}if(t){var d=a(t);n(d,e)}for(var o=0;o<r.length;o++){var l=r[o];if(0===l.refs){for(var p=0;p<l.parts.length;p++)l.parts[p]();delete u[l.id]}}}};var x=function(){var t=[];return function(e,i){return t[e]=i,t.filter(Boolean).join("\n")}}()},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"BeatLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size,margin:this.margin,borderRadius:this.radius}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"BounceLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"60px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size,borderRadius:this.radius,opacity:.6,position:"absolute",top:0,left:0}}},computed:{spinnerBasicStyle:function(){return{height:this.size,width:this.size,position:"relative"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"ClipLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"35px"},radius:{type:String,default:"100%"}},computed:{spinnerStyle:function(){return{height:this.size,width:this.size,borderWidth:"2px",borderStyle:"solid",borderColor:this.color+" "+this.color+" transparent",borderRadius:this.radius,background:"transparent"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"DotLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"60px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},computed:{spinnerStyle:function(){return{backgroundColor:this.color,height:parseFloat(this.size)/2+"px",width:parseFloat(this.size)/2+"px",borderRadius:this.radius}},spinnerBasicStyle:function(){return{height:this.size,width:this.size,position:"relative"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"FadeLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},height:{type:String,default:"15px"},width:{type:String,default:"5px"},margin:{type:String,default:"2px"},radius:{type:String,default:"20px"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.height,width:this.width,margin:this.margin,borderRadius:this.radius}}},computed:{ngRadius:function(){return"-"+this.radius},quarter:function(){return parseFloat(this.radius)/2+parseFloat(this.radius)/5.5+"px"},ngQuarter:function(){return"-"+this.quarter},animationStyle1:function(){return{top:this.radius,left:0,animationDelay:"0.12s"}},animationStyle2:function(){return{top:this.quarter,left:this.quarter,animationDelay:"0.24s",transform:"rotate(-45deg)"}},animationStyle3:function(){return{top:0,left:this.radius,animationDelay:"0.36s",transform:"rotate(90deg)"}},animationStyle4:function(){return{top:this.ngQuarter,left:this.quarter,animationDelay:"0.48s",transform:"rotate(45deg)"}},animationStyle5:function(){return{top:this.ngRadius,left:0,animationDelay:"0.60s"}},animationStyle6:function(){return{top:this.ngQuarter,left:this.ngQuarter,animationDelay:"0.72s",transform:"rotate(-45deg)"}},animationStyle7:function(){return{top:0,left:this.ngRadius,animationDelay:"0.84s",transform:"rotate(90deg)"}},animationStyle8:function(){return{top:this.quarter,left:this.ngQuarter,animationDelay:"0.96s",transform:"rotate(45deg)"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"GridLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,width:this.size,height:this.size,margin:this.margin,borderRadius:this.radius}}},computed:{animationStyle:function(){return{animationName:"v-gridStretchDelay",animationIterationCount:"infinite",animationTimingFunction:"ease",animationFillMode:"both",display:"inline-block"}},animationStyle1:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle2:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle3:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle4:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle5:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle6:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle7:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle8:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},animationStyle9:function(){return{animationDelay:this.delay(),animationDuration:this.duration()}},containerStyle:function(){return{width:3*parseFloat(this.size)+6*parseFloat(this.margin)+"px",fontSize:0}}},methods:{random:function(t){return Math.random()*t},delay:function(){return this.random(100)/100-.2+"s"},duration:function(){return this.random(100)/100+.6+"s"}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"MoonLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"60px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{height:this.size,width:this.size,borderRadius:this.radius}}},computed:{moonSize:function(){return parseFloat(this.size)/7},spinnerMoonStyle:function(){return{height:this.moonSize+"px",width:this.moonSize+"px",borderRadius:this.radius}},animationStyle2:function(){return{top:parseFloat(this.size)/2-this.moonSize/2+"px",backgroundColor:this.color}},animationStyle3:function(){return{border:this.moonSize+"px solid "+this.color}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"PacmanLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"25px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerDelay2:{animationDelay:"0.25s"},spinnerDelay3:{animationDelay:"0.50s"},spinnerDelay4:{animationDelay:"0.75s"},spinnerDelay5:{animationDelay:"1s"}}},computed:{spinnerStyle:function(){return{backgroundColor:this.color,width:this.size,height:this.size,margin:this.margin,borderRadius:this.radius}},border1:function(){return this.size+" solid transparent"},border2:function(){return this.size+" solid "+this.color},spinnerStyle1:function(){return{width:0,height:0,borderTop:this.border2,borderRight:this.border1,borderBottom:this.border2,borderLeft:this.border2,borderRadius:this.size}},animationStyle:function(){return{width:"10px",height:"10px",transform:"translate(0, "+-parseFloat(this.size)/4+"px)",position:"absolute",top:"25px",left:"100px",animationName:"v-pacmanStretchDelay",animationDuration:"1s",animationIterationCount:"infinite",animationTimingFunction:"linear",animationFillMode:"both"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"PulseLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,width:this.size,height:this.size,margin:this.margin,borderRadius:this.radius,display:"inline-block",animationName:"v-pulseStretchDelay",animationDuration:"0.75s",animationIterationCount:"infinite",animationTimingFunction:"cubic-bezier(.2,.68,.18,1.08)",animationFillMode:"both"},spinnerDelay1:{animationDelay:"0.12s"},spinnerDelay2:{animationDelay:"0.24s"},spinnerDelay3:{animationDelay:"0.36s"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"RingLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"60px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},computed:{spinnerStyle:function(){return{height:this.size,width:this.size,border:parseFloat(this.size)/10+"px solid"+this.color,opacity:.4,borderRadius:this.radius}},spinnerBasicStyle:function(){return{height:this.size,width:this.size,position:"relative"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"RiseLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size,margin:this.margin,borderRadius:this.radius}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"RotateLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size,margin:this.margin,borderRadius:this.radius}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"ScaleLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},height:{type:String,default:"35px"},width:{type:String,default:"4px"},margin:{type:String,default:"2px"},radius:{type:String,default:"2px"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.height,width:this.width,margin:this.margin,borderRadius:this.radius,display:"inline-block",animationName:"v-scaleStretchDelay",animationDuration:"1s",animationIterationCount:"infinite",animationTimingFunction:"cubic-bezier(.2,.68,.18,1.08)",animationFillMode:"both"},spinnerDelay1:{animationDelay:"0.1s"},spinnerDelay2:{animationDelay:"0.2s"},spinnerDelay3:{animationDelay:"0.3s"},spinnerDelay4:{animationDelay:"0.4s"},spinnerDelay5:{animationDelay:"0.5s"}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"SkewLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"20px"}},data:function(){return{spinnerStyle:{height:0,width:0,borderLeft:this.size+" solid transparent",borderRight:this.size+" solid transparent",borderBottom:this.size+" solid "+this.color}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"SquareLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"50px"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size}}}}},function(t,e){"use strict";Object.defineProperty(e,"__esModule",{value:!0}),e.default={name:"SyncLoader",props:{loading:{type:Boolean,default:!0},color:{type:String,default:"#5dc596"},size:{type:String,default:"15px"},margin:{type:String,default:"2px"},radius:{type:String,default:"100%"}},data:function(){return{spinnerStyle:{backgroundColor:this.color,height:this.size,width:this.size,margin:this.margin,borderRadius:this.radius,display:"inline-block",animationName:"v-syncStretchDelay",animationDuration:"0.6s",animationIterationCount:"infinite",animationTimingFunction:"ease-in-out",animationFillMode:"both"},spinnerDelay1:{animationDelay:"0.07s"},spinnerDelay2:{animationDelay:"0.14s"},spinnerDelay3:{animationDelay:"0.21s"}}}}},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-rotate1{-webkit-animation:v-rotateStretchDelay 1s 0s infinite cubic-bezier(.7,-.13,.22,.86);animation:v-rotateStretchDelay 1s 0s infinite cubic-bezier(.7,-.13,.22,.86);-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block;position:relative}.v-spinner .v-rotate2{opacity:.8;position:absolute;top:0;left:-28px}.v-spinner .v-rotate3{opacity:.8;position:absolute;top:0;left:25px}@-webkit-keyframes v-rotateStretchDelay{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(180deg);transform:rotate(180deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes v-rotateStretchDelay{0%{-webkit-transform:rotate(0deg);transform:rotate(0deg)}50%{-webkit-transform:rotate(180deg);transform:rotate(180deg)}to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-moon1{position:relative}.v-spinner .v-moon1,.v-spinner .v-moon2{-webkit-animation:v-moonStretchDelay .6s 0s infinite linear;animation:v-moonStretchDelay .6s 0s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards}.v-spinner .v-moon2{opacity:.8;position:absolute}.v-spinner .v-moon3{opacity:.1}@-webkit-keyframes v-moonStretchDelay{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes v-moonStretchDelay{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}@-webkit-keyframes v-pacmanStretchDelay{75%{-webkit-opacity:.7;opacity:.7}to{-webkit-transform:translate(-100px,-6.25px);transform:translate(-100px,-6.25px)}}@keyframes v-pacmanStretchDelay{75%{-webkit-opacity:.7;opacity:.7}to{-webkit-transform:translate(-100px,-6.25px);transform:translate(-100px,-6.25px)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-beat{-webkit-animation:v-beatStretchDelay .7s infinite linear;animation:v-beatStretchDelay .7s infinite linear;-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}.v-spinner .v-beat-odd{-webkit-animation-delay:0s;animation-delay:0s}.v-spinner .v-beat-even{-webkit-animation-delay:.35s;animation-delay:.35s}@-webkit-keyframes v-beatStretchDelay{50%{-webkit-transform:scale(.75);transform:scale(.75);-webkit-opacity:.2;opacity:.2}to{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}}@keyframes v-beatStretchDelay{50%{-webkit-transform:scale(.75);transform:scale(.75);-webkit-opacity:.2;opacity:.2}to{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,'.v-spinner .v-dot1{-webkit-animation:v-dotRotate 2s 0s infinite linear;animation:v-dotRotate 2s 0s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards}.v-spinner .v-dot2{-webkit-animation:v-dotBounce 2s 0s infinite linear;animation:v-dotBounce 2s 0s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;position:"absolute";top:0;bottom:auto}.v-spinner .v-dot3{-webkit-animation:v-dotBounce 2s -1s infinite linear;animation:v-dotBounce 2s -1s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards;position:"absolute";top:auto;bottom:0}@-webkit-keyframes v-dotRotate{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@keyframes v-dotRotate{to{-webkit-transform:rotate(1turn);transform:rotate(1turn)}}@-webkit-keyframes v-dotBounce{0%,to{-webkit-transform:scale(0);transform:scale(0)}50%{-webkit-transform:scale(1);transform:scale(1)}}@keyframes v-dotBounce{0%,to{-webkit-transform:scale(0);transform:scale(0)}50%{-webkit-transform:scale(1);transform:scale(1)}}',""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,"@-webkit-keyframes v-pulseStretchDelay{0%,80%{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}45%{-webkit-transform:scale(.1);transform:scale(.1);-webkit-opacity:.7;opacity:.7}}@keyframes v-pulseStretchDelay{0%,80%{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}45%{-webkit-transform:scale(.1);transform:scale(.1);-webkit-opacity:.7;opacity:.7}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,"@-webkit-keyframes v-syncStretchDelay{33%{-webkit-transform:translateY(10px);transform:translateY(10px)}66%{-webkit-transform:translateY(-10px);transform:translateY(-10px)}to{-webkit-transform:translateY(0);transform:translateY(0)}}@keyframes v-syncStretchDelay{33%{-webkit-transform:translateY(10px);transform:translateY(10px)}66%{-webkit-transform:translateY(-10px);transform:translateY(-10px)}to{-webkit-transform:translateY(0);transform:translateY(0)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-fade{-webkit-animation:v-fadeStretchDelay 1.2s infinite ease-in-out;animation:v-fadeStretchDelay 1.2s infinite ease-in-out;-webkit-animation-fill-mode:both;animation-fill-mode:both;position:absolute}@-webkit-keyframes v-fadeStretchDelay{50%{-webkit-opacity:.3;opacity:.3}to{-webkit-opacity:1;opacity:1}}@keyframes v-fadeStretchDelay{50%{-webkit-opacity:.3;opacity:.3}to{-webkit-opacity:1;opacity:1}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-ring2{-webkit-animation:v-ringRightRotate 2s 0s infinite linear;animation:v-ringRightRotate 2s 0s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards}.v-spinner .v-ring2,.v-spinner .v-ring3{-webkit-perspective:800px;perspective:800px;position:absolute;top:0;left:0}.v-spinner .v-ring3{-webkit-animation:v-ringLeftRotate 2s 0s infinite linear;animation:v-ringLeftRotate 2s 0s infinite linear;-webkit-animation-fill-mode:forwards;animation-fill-mode:forwards}@-webkit-keyframes v-ringRightRotate{0%{-webkit-transform:rotateX(0deg) rotateY(0deg) rotate(0deg);transform:rotateX(0deg) rotateY(0deg) rotate(0deg)}to{-webkit-transform:rotateX(180deg) rotateY(1turn) rotate(1turn);transform:rotateX(180deg) rotateY(1turn) rotate(1turn)}}@keyframes v-ringRightRotate{0%{-webkit-transform:rotateX(0deg) rotateY(0deg) rotate(0deg);transform:rotateX(0deg) rotateY(0deg) rotate(0deg)}to{-webkit-transform:rotateX(180deg) rotateY(1turn) rotate(1turn);transform:rotateX(180deg) rotateY(1turn) rotate(1turn)}}@-webkit-keyframes v-ringLeftRotate{0%{-webkit-transform:rotateX(0deg) rotateY(0deg) rotate(0deg);transform:rotateX(0deg) rotateY(0deg) rotate(0deg)}to{-webkit-transform:rotateX(1turn) rotateY(180deg) rotate(1turn);transform:rotateX(1turn) rotateY(180deg) rotate(1turn)}}@keyframes v-ringLeftRotate{0%{-webkit-transform:rotateX(0deg) rotateY(0deg) rotate(0deg);transform:rotateX(0deg) rotateY(0deg) rotate(0deg)}to{-webkit-transform:rotateX(1turn) rotateY(180deg) rotate(1turn);transform:rotateX(1turn) rotateY(180deg) rotate(1turn)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner .v-bounce2{-webkit-animation:v-bounceStretchDelay 2s 1s infinite ease-in-out;animation:v-bounceStretchDelay 2s 1s infinite ease-in-out;-webkit-animation-fill-mode:both;animation-fill-mode:both}.v-spinner .v-bounce3{-webkit-animation:v-bounceStretchDelay 2s 0s infinite ease-in-out;animation:v-bounceStretchDelay 2s 0s infinite ease-in-out;-webkit-animation-fill-mode:both;animation-fill-mode:both}@-webkit-keyframes v-bounceStretchDelay{0%,to{-webkit-transform:scale(0);transform:scale(0)}50%{-webkit-transform:scale(1);transform:scale(1)}}@keyframes v-bounceStretchDelay{0%,to{-webkit-transform:scale(0);transform:scale(0)}50%{-webkit-transform:scale(1);transform:scale(1)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}.v-spinner .v-square{-webkit-animation:v-squareDelay 3s 0s infinite cubic-bezier(.09,.57,.49,.9);animation:v-squareDelay 3s 0s infinite cubic-bezier(.09,.57,.49,.9);-webkit-animation-fill-mode:both;animation-fill-mode:both;-webkit-perspective:100px;perspective:100px;display:inline-block}@-webkit-keyframes v-squareDelay{25%{-webkit-transform:rotateX(180deg) rotateY(0);transform:rotateX(180deg) rotateY(0)}50%{-webkit-transform:rotateX(180deg) rotateY(180deg);transform:rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:rotateX(0) rotateY(180deg);transform:rotateX(0) rotateY(180deg)}to{-webkit-transform:rotateX(0) rotateY(0);transform:rotateX(0) rotateY(0)}}@keyframes v-squareDelay{25%{-webkit-transform:rotateX(180deg) rotateY(0);transform:rotateX(180deg) rotateY(0)}50%{-webkit-transform:rotateX(180deg) rotateY(180deg);transform:rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:rotateX(0) rotateY(180deg);transform:rotateX(0) rotateY(180deg)}to{-webkit-transform:rotateX(0) rotateY(0);transform:rotateX(0) rotateY(0)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}.v-spinner .v-rise-odd{-webkit-animation:v-riseOddDelay 1s 0s infinite cubic-bezier(.15,.46,.9,.6);animation:v-riseOddDelay 1s 0s infinite cubic-bezier(.15,.46,.9,.6);-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}.v-spinner .v-rise-even{-webkit-animation:v-riseEvenDelay 1s 0s infinite cubic-bezier(.15,.46,.9,.6);animation:v-riseEvenDelay 1s 0s infinite cubic-bezier(.15,.46,.9,.6);-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}@-webkit-keyframes v-riseOddDelay{25{-webkit-transform:translateY(30px);transform:translateY(30px)}0%{-webkit-transform:scale(.4);transform:scale(.4)}50%{-webkit-transform:scale(1.1);transform:scale(1.1)}75%{-webkit-transform:translateY(-30px);transform:translateY(-30px)}to{-webkit-transform:translateY(0) scale(.75);transform:translateY(0) scale(.75)}}@keyframes v-riseOddDelay{25{-webkit-transform:translateY(30px);transform:translateY(30px)}0%{-webkit-transform:scale(.4);transform:scale(.4)}50%{-webkit-transform:scale(1.1);transform:scale(1.1)}75%{-webkit-transform:translateY(-30px);transform:translateY(-30px)}to{-webkit-transform:translateY(0) scale(.75);transform:translateY(0) scale(.75)}}@-webkit-keyframes v-riseEvenDelay{25{-webkit-transform:translateY(-30px);transform:translateY(-30px)}0%{-webkit-transform:scale(1.1);transform:scale(1.1)}50%{-webkit-transform:scale(.4);transform:scale(.4)}75%{-webkit-transform:translateY(30px);transform:translateY(30px)}to{-webkit-transform:translateY(0) scale(1);transform:translateY(0) scale(1)}}@keyframes v-riseEvenDelay{25{-webkit-transform:translateY(-30px);transform:translateY(-30px)}0%{-webkit-transform:scale(1.1);transform:scale(1.1)}50%{-webkit-transform:scale(.4);transform:scale(.4)}75%{-webkit-transform:translateY(30px);transform:translateY(30px)}to{-webkit-transform:translateY(0) scale(1);transform:translateY(0) scale(1)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}.v-spinner .v-clip{-webkit-animation:v-clipDelay .75s 0s infinite linear;animation:v-clipDelay .75s 0s infinite linear;-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}@-webkit-keyframes v-clipDelay{0%{-webkit-transform:rotate(0deg) scale(1);transform:rotate(0deg) scale(1)}50%{-webkit-transform:rotate(180deg) scale(.8);transform:rotate(180deg) scale(.8)}to{-webkit-transform:rotate(1turn) scale(1);transform:rotate(1turn) scale(1)}}@keyframes v-clipDelay{0%{-webkit-transform:rotate(0deg) scale(1);transform:rotate(0deg) scale(1)}50%{-webkit-transform:rotate(180deg) scale(.8);transform:rotate(180deg) scale(.8)}to{-webkit-transform:rotate(1turn) scale(1);transform:rotate(1turn) scale(1)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,"@-webkit-keyframes v-gridStretchDelay{0%{-webkit-transform:scale(1);transform:scale(1)}50%{-webkit-transform:scale(.5);transform:scale(.5);-webkit-opacity:.7;opacity:.7}to{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}}@keyframes v-gridStretchDelay{0%{-webkit-transform:scale(1);transform:scale(1)}50%{-webkit-transform:scale(.5);transform:scale(.5);-webkit-opacity:.7;opacity:.7}to{-webkit-transform:scale(1);transform:scale(1);-webkit-opacity:1;opacity:1}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}.v-spinner .v-skew{-webkit-animation:v-skewDelay 3s 0s infinite cubic-bezier(.09,.57,.49,.9);animation:v-skewDelay 3s 0s infinite cubic-bezier(.09,.57,.49,.9);-webkit-animation-fill-mode:both;animation-fill-mode:both;display:inline-block}@-webkit-keyframes v-skewDelay{25%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(0);transform:perspective(100px) rotateX(180deg) rotateY(0)}50%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(180deg);transform:perspective(100px) rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:perspective(100px) rotateX(0) rotateY(180deg);transform:perspective(100px) rotateX(0) rotateY(180deg)}to{-webkit-transform:perspective(100px) rotateX(0) rotateY(0);transform:perspective(100px) rotateX(0) rotateY(0)}}@keyframes v-skewDelay{25%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(0);transform:perspective(100px) rotateX(180deg) rotateY(0)}50%{-webkit-transform:perspective(100px) rotateX(180deg) rotateY(180deg);transform:perspective(100px) rotateX(180deg) rotateY(180deg)}75%{-webkit-transform:perspective(100px) rotateX(0) rotateY(180deg);transform:perspective(100px) rotateX(0) rotateY(180deg)}to{-webkit-transform:perspective(100px) rotateX(0) rotateY(0);transform:perspective(100px) rotateX(0) rotateY(0)}}",""])},function(t,e,i){e=t.exports=i(1)(),e.push([t.id,".v-spinner{text-align:center}@-webkit-keyframes v-scaleStretchDelay{0%,to{-webkit-transform:scaleY(1);transform:scaleY(1)}50%{-webkit-transform:scaleY(.4);transform:scaleY(.4)}}@keyframes v-scaleStretchDelay{0%,to{-webkit-transform:scaleY(1);transform:scaleY(1)}50%{-webkit-transform:scaleY(.4);transform:scaleY(.4)}}",""])},function(t,e,i){var n=i(19);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(20);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(21);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(22);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(23);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(24);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(25);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(26);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(27);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(28);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(29);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(30);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(31);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(32);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(33);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e,i){var n=i(34);"string"==typeof n&&(n=[[t.id,n,""]]);i(2)(n,{});n.locals&&(t.exports=n.locals)},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-beat v-beat-odd" v-bind:style=spinnerStyle> </div><div class="v-beat v-beat-even" v-bind:style=spinnerStyle> </div><div class="v-beat v-beat-odd" v-bind:style=spinnerStyle> </div> </div> ';
 },function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-bounce v-bounce1" v-bind:style=spinnerBasicStyle> <div class="v-bounce v-bounce2" v-bind:style=spinnerStyle> </div><div class="v-bounce v-bounce3" v-bind:style=spinnerStyle> </div></div> </div> '},function(t,e){t.exports=" <div class=v-spinner v-show=loading> <div class=v-clip v-bind:style=spinnerStyle> </div> </div> "},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-dot v-dot1" v-bind:style=spinnerBasicStyle> <div class="v-dot v-dot2" v-bind:style=spinnerStyle> </div><div class="v-dot v-dot3" v-bind:style=spinnerStyle> </div></div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-bind:style="{position: \'relative\', fontSize: 0}" v-show=loading> <div class="v-fade v-fade1" v-bind:style=[spinnerStyle,animationStyle1]> </div><div class="v-fade v-fade2" v-bind:style=[spinnerStyle,animationStyle2]> </div><div class="v-fade v-fade3" v-bind:style=[spinnerStyle,animationStyle3]> </div><div class="v-fade v-fade4" v-bind:style=[spinnerStyle,animationStyle4]> </div><div class="v-fade v-fade5" v-bind:style=[spinnerStyle,animationStyle5]> </div><div class="v-fade v-fade6" v-bind:style=[spinnerStyle,animationStyle6]> </div><div class="v-fade v-fade7" v-bind:style=[spinnerStyle,animationStyle7]> </div><div class="v-fade v-fade8" v-bind:style=[spinnerStyle,animationStyle8]> </div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-bind:style=containerStyle v-show=loading> <div class="v-grid v-grid1" v-bind:style=[spinnerStyle,animationStyle,animationStyle1]> </div><div class="v-grid v-grid2" v-bind:style=[spinnerStyle,animationStyle,animationStyle2]> </div><div class="v-grid v-grid3" v-bind:style=[spinnerStyle,animationStyle,animationStyle3]> </div><div class="v-grid v-grid4" v-bind:style=[spinnerStyle,animationStyle,animationStyle4]> </div><div class="v-grid v-grid5" v-bind:style=[spinnerStyle,animationStyle,animationStyle5]> </div><div class="v-grid v-grid6" v-bind:style=[spinnerStyle,animationStyle,animationStyle6]> </div><div class="v-grid v-grid7" v-bind:style=[spinnerStyle,animationStyle,animationStyle7]> </div><div class="v-grid v-grid8" v-bind:style=[spinnerStyle,animationStyle,animationStyle8]> </div><div class="v-grid v-grid9" v-bind:style=[spinnerStyle,animationStyle,animationStyle9]> </div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-moon v-moon1" v-bind:style=spinnerStyle> <div class="v-moon v-moon2" v-bind:style=[spinnerMoonStyle,animationStyle2]> </div><div class="v-moon v-moon3" v-bind:style=[spinnerStyle,animationStyle3]> </div></div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-bind:style="{position: \'relative\', fontSize: 0}" v-show=loading> <div class="v-pacman v-pacman1" v-bind:style=spinnerStyle1> </div><div class="v-pacman v-pacman2" v-bind:style=[spinnerStyle,animationStyle,spinnerDelay2]> </div><div class="v-pacman v-pacman3" v-bind:style=[spinnerStyle,animationStyle,spinnerDelay3]> </div><div class="v-pacman v-pacman4" v-bind:style=[spinnerStyle,animationStyle,spinnerDelay4]> </div><div class="v-pacman v-pacman5" v-bind:style=[spinnerStyle,animationStyle,spinnerDelay5]> </div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-pulse v-pulse1" v-bind:style=[spinnerStyle,spinnerDelay1]> </div><div class="v-pulse v-pulse2" v-bind:style=[spinnerStyle,spinnerDelay2]> </div><div class="v-pulse v-pulse3" v-bind:style=[spinnerStyle,spinnerDelay3]> </div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-ring v-ring1" v-bind:style=spinnerBasicStyle> <div class="v-ring v-ring2" v-bind:style=spinnerStyle> </div><div class="v-ring v-ring3" v-bind:style=spinnerStyle> </div></div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-rise v-rise-odd" v-bind:style=spinnerStyle> </div><div class="v-rise v-rise-even" v-bind:style=spinnerStyle> </div><div class="v-rise v-rise-odd" v-bind:style=spinnerStyle> </div><div class="v-rise v-rise-even" v-bind:style=spinnerStyle> </div><div class="v-rise v-rise-odd" v-bind:style=spinnerStyle> </div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-rotate v-rotate1" v-bind:style=spinnerStyle> <div class="v-rotate v-rotate2" v-bind:style=spinnerStyle> </div><div class="v-rotate v-rotate3" v-bind:style=spinnerStyle> </div></div> </div> '},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-scale v-scale1" v-bind:style=[spinnerStyle,spinnerDelay1]> </div><div class="v-scale v-scale2" v-bind:style=[spinnerStyle,spinnerDelay2]> </div><div class="v-scale v-scale3" v-bind:style=[spinnerStyle,spinnerDelay3]> </div><div class="v-scale v-scale4" v-bind:style=[spinnerStyle,spinnerDelay4]> </div><div class="v-scale v-scale5" v-bind:style=[spinnerStyle,spinnerDelay5]> </div> </div> '},function(t,e){t.exports=" <div class=v-spinner v-show=loading> <div class=v-skew v-bind:style=spinnerStyle> </div> </div> "},function(t,e){t.exports=" <div class=v-spinner v-show=loading> <div class=v-square v-bind:style=spinnerStyle> </div> </div> "},function(t,e){t.exports=' <div class=v-spinner v-show=loading> <div class="v-sync v-sync1" v-bind:style=[spinnerStyle,spinnerDelay1]> </div><div class="v-sync v-sync2" v-bind:style=[spinnerStyle,spinnerDelay2]> </div><div class="v-sync v-sync3" v-bind:style=[spinnerStyle,spinnerDelay3]> </div> </div> '},function(t,e,i){var n,a;i(38),n=i(3),a=i(51),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(44),n=i(4),a=i(52),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(47),n=i(5),a=i(53),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(39),n=i(6),a=i(54),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(42),n=i(7),a=i(55),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(48),n=i(8),a=i(56),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(36),n=i(9),a=i(57),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(37),n=i(10),a=i(58),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(40),n=i(11),a=i(59),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(43),n=i(12),a=i(60),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(46),n=i(13),a=i(61),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(35),n=i(14),a=i(62),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(50),n=i(15),a=i(63),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(49),n=i(16),a=i(64),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(45),n=i(17),a=i(65),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)},function(t,e,i){var n,a;i(41),n=i(18),a=i(66),t.exports=n||{},t.exports.__esModule&&(t.exports=t.exports.default),a&&(("function"==typeof t.exports?t.exports.options:t.exports).template=a)}])});
-},{}],79:[function(require,module,exports){
+},{}],81:[function(require,module,exports){
 (function (process,global){
 /*!
  * Vue.js v2.5.16
@@ -29427,7 +33332,7 @@ Vue.compile = compileToFunctions;
 module.exports = Vue;
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"_process":61}],80:[function(require,module,exports){
+},{"_process":63}],82:[function(require,module,exports){
 var inserted = exports.cache = {}
 
 function noop () {}
@@ -29452,7 +33357,7 @@ exports.insert = function (css) {
   }
 }
 
-},{}],81:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -47117,7 +51022,7 @@ function install(Vue) {
 /******/ ])["default"];
 });
 
-},{}],82:[function(require,module,exports){
+},{}],84:[function(require,module,exports){
 'use strict';
 
 var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
@@ -47187,7 +51092,7 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-},{}],83:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("@font-face {\r\n   font-family: \"Nexa Bold\";\r\n   src: url('./public/font/NexaBold.otf');\r\n}\r\n.splash{\r\n   background-color: #8BC34A;\r\n   height: 100vh;\r\n}")
 ;(function(){
 //
@@ -47261,6 +51166,7 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("@font-fa
 		mounted: function(){
 			this.$eventBus.$on('open-secondary', this.openSecondary);
 			this.$eventBus.$on('back-secondary', this.backSecondary);
+			this.$eventBus.$on('change-screen', this.changeScreen);
 		}
    }
 
@@ -47278,11 +51184,11 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-3f4e03de", __vue__options__)
   } else {
-    hotAPI.reload("data-v-3f4e03de", __vue__options__)
+    hotAPI.rerender("data-v-3f4e03de", __vue__options__)
   }
 })()}
-},{"./ChatPage.vue":87,"./Login.vue":91,"./MainFrame.vue":92,"./Register.vue":94,"./Splash.vue":95,"@firebase/app":1,"@firebase/storage":2,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],84:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".chat-content{\r\n   background-color: white; \r\n   padding-top: 12px; \r\n   padding-bottom: 12px;\r\n}\r\n.padding-content{\r\n\tpadding-left: 12px; \r\n\tpadding-right: 12px;\r\n}\r\n.grid-normal{\r\n\tmargin-left: 0px;\r\n}\r\n.col-normal{\r\n\tpadding-left: 0px;\r\n}")
+},{"./ChatPage.vue":89,"./Login.vue":93,"./MainFrame.vue":94,"./Register.vue":96,"./Splash.vue":97,"@firebase/app":1,"@firebase/storage":4,"vue":81,"vue-hot-reload-api":79,"vueify/lib/insert-css":82}],86:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".section{\r\n\tmax-width: 486px;\r\n}\r\n.chat-content{\r\n   background-color: white; \r\n   padding-top: 12px; \r\n   padding-bottom: 12px;\r\n}\r\n.padding-content{\r\n\tpadding-left: 12px; \r\n\tpadding-right: 12px;\r\n}\r\n.grid-normal{\r\n\tmargin-left: 0px;\r\n}\r\n.col-normal{\r\n\tpadding-left: 0px;\r\n}")
 ;(function(){
 //
 //
@@ -47296,8 +51202,13 @@ var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".chat-co
 //
 
 const axios = require('axios').default;
-const ChatListItem = require('./ChatListItem.vue');
+const firebase = require('@firebase/app').default;
+require('@firebase/messaging');
 
+const io = require('socket.io-client');
+var socket;
+
+const ChatListItem = require('./ChatListItem.vue');
 
 module.exports = {
 	components: {
@@ -47308,6 +51219,38 @@ module.exports = {
 			chatList: []
 		}
 	},
+	methods:{
+		sortList: function(){
+			this.chatList.sort(function(a, b){
+				if(a.lastMessage.timestamp > b.lastMessage.timestamp){
+					return -1;
+				}
+
+				if(a.lastMessage.timestamp < b.lastMessage.timestamp){
+					return 1;
+				}
+
+				return 0;
+			});
+
+			console.log(this.chatList);
+		}
+	},
+	beforeCreate: function(){
+      socket = io({
+         transportOptions: {
+            polling: {
+               extraHeaders: {
+                  'x-temuin-token': this.$session.accessToken
+               }
+            }
+         }
+      });
+
+      socket.on('connect', function () {
+         console.log('connected');
+      });
+   },
 	created: function(){
 		axios.get('/chat', {
 			headers:{
@@ -47327,18 +51270,87 @@ module.exports = {
 				this.chatList.push(listItem);
 			}
 
-			console.log(JSON.stringify(this.chatList[0]));
+			//console.log(JSON.stringify(this.chatList[0]));
 		}).catch(err => {
 			//console.log(JSON.stringify(err));
 		});
-	}	
+
+		socket.on('new_msg', (data) => {
+			console.log(JSON.stringify(data));
+         var dataMessage = {
+            from: data.sender.username,
+            body: data.message,
+            timestamp: Date.now()
+         };
+			
+			//console.log(dataMessage);
+			var result = this.chatList.findIndex(function(chat){
+				return chat.senderDetail.username == dataMessage.from;
+			});
+
+			if(result != -1){
+				console.log(JSON.stringify(this.chatList[result]));
+				this.chatList[result].lastMessage.body = dataMessage.body;
+				this.chatList[result].lastMessage.timestamp = dataMessage.timestamp;
+
+				this.sortList();
+			}else{
+				var dataSender = {
+					from: data.sender.username,
+					nama: data.sender.nama,
+					urlFoto: data.sender.urlFoto || ''
+				};
+
+				var dataMsg = {
+					from: data.sender.username,
+					timestamp: Date.now(),
+					body: data.message
+				}
+
+				var listItem = {
+					senderDetail: dataSender,
+					lastMessage: dataMsg
+				}
+
+				this.chatList.push(listItem);
+				this.sortList();
+			}
+
+         //window.scrollBy(0, window.innerHeight);
+      });
+	}, 
+	mounted: function(){
+		const messaging = firebase.messaging();
+
+		/*messaging.useServiceWorker('/public/js/dist/firebase-messaging-sw.js');
+		messaging.usePublicVapidKey('BN5hcB1pRtcDGdx8xIDlbTZx8yqENPWZebteBVAX3u4jcT7gdIWKlKASgI6LviUXlYgVz04q6SpNv9DmIIS1w50');
+		console.log('disini');
+		messaging.requestPermission().then(function() {
+			console.log('Notification permission granted.');
+			// TODO(developer): Retrieve an Instance ID token for use with FCM.
+			
+			messaging.getToken().then(function(currentToken) {
+				if (currentToken) {
+					console.log(currentToken);
+				} else {
+					// Show permission request.
+					console.log('No Instance ID token available. Request permission to generate one.');
+				}
+			}).catch(function(err) {
+				console.log('An error occurred while retrieving token. ', err);
+			});
+		}).catch(function(err) {
+			console.log('Unable to get permission to notify.', err);
+		});
+		*/
+	}
 }
 
 })()
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"background-color":"#EEEEEE","padding-top":"48px"},attrs:{"uk-height-viewport":""}},[_c('div',{staticClass:"uk-width-1-1 main-content"},_vm._l((_vm.chatList),function(chat,index){return _c('chat-item',{key:index,attrs:{"props-data":chat}})}))])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"background-color":"#EEEEEE","padding-top":"48px","padding-bottom":"56px"},attrs:{"uk-height-viewport":""}},[_c('div',{staticClass:"uk-width-1-1 section",staticStyle:{"padding-top":"4px"}},_vm._l((_vm.chatList),function(chat,index){return _c('chat-item',{key:index,attrs:{"props-data":chat}})}))])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -47348,12 +51360,11 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6bae9636", __vue__options__)
   } else {
-    hotAPI.reload("data-v-6bae9636", __vue__options__)
+    hotAPI.rerender("data-v-6bae9636", __vue__options__)
   }
 })()}
-},{"./ChatListItem.vue":86,"axios":6,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],85:[function(require,module,exports){
+},{"./ChatListItem.vue":88,"@firebase/app":1,"@firebase/messaging":2,"axios":8,"socket.io-client":64,"vue":81,"vue-hot-reload-api":79,"vueify/lib/insert-css":82}],87:[function(require,module,exports){
 ;(function(){
-//
 //
 //
 //
@@ -47413,8 +51424,8 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-right",staticStyle:{"margin-bottom":"8px"}},[_c('div',{staticClass:"grid-normal uk-flex uk-flex-right",attrs:{"uk-grid":""}},[_c('div',{staticClass:"uk-width-auto",staticStyle:{"padding-right":"4px","max-width":"80%"}},[_c('v-card',{attrs:{"color":"light-green"}},[_c('div',{staticStyle:{"padding":"6px"}},[_c('div',{staticClass:"uk-width-expand col-normal",staticStyle:{"font-size":"13px"}},[_c('b',[_vm._v("saya")])]),_vm._v(" "),_c('div',{staticStyle:{"margin-top":"0px","font-size":"13px"}},[_vm._v("\n                     "+_vm._s(this.messageData.body)+"\n                  ")])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 col-normal uk-text-right",staticStyle:{"font-size":"9px","margin-top":"0px"}},[_vm._v("\n               "+_vm._s(this.strDate)+"\n            ")])],1),_vm._v(" "),_c('div',{staticClass:"uk-width-auto col-normal uk-flex uk-flex-bottom",staticStyle:{"padding-bottom":"17px"}},[_c('div',{staticClass:"uk-border-circle",staticStyle:{"height":"36px","width":"36px","background-color":"white","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.userData.urlFoto}})])])])])])}
-__vue__options__.staticRenderFns = []
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-right",staticStyle:{"margin-bottom":"8px"}},[_c('div',{staticClass:"grid-normal uk-flex uk-flex-right",attrs:{"uk-grid":""}},[_c('div',{staticClass:"uk-width-auto",staticStyle:{"padding-right":"4px","max-width":"80%"}},[_vm._m(0),_vm._v(" "),_c('v-card',{attrs:{"color":"light-green"}},[_c('div',{staticStyle:{"padding":"8px"}},[_c('div',{staticStyle:{"margin-top":"0px","font-size":"14px"}},[_vm._v("\n                     "+_vm._s(this.messageData.body)+"\n                  ")])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 col-normal uk-text-right",staticStyle:{"font-size":"9px","margin-top":"2px"}},[_vm._v("\n               "+_vm._s(this.strDate)+"\n            ")])],1),_vm._v(" "),_c('div',{staticClass:"uk-width-auto col-normal uk-flex uk-flex-bottom",staticStyle:{"padding-bottom":"15px"}},[_c('div',{staticClass:"uk-border-circle",staticStyle:{"height":"36px","width":"36px","background-color":"white","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.userData.urlFoto}})])])])])])}
+__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"uk-width-expand col-normal",staticStyle:{"font-size":"12px"}},[_c('b',[_vm._v("saya")])])}]
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
@@ -47422,10 +51433,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-790abc3c", __vue__options__)
   } else {
-    hotAPI.reload("data-v-790abc3c", __vue__options__)
+    hotAPI.rerender("data-v-790abc3c", __vue__options__)
   }
 })()}
-},{"moment":57,"vue":79,"vue-hot-reload-api":77}],86:[function(require,module,exports){
+},{"moment":59,"vue":81,"vue-hot-reload-api":79}],88:[function(require,module,exports){
 ;(function(){
 //
 //
@@ -47460,11 +51471,6 @@ module.exports = {
    props:{
       propsData: Object
    },
-   data(){
-      return{
-         strDate: ''
-      }
-   },
    methods:{
       openChat: function(){
 			var data = {
@@ -47476,8 +51482,11 @@ module.exports = {
 			this.$eventBus.$emit('open-secondary', data);
 		}
    },
-   created: function(){
-      this.strDate = moment(this.propsData.lastMessage.timestamp).format('Do/MMM HH:mm');
+   computed: {
+     	strDate : function(){
+			var date = moment(this.propsData.lastMessage.timestamp).format('Do/MMM HH:mm');
+			return date;
+		}
    }
 }
 
@@ -47497,7 +51506,7 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
     hotAPI.reload("data-v-bdf720ee", __vue__options__)
   }
 })()}
-},{"moment":57,"vue":79,"vue-hot-reload-api":77}],87:[function(require,module,exports){
+},{"moment":59,"vue":81,"vue-hot-reload-api":79}],89:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".chat-content{\r\n   background-color: white; \r\n   padding-top: 12px; \r\n   padding-bottom: 12px;\r\n}\r\n.padding-content{\r\n\tpadding-left: 12px; \r\n\tpadding-right: 12px;\r\n}\r\n.grid-normal{\r\n\tmargin-left: 0px;\r\n}\r\n.col-normal{\r\n\tpadding-left: 0px;\r\n}\r\n.section{\r\n   max-width: 486px;\r\n}")
 ;(function(){
 //
@@ -47657,8 +51666,6 @@ module.exports = {
          };
          
          this.messageList.push(dataMessage);
-         console.log(dataMessage);
-         console.log(data);
          //window.scrollBy(0, window.innerHeight);
       });
    }
@@ -47678,10 +51685,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-40e4f247", __vue__options__)
   } else {
-    hotAPI.reload("data-v-40e4f247", __vue__options__)
+    hotAPI.rerender("data-v-40e4f247", __vue__options__)
   }
 })()}
-},{"./ChatFrom.vue":85,"./ChatTo.vue":88,"socket.io-client":62,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],88:[function(require,module,exports){
+},{"./ChatFrom.vue":87,"./ChatTo.vue":90,"socket.io-client":64,"vue":81,"vue-hot-reload-api":79,"vueify/lib/insert-css":82}],90:[function(require,module,exports){
 ;(function(){
 //
 //
@@ -47742,7 +51749,7 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"grid-normal",staticStyle:{"margin-bottom":"8px"},attrs:{"uk-grid":""}},[_c('div',{staticClass:"uk-width-auto col-normal uk-flex uk-flex-bottom",staticStyle:{"padding-bottom":"17px"}},[_c('div',{staticClass:"uk-border-circle",staticStyle:{"height":"36px","width":"36px","background-color":"white","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.userData.urlFoto}})])]),_vm._v(" "),_c('div',{staticClass:"uk-width-auto",staticStyle:{"padding-left":"4px","max-width":"80%"}},[_c('v-card',{attrs:{"color":"white"}},[_c('div',{staticStyle:{"padding":"4px"}},[_c('div',{staticClass:"col-normal",staticStyle:{"font-size":"13px"}},[_c('b',[_vm._v(_vm._s(_vm.userData.username))])]),_vm._v(" "),_c('div',{staticStyle:{"margin-top":"0px","font-size":"13px"}},[_vm._v("\n                  "+_vm._s(_vm.messageData.body)+"\n               ")])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 col-normal uk-text-right",staticStyle:{"font-size":"9px","margin-top":"0px"}},[_vm._v("\n            "+_vm._s(this.strDate)+"\n         ")])],1)])])}
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',[_c('div',{staticClass:"grid-normal",staticStyle:{"margin-bottom":"8px"},attrs:{"uk-grid":""}},[_c('div',{staticClass:"uk-width-auto col-normal uk-flex uk-flex-bottom",staticStyle:{"padding-bottom":"17px"}},[_c('div',{staticClass:"uk-border-circle",staticStyle:{"height":"36px","width":"36px","background-color":"white","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.userData.urlFoto}})])]),_vm._v(" "),_c('div',{staticClass:"uk-width-auto",staticStyle:{"padding-left":"4px","max-width":"80%"}},[_c('div',{staticClass:"col-normal",staticStyle:{"font-size":"12px"}},[_c('b',[_vm._v(_vm._s(_vm.userData.username))])]),_vm._v(" "),_c('v-card',{attrs:{"color":"white"}},[_c('div',{staticStyle:{"padding":"8px"}},[_c('div',{staticStyle:{"margin-top":"0px","font-size":"14px"}},[_vm._v("\n                  "+_vm._s(_vm.messageData.body)+"\n               ")])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 col-normal uk-text-right",staticStyle:{"font-size":"9px","margin-top":"2px"}},[_vm._v("\n            "+_vm._s(this.strDate)+"\n         ")])],1)])])}
 __vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
@@ -47751,10 +51758,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-00e77033", __vue__options__)
   } else {
-    hotAPI.reload("data-v-00e77033", __vue__options__)
+    hotAPI.rerender("data-v-00e77033", __vue__options__)
   }
 })()}
-},{"moment":57,"vue":79,"vue-hot-reload-api":77}],89:[function(require,module,exports){
+},{"moment":59,"vue":81,"vue-hot-reload-api":79}],91:[function(require,module,exports){
 ;(function(){
 //
 //
@@ -47854,7 +51861,7 @@ module.exports = {
 			});
 		}else{
 			this.strLokasi = this.dataPost.namaLokasi;
-			console.log('sudah ada lokasi')
+			//console.log('sudah ada lokasi')
 		}
 	}
 }
@@ -47872,10 +51879,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-1987db98", __vue__options__)
   } else {
-    hotAPI.reload("data-v-1987db98", __vue__options__)
+    hotAPI.rerender("data-v-1987db98", __vue__options__)
   }
 })()}
-},{"moment":57,"vue":79,"vue-hot-reload-api":77}],90:[function(require,module,exports){
+},{"moment":59,"vue":81,"vue-hot-reload-api":79}],92:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".btn-bottom{\r\n  color: #8BC34A; \r\n  background-color: white;\r\n  border-color: white; \r\n  font-family: Gibson Regular;\r\n  font-size: 12px;\r\n}")
 ;(function(){
 //
@@ -47999,10 +52006,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6e5dfe3a", __vue__options__)
   } else {
-    hotAPI.reload("data-v-6e5dfe3a", __vue__options__)
+    hotAPI.rerender("data-v-6e5dfe3a", __vue__options__)
   }
 })()}
-},{"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],91:[function(require,module,exports){
+},{"vue":81,"vue-hot-reload-api":79,"vueify/lib/insert-css":82}],93:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".login-content{\r\n   margin-top: 36px; \r\n   margin-right: 64px;\r\n   margin-left: 64px;\r\n   max-width: 486px;\r\n}")
 ;(function(){
 //
@@ -48171,10 +52178,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-a5b30d4e", __vue__options__)
   } else {
-    hotAPI.reload("data-v-a5b30d4e", __vue__options__)
+    hotAPI.rerender("data-v-a5b30d4e", __vue__options__)
   }
 })()}
-},{"axios":6,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],92:[function(require,module,exports){
+},{"axios":8,"vue":81,"vue-hot-reload-api":79,"vue-spinner/dist/vue-spinner.min":80,"vueify/lib/insert-css":82}],94:[function(require,module,exports){
 ;(function(){
 //
 //
@@ -48267,10 +52274,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-5a4f40b8", __vue__options__)
   } else {
-    hotAPI.reload("data-v-5a4f40b8", __vue__options__)
+    hotAPI.rerender("data-v-5a4f40b8", __vue__options__)
   }
 })()}
-},{"./ChatFrame.vue":84,"./Profile.vue":93,"./Timeline.vue":96,"vue":79,"vue-hot-reload-api":77}],93:[function(require,module,exports){
+},{"./ChatFrame.vue":86,"./Profile.vue":95,"./Timeline.vue":98,"vue":81,"vue-hot-reload-api":79}],95:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert(".progress-linear{\r\n\tmargin: 0px;\r\n}")
 ;(function(){
 //
@@ -48377,8 +52384,31 @@ module.exports = {
 					this.dataUser.urlFoto = data.urlFoto;
 				}
 			}).catch(err => {
-				console.log(JSON.stringify(err));
+				//console.log(JSON.stringify(err));
+				this.snackbar.msg = err.message;
+				this.snackbar.show = true;
 			});
+		},
+		logout: function(){
+			this.$session.accessToken = '';
+			if(('caches' in self)){
+         	//cek cache data login
+				caches.open('temuin-ch').then(cache => {
+					//console.log('disini');
+					cache.delete(new Request('/users/authentication'))
+					.then(isSucces => {
+						//console.log(isSucces);
+						return this.$eventBus.$emit('change-screen', 'Login');
+					}).catch(err => {
+						//console.log(err);
+						return this.$eventBus.$emit('change-screen', 'Login');
+					});
+				}).catch(err => {
+					return this.$eventBus.$emit('change-screen', 'Login'); 
+				});
+			}else{
+				return this.$eventBus.$emit('change-screen', 'Login');  
+			}
 		}
 	},
 	created:function(){
@@ -48448,8 +52478,8 @@ module.exports = {
 if (module.exports.__esModule) module.exports = module.exports.default
 var __vue__options__ = (typeof module.exports === "function"? module.exports.options: module.exports)
 if (__vue__options__.functional) {console.error("[vueify] functional components are not supported and should be defined in plain js files using render functions.")}
-__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticStyle:{"padding-bottom":"60px"}},[_c('div',{staticClass:"uk-width-1-1",staticStyle:{"background-color":"#8BC34A","height":"192px"}}),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"margin-top":"-90px"}},[_c('div',[_c('div',{staticClass:"uk-border-circle",staticStyle:{"background-color":"white","width":"180px","height":"180px","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.dataUser.urlFoto}})])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center"},[_c('div',{staticClass:"uk-width-1-1 main-content uk-flex uk-flex-center"},[_c('div',{staticClass:"uk-text-center"},[_c('label',{staticStyle:{"font-family":"Gibson Regular","font-size":"12px","color":"#8BC34A"},attrs:{"for":"pilih-foto"}},[_vm._v("\n\t\t\t\t\tganti foto profil "),_c('v-icon',[_vm._v("edit")])],1),_vm._v(" "),_c('input',{staticStyle:{"display":"none"},attrs:{"type":"file","id":"pilih-foto","accept":"image/*"}}),_vm._v(" "),_c('div',{staticStyle:{"font-family":"Gibson Regular","font-size":"24px"}},[_c('b',[_vm._v(_vm._s(_vm.dataUser.nama))])]),_vm._v(" "),_c('div',{staticStyle:{"font-family":"Gibson Regular"}},[_vm._v("("+_vm._s(_vm.dataUser.username)+")")])])])]),_vm._v(" "),_vm._m(0),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"margin-top":"54px"}},[_c('v-progress-linear',{attrs:{"active":_vm.progressBar.show,"value":_vm.progressBar.value,"height":"2","color":"light-green"}})],1),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"border-top":"2px solid #e5e5e5"}},[_c('div',{staticClass:"uk-flex uk-flex-middle",staticStyle:{"margin-top":"12px"},attrs:{"uk-grid":""}},[_c('v-icon',[_vm._v("email")]),_vm._v(" "),_c('span',{staticStyle:{"padding":"4px","font-size":"12px","font-family":"Gibson Regular"}},[_vm._v(_vm._s(_vm.dataUser.email))])],1)]),_vm._v(" "),(_vm.snackbar.show)?_c('v-snackbar',{attrs:{"timeout":2000,"bottom":""},model:{value:(_vm.snackbar.show),callback:function ($$v) {_vm.$set(_vm.snackbar, "show", $$v)},expression:"snackbar.show"}},[_vm._v("\n\t\t"+_vm._s(_vm.snackbar.msg)+"\n\t\t"),_c('v-btn',{attrs:{"flat":"","color":"pink"},nativeOn:{"click":function($event){_vm.snackbar = false}}},[_vm._v("Close")])],1):_vm._e()],1)}
-__vue__options__.staticRenderFns = [function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center"},[_c('button',{staticClass:"uk-button uk-button-small uk-button-primary",staticStyle:{"background-color":"#8BC34A","color":"white","font-family":"Gibson Regular"}},[_vm._v("\n\t\t\tlogout\n\t\t")])])}]
+__vue__options__.render = function render () {var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;return _c('div',{staticStyle:{"padding-bottom":"60px"}},[_c('div',{staticClass:"uk-width-1-1",staticStyle:{"background-color":"#8BC34A","height":"192px"}}),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"margin-top":"-90px"}},[_c('div',[_c('div',{staticClass:"uk-border-circle",staticStyle:{"background-color":"white","width":"180px","height":"180px","overflow":"hidden"}},[_c('img',{attrs:{"src":_vm.dataUser.urlFoto}})])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center"},[_c('div',{staticClass:"uk-width-1-1 main-content uk-flex uk-flex-center"},[_c('div',{staticClass:"uk-text-center"},[_c('label',{staticStyle:{"font-family":"Gibson Regular","font-size":"12px","color":"#8BC34A"},attrs:{"for":"pilih-foto"}},[_vm._v("\n\t\t\t\t\tganti foto profil "),_c('v-icon',[_vm._v("edit")])],1),_vm._v(" "),_c('input',{staticStyle:{"display":"none"},attrs:{"type":"file","id":"pilih-foto","accept":"image/*"}}),_vm._v(" "),_c('div',{staticStyle:{"font-family":"Gibson Regular","font-size":"24px"}},[_c('b',[_vm._v(_vm._s(_vm.dataUser.nama))])]),_vm._v(" "),_c('div',{staticStyle:{"font-family":"Gibson Regular"}},[_vm._v("("+_vm._s(_vm.dataUser.username)+")")])])])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center"},[_c('button',{staticClass:"uk-button uk-button-small uk-button-primary",staticStyle:{"background-color":"#8BC34A","color":"white","font-family":"Gibson Regular"},on:{"click":_vm.logout}},[_vm._v("\n\t\t\tlogout\n\t\t")])]),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"margin-top":"54px"}},[_c('v-progress-linear',{attrs:{"active":_vm.progressBar.show,"value":_vm.progressBar.value,"height":"2","color":"light-green"}})],1),_vm._v(" "),_c('div',{staticClass:"uk-width-1-1 uk-flex uk-flex-center",staticStyle:{"border-top":"2px solid #e5e5e5"}},[_c('div',{staticClass:"uk-flex uk-flex-middle",staticStyle:{"margin-top":"12px"},attrs:{"uk-grid":""}},[_c('v-icon',[_vm._v("email")]),_vm._v(" "),_c('span',{staticStyle:{"padding":"4px","font-size":"12px","font-family":"Gibson Regular"}},[_vm._v(_vm._s(_vm.dataUser.email))])],1)]),_vm._v(" "),(_vm.snackbar.show)?_c('v-snackbar',{attrs:{"timeout":2000,"bottom":""},model:{value:(_vm.snackbar.show),callback:function ($$v) {_vm.$set(_vm.snackbar, "show", $$v)},expression:"snackbar.show"}},[_vm._v("\n\t\t"+_vm._s(_vm.snackbar.msg)+"\n\t\t"),_c('v-btn',{attrs:{"flat":"","color":"pink"},nativeOn:{"click":function($event){_vm.snackbar = false}}},[_vm._v("Close")])],1):_vm._e()],1)}
+__vue__options__.staticRenderFns = []
 if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   hotAPI.install(require("vue"), true)
   if (!hotAPI.compatible) return
@@ -48458,10 +52488,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-0ecb44ce", __vue__options__)
   } else {
-    hotAPI.reload("data-v-0ecb44ce", __vue__options__)
+    hotAPI.rerender("data-v-0ecb44ce", __vue__options__)
   }
 })()}
-},{"@firebase/app":1,"@firebase/storage":2,"axios":6,"vue":79,"vue-hot-reload-api":77,"vueify/lib/insert-css":80}],94:[function(require,module,exports){
+},{"@firebase/app":1,"@firebase/storage":4,"axios":8,"vue":81,"vue-hot-reload-api":79,"vueify/lib/insert-css":82}],96:[function(require,module,exports){
 var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("@font-face {\r\n   font-family: 'Gibson Regular';\r\n   src: url('./public/font/Gibson-Regular.ttf');\r\n}\r\n@font-face {\r\n   font-family: 'Gibson Regular Italic';\r\n   src: url('./public/font/Gibson-RegularItalic.ttf');\r\n}\r\n.temuin{\r\n   font-size: 30px;\r\n}\r\n.main-content{\r\n   margin-top: 62px; \r\n   margin-right: 64px;\r\n   margin-left: 64px;\r\n   max-width: 412px;\r\n}\r\n.form-input{\r\n   font-family: Gibson Regular;\r\n   font-size: 12px;\r\n   margin-top: 8px;\r\n}\r\n.picker__body, .picker__actions{\r\n   background-color: white;\r\n}\r\n.form-radio{\r\n   font-family: Gibson Regular;\r\n   font-size: 12px;\r\n}\r\n.success{\r\n\tbackground-color: #4caf50;\r\n}\r\n.error{\r\n\tbackground-color: #ff5252;\r\n}")
 ;(function(){
 //
@@ -48627,10 +52657,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-6e9474e3", __vue__options__)
   } else {
-    hotAPI.reload("data-v-6e9474e3", __vue__options__)
+    hotAPI.rerender("data-v-6e9474e3", __vue__options__)
   }
 })()}
-},{"axios":6,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],95:[function(require,module,exports){
+},{"axios":8,"vue":81,"vue-hot-reload-api":79,"vue-spinner/dist/vue-spinner.min":80,"vueify/lib/insert-css":82}],97:[function(require,module,exports){
 ;(function(){
 //
 //
@@ -48665,10 +52695,10 @@ module.exports = {
       if(this.windowSupport.cache){
          //cek cache data login
          caches.open('temuin-ch').then(cache => {
-            console.log('disini');
+            //console.log('disini');
             cache.match(new Request('/users/authentication')).then(response => {
                if(!response){
-                  console.log('disini');
+                  //console.log('disini');
                   return this.$emit('change-screen', 'Login');
                }
                //retrieve data cache
@@ -48713,11 +52743,11 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-b487ceb2", __vue__options__)
   } else {
-    hotAPI.reload("data-v-b487ceb2", __vue__options__)
+    hotAPI.rerender("data-v-b487ceb2", __vue__options__)
   }
 })()}
-},{"axios":6,"vue":79,"vue-hot-reload-api":77}],96:[function(require,module,exports){
-var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("@font-face {\r\n   font-family: 'Gibson Regular';\r\n   src: url('./public/font/Gibson-Regular.ttf');\r\n}\r\n@font-face {\r\n   font-family: 'Gibson Regular Italic';\r\n   src: url('./public/font/Gibson-RegularItalic.ttf');\r\n}\r\n.main-content{\r\n   margin-top: 12px; \r\n   margin-right: 12px;\r\n   margin-left: 12px;\r\n   margin-bottom: 42px;\r\n   max-width: 486px;\r\n}\r\n#fab{\r\n\tmargin-bottom: 56px;\r\n}")
+},{"axios":8,"vue":81,"vue-hot-reload-api":79}],98:[function(require,module,exports){
+var __vueify_style_dispose__ = require("vueify/lib/insert-css").insert("@font-face {\r\n   font-family: 'Gibson Regular';\r\n   src: url('./public/font/Gibson-Regular.ttf');\r\n}\r\n@font-face {\r\n   font-family: 'Gibson Regular Italic';\r\n   src: url('./public/font/Gibson-RegularItalic.ttf');\r\n}\r\n.main-content{\r\n   margin-top: 12px;\r\n   margin-bottom: 42px;\r\n   max-width: 486px;\r\n\tmargin-left: 0px;\r\n\tmargin-right: 0px;\r\n}\r\n#fab{\r\n\tmargin-bottom: 56px;\r\n}")
 ;(function(){
 //
 //
@@ -49149,10 +53179,10 @@ if (module.hot) {(function () {  var hotAPI = require("vue-hot-reload-api")
   if (!module.hot.data) {
     hotAPI.createRecord("data-v-2bc91b81", __vue__options__)
   } else {
-    hotAPI.reload("data-v-2bc91b81", __vue__options__)
+    hotAPI.rerender("data-v-2bc91b81", __vue__options__)
   }
 })()}
-},{"./ItemTimeline.vue":89,"./LocationPicker.vue":90,"@firebase/app":1,"@firebase/storage":2,"axios":6,"socket.io-client":62,"vue":79,"vue-hot-reload-api":77,"vue-spinner/dist/vue-spinner.min":78,"vueify/lib/insert-css":80}],97:[function(require,module,exports){
+},{"./ItemTimeline.vue":91,"./LocationPicker.vue":92,"@firebase/app":1,"@firebase/storage":4,"axios":8,"socket.io-client":64,"vue":81,"vue-hot-reload-api":79,"vue-spinner/dist/vue-spinner.min":80,"vueify/lib/insert-css":82}],99:[function(require,module,exports){
 const Vue = require('vue');
 const Vuetify = require('vuetify');
 const axios = require('axios').default;
@@ -49174,4 +53204,14 @@ new Vue({
    }
 })
 
-},{"./components/App.vue":83,"axios":6,"vue":79,"vuetify":81}]},{},[97]);
+//register worker
+if ('serviceWorker' in navigator) {
+   navigator.serviceWorker
+            .register('/public/js/dist/worker.js')
+            .then(function() { console.log('Service Worker Registered'); })
+            .catch(err => {
+               console.log(err)
+            });
+}
+
+},{"./components/App.vue":85,"axios":8,"vue":81,"vuetify":83}]},{},[99]);

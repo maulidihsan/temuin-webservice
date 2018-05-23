@@ -18,3 +18,13 @@ new Vue({
       return createElement(App);
    }
 })
+
+//register worker
+if ('serviceWorker' in navigator) {
+   navigator.serviceWorker
+            .register('/public/js/dist/worker.js')
+            .then(function() { console.log('Service Worker Registered'); })
+            .catch(err => {
+               console.log(err)
+            });
+}

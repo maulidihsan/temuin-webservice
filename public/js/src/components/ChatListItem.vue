@@ -31,11 +31,6 @@ module.exports = {
    props:{
       propsData: Object
    },
-   data(){
-      return{
-         strDate: ''
-      }
-   },
    methods:{
       openChat: function(){
 			var data = {
@@ -47,8 +42,11 @@ module.exports = {
 			this.$eventBus.$emit('open-secondary', data);
 		}
    },
-   created: function(){
-      this.strDate = moment(this.propsData.lastMessage.timestamp).format('Do/MMM HH:mm');
+   computed: {
+     	strDate : function(){
+			var date = moment(this.propsData.lastMessage.timestamp).format('Do/MMM HH:mm');
+			return date;
+		}
    }
 }
 </script>
