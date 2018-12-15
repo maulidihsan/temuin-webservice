@@ -1,0 +1,33 @@
+<html>
+  <head>Testing</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.0/socket.io.js"></script>
+    <script>
+        var socket = io({
+          transportOptions: {
+            polling: {
+              extraHeaders: {
+                'x-temuin-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVhZGI2NWJjNzNiMzI1OWY4NTMzYjkxYyIsInVzZXJuYW1lIjoiYmFndXMiLCJlbWFpbCI6Imloc2FAZ21haWwuY29tIiwiaWF0IjoxNTI2MzI3NzkwLCJleHAiOjE1MjYzNjM3OTB9.50AM9vL-RrI3QN7XSUHJ5WiFz7tIBEhEFdLbG0a0wZA',
+              }
+            }
+          }
+        }); // TIP: io() with no args does auto-discovery
+        socket.on('connect', function () { // TIP: you can avoid listening on `connect` and listen on events directly too!
+          alert('connected');
+        });
+        function sendMsg(data) {
+          socket.emit('send_msg', {
+            to: 'wisnu',
+            message: data
+          }, function(cb){
+            console.log(cb);
+          })
+        }
+        
+        socket.on('new_post', function (data) {
+            alert('new post');
+        });
+    </script>
+    <button onclick="sendMsg('halo hai')">send</button>
+</body>
+</html>
