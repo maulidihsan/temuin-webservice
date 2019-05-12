@@ -49,6 +49,33 @@ describe('[GET] /users/timeline', () => {
                 done();
             });
     });
+    it('get the timeline without access token', (done) => {
+        chai.request(app)
+            .get('/timeline?lat=40.7143528&lng=-74.0059731&radius=2')
+            .end((err, res) => {
+                res.should.have.status(401);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').and.to.be.a('boolean');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('data').and.to.be.a('array');
+                // res.body.data.should.have.property('lokasi').and.to.be.a('object');
+                done();
+            });
+    });
+    it('GET without query parameter', (done) => {
+        chai.request(app)
+            .get('/timeline')
+            .set('x-temuin-token', AccessToken)
+            .end((err, res) => {
+                res.should.have.status(200);
+                res.body.should.be.a('object');
+                res.body.should.have.property('success').and.to.be.a('boolean');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('data').and.to.be.a('array');
+                // res.body.data.should.have.property('lokasi').and.to.be.a('object');
+                done();
+            });
+    });
 });
 
 describe('[GET] /users/location', () => {
