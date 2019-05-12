@@ -58,6 +58,29 @@ describe('[POST] /timeline/post', () => {
                 done();
             });
     });
+    it('it should not post the items without user field being empty', (done) => {
+        const lostpost = {
+            username: '',
+            deskripsi: '',
+            email: '',
+            urlGambar: newpost.urlGambar,
+            lokasi: newpost.lokasi,
+            kategori: 'lost',
+        };
+        chai.request(app)
+            .post('/timeline/new_post')
+            .set('x-temuin-token', AccessToken)
+            .send(lostpost)
+            .end((err, res) => {
+                res.should.have.status(422);
+                res.body.should.be.a('object');
+                res.body.should.have.property('errors').and.to.be.a('array');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('success').and.to.be.a('boolean');
+                // res.header.location.should.include('/users/authentication');
+                done();
+            });
+    });
     it('it should post the lost items', (done) => {
         const lostpost = {
             username: newpost.username,
@@ -99,7 +122,48 @@ describe('[POST] /timeline/post', () => {
                 res.body.should.be.a('object');
                 res.body.should.have.property('status').and.to.be.a('number');
                 res.body.should.have.property('success').and.to.be.a('boolean');
-                // res.header.location.should.include('/users/authentication');
+                done();
+            });
+    });
+    it('it should reject unknown category', (done) => {
+        const lostpost = {
+            username: newpost.username,
+            email: newpost.email,
+            deskripsi: newpost.deskripsi,
+            urlGambar: newpost.urlGambar,
+            lokasi: newpost.lokasi,
+            kategori: 'unknown',
+        };
+        chai.request(app)
+            .post('/timeline/new_post')
+            .set('x-temuin-token', AccessToken)
+            .send(lostpost)
+            .end((err, res) => {
+                res.should.have.status(422);
+                res.body.should.be.a('object');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('success').and.to.be.a('boolean');
+                done();
+            });
+    });
+    it('it should reject post without image', (done) => {
+        const lostpost = {
+            username: newpost.username,
+            email: newpost.email,
+            deskripsi: newpost.deskripsi,
+            urlGambar: '',
+            lokasi: newpost.lokasi,
+            kategori: 'found',
+        };
+        chai.request(app)
+            .post('/timeline/new_post')
+            .set('x-temuin-token', AccessToken)
+            .send(lostpost)
+            .end((err, res) => {
+                res.should.have.status(422);
+                res.body.should.be.a('object');
+                res.body.should.have.property('status').and.to.be.a('number');
+                res.body.should.have.property('success').and.to.be.a('boolean');
                 done();
             });
     });
