@@ -11,6 +11,7 @@ describe('Starting Unit Testing\n', () => {
   before((done) => {
     const { mongoose } = common;
     mongoose.connection.on('connected', () => {
+      console.log('connect bos');
       mongoose.connection.db.dropDatabase();
       // const i = mongoose.connection.collections;
       // Object.keys(i).map(key => i[key].remove(() => {}));
