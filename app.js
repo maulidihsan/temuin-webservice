@@ -21,7 +21,7 @@ app.use(cookieParser());
 app.use(passport.initialize());
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-mongoose.connect(config.database).then(
+mongoose.connect(config.database, {useNewUrlParser: true}).then(
   () => { console.log('Database connection succeeded.'); },
   (err) => { console.log(err); },
 );
